@@ -149,7 +149,7 @@ namespace jsIO
   }
 
   void Parameter::setTypeAsString(std::string stype){
-    if(stype=="boolean")
+    if(stype=="boolean" || stype=="bool")
       type=BOOLEAN;
     else if(stype=="int")
       type=INT;
