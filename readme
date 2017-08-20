@@ -1,0 +1,47 @@
+ jseisIO  - version 1.0
+---------------------------
+    jseisIO is free software: you can redistribute it and/or modify
+    it under the terms of the Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    jseisIO is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    Lesser General Public License for more details.
+
+    You should have received a copy of the Lesser General Public License
+    along with jseisIO.  If not, see <http://www.gnu.org/licenses/>.
+
+Copyright (C) 2012 Fraunhofer ITWM
+author: Abel Amirbekyan
+email: amirbekyan@itwm.fhg.de
+
+jseisIO is an open source C++ written library for parallel input/output 
+of seismic data in JavaSeis format. The JavaSeis package (http://www.javaseis.org), 
+written in Java programming language, was used as a guideline to understand the
+non-documented JavaSeis format. 
+jseisIO was developed at Fraunhofer ITWM (http://www.itwm.fraunhofer.de) 
+with a goal to have a compact and fast C++ implementation of the IO part of the 
+original Java-written library. 
+
+
+To build the library CMake 2.6.4 or newer is required (http://www.cmake.org).
+Binary packages for all major operating systems can be downloaded here: http://www.cmake.org/cmake/resources/software.html
+To build it:
+ - enter the source directory
+ - create a subdirectory "build" for building (this step is optional, but  strongly recommended)
+ - enter the build directory
+ - run cmake pointing to the source directory: cmake ..
+ - run make
+
+
+jseisIO uses also two free external packages - miniz 
+(see http://code.google.com/p/miniz/) and tinyxml (see http://www.grinninglizard.com/tinyxml/).
+
+For examples of reading and writing of javaseis files see testReader.cpp and 
+testWriter.cpp, respectively.
+
+jseisIO is distributed under LGPL license.  
+For the full commercial license and support please contact us.
+

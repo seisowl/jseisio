@@ -1,0 +1,98 @@
+import sys, os, datetime
+# set compiler
+sCC = "icc"
+sCXX = "icpc"
+
+#sCC = "gcc"
+#sCXX = "g++"
+
+# set linker
+#sLink = "g++"
+sLink = "icpc"
+
+# set optimization flags
+#lCFLAGS = "-O3 -unroll -g -pg".split()
+#lLINKFLAGS = "-O3 -i-static -g -pg".split()
+lCFLAGS = "-O3 -unroll -i-static -ip".split()
+lLINKFLAGS = "-O3 -i-static -g".split()
+
+print " "
+print "-----------------------------------------------------------------------"
+print " "
+print  datetime.datetime.now().ctime()
+
+if ('-c' in sys.argv or '--clean' in sys.argv or '--remove' in sys.argv ):
+	print "Clean "
+else:
+	print "Build "
+
+###############################
+# create environment
+env = Environment(CC=sCC,
+		  CXX=sCXX,
+		  LINK = sLink,
+		  CCFLAGS=lCFLAGS,
+		  CPPPATH = ["#"],
+		  LIBPATH = ["#"],
+                  LINKFLAGS = lLINKFLAGS,
+		  ENV = os.environ)
+
+
+sLIB = "jseisIO"
+
+lLibModules = """xmlParser/tinyxml.cpp
+		 xmlParser/tinyxmlparser.cpp
+		 xmlParser/tinyxmlerror.cpp
+		 xmlParser/tinystr.cpp
+		 PropertyDescription.cpp
+		 TraceProperties.cpp
+		 FileProperties.cpp 
+		 AxisLabel.cpp
+		 DataDomain.cpp
+		 AxisDefinition.cpp
+		 GridDefinition.cpp
+		 DataType.cpp
+		 DataFormat.cpp
+		 DataDefinition.cpp
+		 Units.cpp
+		 jsFileReader.cpp
+		 jsFileWriter.cpp
+		 jsWriterInput.cpp
+		 ByteArray.cpp
+		 Buffer.cpp
+		 CharBuffer.cpp
+		 ShortBuffer.cpp
+		 FloatBuffer.cpp
+		 IntBuffer.cpp
+		 jsByteOrder.cpp
+		 stringfuncs.cpp
+                 ExtentListEntry.cpp
+                 VirtualFolder.cpp
+                 VirtualFolders.cpp
+                 Parameter.cpp
+                 xmlreader.cpp
+                 ExtentList.cpp 
+                 TraceMap.cpp
+                 CustomProperties.cpp
+                 IOCachedWriter.cpp
+                 IOCachedReader.cpp
+                 catalogedHdrEntry.cpp
+                 compress/TraceCompressor.cpp
+                 compress/Transformer.cpp
+                 compress/BlockCompressor.cpp
+                 compress/HuffCoder.cpp
+                 compress/miniz.c
+                 compress/HdrCompressor.cpp
+                 compress/CompressedData.cpp
+                 compress/SeisPEG.cpp
+                 """.split()
+
+lModules = [lLibModules]
+bObj = env.StaticObject(lModules)
+
+bLibObj = env.StaticObject(lLibModules)
+bAr = env.StaticLibrary(target=sLIB, source=bLibObj)
+
+env.Program(target='testReader', source='../examples/testReader.cpp', LIBS=['pthread',sLIB])
+env.Program(target='testWriter', source='../examples/testWriter.cpp', LIBS=[sLIB])
+
