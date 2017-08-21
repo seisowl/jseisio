@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5)
 
 project(jseisIO)
 
@@ -7,10 +7,19 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   set(CMAKE_CXX_FLAGS "-w1 -ww1 -ww111 -ww174 -ww177 -ww271 -ww304 -ww593 -ww654 -we1595 -vec-report0 -xSSE2 -DNDEBUG -O3 ${CMAKE_CXX_FLAGS}" )
   set(CMAKE_SHARED_LINKER_FLAGS -static-intel)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
-  set(CMAKE_CXX_FLAGS "-Wall -Wno-switch -Wno-sign-compare -DNDEBUG -O2 ${CMAKE_CXX_FLAGS}" )
+  set(CMAKE_CXX_FLAGS "-Wall -Wno-switch -Wno-sign-compare -DNDEBUG -march=native -O3 ${CMAKE_CXX_FLAGS}" )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
   set(CMAKE_CXX_FLAGS "-Wall -Wno-switch -Wno-sign-compare -Wno-gnu -DNDEBUG -O2 ${CMAKE_CXX_FLAGS}" )
 endif()
+
+include(FindOpenMP)
+if(OPENMP_FOUND)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+else(OPENMP_FOUND)
+  message("ERROR: OpenMP could not be found.")
+endif(OPENMP_FOUND)
 
 # Let the user decide whether to build jseisIO as a static or shared library
 option(BUILD_SHARED_LIBS "Build jseisIO as shared library" FALSE)
@@ -18,7 +27,7 @@ option(BUILD_SHARED_LIBS "Build jseisIO as shared library" FALSE)
 # Setup version numbers. They are used for generating the version header jsVersion.h
 # and for the package names.
 set(JSEISIO_VERSION_MAJOR 1)
-set(JSEISIO_VERSION_MINOR 0)
+set(JSEISIO_VERSION_MINOR 1)
 set(JSEISIO_VERSION_PATCH 0)
 
 add_subdirectory(src)

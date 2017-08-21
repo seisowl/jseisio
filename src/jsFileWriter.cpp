@@ -385,7 +385,7 @@ namespace jsIO
     std::string  comments = "# www.javaseis.org - JavaSeis File Properties " + JS_VERSION + 
         "\n# " + ctime (&rawtime);
 
-    if( opendir(datasetPath.c_str()) == NULL)
+    // if( opendir(datasetPath.c_str()) == NULL)
       mkdir(datasetPath.c_str(),0777);
 
     if(datasetPath[datasetPath.length()-1]!='/') datasetPath.append(1,'/');
