@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 2.8)
 configure_file(jsVersion.h.in ${CMAKE_CURRENT_BINARY_DIR}/jsVersion.h)
 
 # create the libraries
