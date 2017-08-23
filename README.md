@@ -1,7 +1,7 @@
 # jseisio
 Development based on [JSeisIO 1.0](http://jseisio.com/).
 
-##Build and install JSeisIO
+# Build and install JSeisIO
 
 Default is to build and install shared library. For administrators:
 ```shell
