@@ -1,5 +1,5 @@
 # jseisio
-Development based on [JSeisIO 1.0] (http://jseisio.com/).
+Development based on [JSeisIO 1.0](http://jseisio.com/).
 
 ##Build and install JSeisIO
 
