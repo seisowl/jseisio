@@ -6,7 +6,7 @@ Development based on [JSeisIO 1.0](http://jseisio.com/).
 Default is to build and install shared library. For administrators:
 ```shell
 cd jseisio
-cmake src
+cmake src -DBUILD_SHARED_LIBS=TRUE
 make
 sudo make install
 ```
