@@ -13,7 +13,7 @@ sudo make install
 For installation to user's target directory, e.g., $HOME/local/lib :
 ```shell
 cd jseisio
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/local/lib src 
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/local/lib -DBUILD_SHARED_LIBS=TRUE src 
 make
 make install
 ```
