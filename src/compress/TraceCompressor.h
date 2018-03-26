@@ -69,8 +69,8 @@ namespace jsIO
 
 // private atributes
     private:
-      static const float RMAXINT2 = 32766.0f ;
-      static const float RMAXINT1 = 126.0f ;
+      static constexpr float RMAXINT2 = 32766.0f ;
+      static constexpr float RMAXINT1 = 126.0f ;
 
       static const int CLIPPING_MAX_INT08 = 127;
       static const int CLIPPING_MIN_INT08 = -128;

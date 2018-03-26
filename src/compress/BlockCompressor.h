@@ -79,8 +79,8 @@ namespace jsIO
       static const int SIZEOF_INT = 4;
       static const int SIZEOF_CHAR = 1;
       static const int SIZEOF_FLOAT = 4;
-      static const float CPDF = 0.26F;               /* quantization factor */
-      static const float maxFloat = 1e+038;
+      static constexpr float CPDF = 0.26F;               /* quantization factor */
+      static constexpr float maxFloat = 1e+038;
 
       HuffCoder huffCoder;
       int* idata; 
