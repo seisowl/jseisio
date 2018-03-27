@@ -2,16 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(jseisIO)
 
-# Set some compiler flags, and append flags which have been preset by the user:
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  set(CMAKE_CXX_FLAGS "-w1 -ww1 -ww111 -ww174 -ww177 -ww271 -ww304 -ww593 -ww654 -we1595 -vec-report0 -xSSE2 -DNDEBUG -O3 ${CMAKE_CXX_FLAGS}" )
-  set(CMAKE_SHARED_LINKER_FLAGS -static-intel)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
-  set(CMAKE_CXX_FLAGS "-Wall -Wno-switch -Wno-sign-compare -DNDEBUG -march=native -O3 ${CMAKE_CXX_FLAGS}" )
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
-  set(CMAKE_CXX_FLAGS "-Wall -Wno-switch -Wno-sign-compare -Wno-gnu -DNDEBUG -O2 ${CMAKE_CXX_FLAGS}" )
-endif()
-
 include(FindOpenMP)
 if(OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -34,6 +24,25 @@ set(JSEISIO_VERSION_PATCH 0)
 add_subdirectory(src)
 
 add_subdirectory(examples)
+
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  option(GENERATE_DOCS_ALWAYS "Always generate doxygen documentation when building all" TRUE)
+  if(GENERATE_DOCS_ALWAYS)
+    set(DOCS_IN_ALL "ALL")
+  else()
+    unset(DOCS_IN_ALL)
+  endif()
+
+  add_custom_target(docs ${DOCS_IN_ALL}
+                    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/JavaSeisIOlib.doxyfile
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src )
+
+  if(GENERATE_DOCS_ALWAYS)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/html-docs/html" DESTINATION share/jseisIO/ )
+  endif()
+
+endif (DOXYGEN_FOUND)
 
 install(FILES readme COPYING.LESSER DESTINATION share/jseisIO/ )
 

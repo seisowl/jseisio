@@ -1,4 +1,17 @@
 cmake_minimum_required(VERSION 2.8)
+include(FindOpenMP)
+if(OPENMP_FOUND)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+else(OPENMP_FOUND)
+  message("ERROR: OpenMP could not be found.")
+endif(OPENMP_FOUND)
+
+# Let the user decide whether to build jseisIO as a static or shared library
+option(BUILD_SHARED_LIBS "Build jseisIO as shared library" TRUE)
+option(BUILD_STATIC_LIBS "Build jseisIO as static library" FALSE)
+
 configure_file(jsVersion.h.in ${CMAKE_CURRENT_BINARY_DIR}/jsVersion.h)
 
 # create the libraries
@@ -75,24 +88,4 @@ install(FILES CharBuffer.h
 install(TARGETS jseisIO
         DESTINATION lib )
 
-
-
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-  option(GENERATE_DOCS_ALWAYS "Always generate doxygen documentation when building all" FALSE)
-  if(GENERATE_DOCS_ALWAYS)
-    set(DOCS_IN_ALL "ALL")
-  else()
-    unset(DOCS_IN_ALL)
-  endif()
-
-  add_custom_target(docs ${DOCS_IN_ALL}
-                    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/JavaSeisIOlib.doxyfile
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
-
-  if(GENERATE_DOCS_ALWAYS)
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/html-docs/html" DESTINATION share/jseisIO/ )
-  endif()
-
-endif (DOXYGEN_FOUND)
 

@@ -33,7 +33,7 @@ namespace jsIO
   DECLARE_LOGGER(TransformerLog);
 
   bool Transformer::c_integrityTest = false;
-#if __cplusplus < 201103L
+
   float Transformer::globalFilt8[64] = {
           FILT0,   FILT1,   FILT2,   FILT3,   FILT4,   FILT5,   FILT6,   FILT7,
           FILT8,   FILT9,   FILT10,  FILT11,  FILT12,  FILT13,  FILT14,  FILT15,
@@ -110,7 +110,6 @@ namespace jsIO
       0.23576197028160095F,  0.28340902924537659F,  0.18350340425968170F,  0.31790497899055481F,
       0.11961393058300018F,  0.33970499038696289F,  0.05408555269241333F,  0.30441030859947205F
     };
-#endif
 
   Transformer::~Transformer(){
     delete []tmp;

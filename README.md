@@ -7,16 +7,19 @@ Default is to build and install shared library. For administrators:
 ```shell
 cd jseisio
 mkdir build && cd build
-cmake ../src -DBUILD_SHARED_LIBS=TRUE
+cmake ../src
 make
 sudo make install
+```
+To build and install complete examples and docs, replace the partial cmake line by:
+```shell
+cmake ..
 ```
 For installation to user's target directory, e.g., $HOME/local/lib :
 ```shell
 cd jseisio
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/local/lib -DBUILD_SHARED_LIBS=TRUE ../src 
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/local/lib ../src 
 make
 make install
 ```
-
