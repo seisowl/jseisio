@@ -34,7 +34,7 @@ namespace jsIO
 
   bool Transformer::c_integrityTest = false;
 #if __cplusplus < 201103L
-  static float Transformer::globalFilt8[64] = {
+  float Transformer::globalFilt8[64] = {
           FILT0,   FILT1,   FILT2,   FILT3,   FILT4,   FILT5,   FILT6,   FILT7,
           FILT8,   FILT9,   FILT10,  FILT11,  FILT12,  FILT13,  FILT14,  FILT15,
           FILT16,  FILT17,  FILT18,  FILT19,  FILT20,  FILT21,  FILT22,  FILT23,
@@ -44,7 +44,7 @@ namespace jsIO
           FILT48,  FILT49,  FILT50,  FILT51,  FILT52,  FILT53,  FILT54,  FILT55,
           FILT56,  FILT57,  FILT58,  FILT59,  FILT60,  FILT61,  FILT62,  FILT63
         };
-  static float Transformer::globalFilt16[256] = {
+  float Transformer::globalFilt16[256] = {
       -0.05092546716332436F, -0.04800906777381897F,  0.00414894195273519F, -0.02083428017795086F,
       0.00727677764371037F, -0.01368454564362764F,  0.01039289310574532F, -0.00904755853116512F,
       0.01269984804093838F, -0.00400549918413162F,  0.01494983769953251F,  0.00126677460502833F,
