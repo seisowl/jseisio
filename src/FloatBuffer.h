@@ -37,8 +37,8 @@ namespace jsIO
 {
   class FloatBuffer : public Buffer{
     public:
-      ~FloatBuffer(){}
       FloatBuffer();
+      virtual ~FloatBuffer(){}
 
       JS_BYTEORDER getByteOrder(){return byteOrder;};
       void setByteOrder(JS_BYTEORDER order){byteOrder=order;};

@@ -135,7 +135,7 @@ namespace jsIO
     size_t found, found_old;
     found=_propertyString.find(';');
     if (found==std::string::npos){
-      ERROR_PRINTF(PropertyDescriptionLog, str_error.c_str());
+      ERROR_PRINTF(PropertyDescriptionLog, "%s", str_error.c_str());
       return JS_USERERROR;
     }  
     description = _propertyString.substr(0, found-1);
@@ -143,7 +143,7 @@ namespace jsIO
 
     found=_propertyString.find(';',found_old+1);
     if (found==std::string::npos){
-      ERROR_PRINTF(PropertyDescriptionLog, str_error.c_str());
+      ERROR_PRINTF(PropertyDescriptionLog, "%s", str_error.c_str());
       return JS_USERERROR;
     } 
     std::string format_str = _propertyString.substr(found_old+1, found-1);

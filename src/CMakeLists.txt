@@ -73,13 +73,13 @@ install(FILES CharBuffer.h
          DESTINATION include/jseisIO )
 
 install(TARGETS jseisIO
-        DESTINATION lib64 )
+        DESTINATION lib )
 
 
 
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
-  option(GENERATE_DOCS_ALWAYS "Always generate doxygen documentation when building all" TRUE)
+  option(GENERATE_DOCS_ALWAYS "Always generate doxygen documentation when building all" FALSE)
   if(GENERATE_DOCS_ALWAYS)
     set(DOCS_IN_ALL "ALL")
   else()

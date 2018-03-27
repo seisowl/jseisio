@@ -36,8 +36,8 @@ namespace jsIO
 {
   class IntBuffer : public Buffer{
     public:
-      ~IntBuffer(){}
       IntBuffer();
+      virtual ~IntBuffer(){}
 
       JS_BYTEORDER getByteOrder() const {return byteOrder;}
       void setByteOrder(JS_BYTEORDER order){byteOrder=order;}

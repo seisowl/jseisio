@@ -76,7 +76,7 @@ namespace jsIO
       return buffer[index];
     else{
 //      ERROR_PRINTF(CharBufferLog, "Error: %lu must be in [0,%lu) \n",index, size());
-      return NULL;
+      return 0;
     }  
   }
 

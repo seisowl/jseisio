@@ -99,7 +99,7 @@ namespace jsIO
       if(natOrder!=byteOrder) endian_swap (&value, 1, SIZEOFINT);
       return(value);
     }else{
-      return NULL;
+      return 0;
     }
   }
 

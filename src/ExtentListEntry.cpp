@@ -45,7 +45,7 @@ namespace jsIO
     if(_path.length()== 0) strerror+= "Invalid extent path. ";
     
     if(strerror!=""){
-      ERROR_PRINTF(ExtentListEntryLog, strerror.c_str());
+      ERROR_PRINTF(ExtentListEntryLog, "%s", strerror.c_str());
       return JS_USERERROR;
     }
  

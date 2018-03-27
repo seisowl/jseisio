@@ -43,8 +43,8 @@ namespace jsIO
   class CharBuffer : public Buffer
   {
     public:
-      ~CharBuffer(){}
       CharBuffer();
+      virtual ~CharBuffer(){}
 
       unsigned long position(){return buffer_pos;};
       int position(unsigned long _buffer_pos);
