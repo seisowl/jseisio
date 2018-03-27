@@ -33,6 +33,10 @@
 #include <stdlib.h>
 #include "../jsDefs.h"
 
+#if __cplusplus < 201103L
+typedef const constexpr
+#endif
+
 namespace jsIO
 {
   class  Transformer{

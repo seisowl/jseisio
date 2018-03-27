@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "Transformer.h"
 #include "../DataFormat.h"
 #include "../CharBuffer.h"
 #include "../ShortBuffer.h"

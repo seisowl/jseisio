@@ -12,3 +12,4 @@ jsVersion.h
 .cproject
 .project
 .settings/
+build/
