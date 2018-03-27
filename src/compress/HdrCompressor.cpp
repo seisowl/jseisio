@@ -580,7 +580,7 @@ namespace jsIO
       strerror="IllegalArgumentException: runSymbolConst == runSymbolFloats";
 
     if(strerror!=""){
-      ERROR_PRINTF(HdrCompressorLog,strerror.c_str());
+      ERROR_PRINTF(HdrCompressorLog, "%s", strerror.c_str());
       return JS_USERERROR;
     }
     
