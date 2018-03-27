@@ -34,7 +34,7 @@
 #include "../jsDefs.h"
 
 #if __cplusplus < 201103L
-typedef const constexpr
+#define constexpr const
 #endif
 
 namespace jsIO
@@ -131,6 +131,10 @@ namespace jsIO
       static constexpr float FILT62 =  0.13931363821029663F;
       static constexpr float FILT63 =  0.37151649594306946F;
 
+#if __cplusplus < 201103L
+      static float globalFilt8[64];
+      static float globalFilt16[256];
+#else
     // Filter array for the lot8 transforms.  Length of 64 elements.
       static constexpr float globalFilt8[64] = {
         FILT0,   FILT1,   FILT2,   FILT3,   FILT4,   FILT5,   FILT6,   FILT7,
@@ -213,6 +217,7 @@ namespace jsIO
         0.23576197028160095F,  0.28340902924537659F,  0.18350340425968170F,  0.31790497899055481F,
         0.11961393058300018F,  0.33970499038696289F,  0.05408555269241333F,  0.30441030859947205F
       };
+#endif
 //       float dp[16];
 //       float dm[16];
   };
