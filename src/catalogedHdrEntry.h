@@ -58,14 +58,23 @@ public:
   std::string getName() {
     return name;
   }
+
   std::string getDescription() {
     return description;
   }
+
   int getCount() {
     return count;
   }
+
   int getByteCount();
+
+  int getFormat() {
+    return format;
+  }
+
   std::string getFormatAsStr();
+
   int getOffset() {
     return offset;
   }
@@ -73,11 +82,9 @@ public:
   JS_BYTEORDER getByteOrder() {
     return byteOrder;
   }
-  ;
   void setByteOrder(JS_BYTEORDER order) {
     byteOrder = order;
   }
-  ;
 
   float getFloatVal(char * headerBuf);
   double getDoubleVal(char * headerBuf);

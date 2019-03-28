@@ -52,8 +52,12 @@ float catalogedHdrEntry::getFloatVal(char * headerBuf) {
     float v = *(reinterpret_cast<float*>(&headerBuf[offset]));
     if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(float));
     return v;
+  } else if (format == PropertyDescription::HDR_FORMAT_DOUBLE) {
+    double v = *(reinterpret_cast<double*>(&headerBuf[offset]));
+    if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(double));
+    return v;
   } else {
-    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-float header as a float");
+    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-float/double header as a float");
     return std::numeric_limits<float>::max();
   }
 }
@@ -63,8 +67,12 @@ double catalogedHdrEntry::getDoubleVal(char * headerBuf) {
     double v = *(reinterpret_cast<double*>(&headerBuf[offset]));
     if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(double));
     return v;
+  } else if (format == PropertyDescription::HDR_FORMAT_FLOAT) {
+    float v = *(reinterpret_cast<float*>(&headerBuf[offset]));
+    if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(float));
+    return v;
   } else {
-    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-double header as a double");
+    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-double/float header as a double");
     return std::numeric_limits<double>::max();
   }
 }
@@ -74,8 +82,12 @@ long catalogedHdrEntry::getLongVal(char * headerBuf) {
     long v = *(reinterpret_cast<long*>(&headerBuf[offset]));
     if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(long));
     return v;
+  } else if (format == PropertyDescription::HDR_FORMAT_INTEGER) {
+    int v = *(reinterpret_cast<int*>(&headerBuf[offset]));
+    if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(int));
+    return v;
   } else {
-    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-long header as a long");
+    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-long/int header as a long");
     return std::numeric_limits<long>::max();
   }
 }
