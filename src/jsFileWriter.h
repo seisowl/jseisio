@@ -196,7 +196,7 @@ namespace jsIO
        * @param numTraces number of traces in frame and headbuf (must be equal)
        * @return number of live traces in input frame
       */
-      int leftJustify(float *frame, char *headbuf, int numTraces);
+      int leftJustify(float* frame, char* headbuf, int numTraces);
 
       /**
        * @brief Writes frame to the dataset
@@ -212,7 +212,7 @@ namespace jsIO
        * and here set/use only first two parameters.
        *
      */
-      int writeFrame(const int* position, const float *frame, const char *headbuf=NULL, int numLiveTraces=-1);
+      int writeFrame(const int* position, const float* frame, const char* headbuf=NULL, int numLiveTraces=-1);
 
       /**
        * @brief Writes frame to the dataset
@@ -228,7 +228,7 @@ namespace jsIO
        * and here set/use only first two parameters.
        *
        */
-      int writeFrame(long frameIndex, const float *frame,  const char *headbuf=NULL, int numLiveTraces=-1);
+      int writeFrame(long frameIndex, const float* frame,  const char* headbuf=NULL, int numLiveTraces=-1);
 
       /**
        * @brief Writes frame header to the dataset
@@ -238,7 +238,7 @@ namespace jsIO
        * @param headbuf the buffer where frame header should be written
        * @return JS_OK if successful
       */
-      int writeFrameHeader(int* position, char *headbuf);
+      int writeFrameHeader(int* position, char* headbuf);
 
        /**
        * @brief Writes frame header to the dataset
@@ -248,7 +248,7 @@ namespace jsIO
        * @param headbuf the buffer where frame header should be written
        * @return JS_OK if successful
       */
-      int writeFrameHeader(long frameIndex, char *headbuf);
+      int writeFrameHeader(long frameIndex, char* headbuf);
 
        /**
        * @brief Writes several frames at once
@@ -260,7 +260,7 @@ namespace jsIO
        * @return JS_OK if successful
        * @details This function works only in case of FLOAT data format
       */
-      int writeFrames(int* position, float *frames, int nFrames);
+      int writeFrames(int* position, float* frames, int nFrames);
 
       /**
        * @brief Writes several frames at once (works only for FLOAT data format)
@@ -269,7 +269,7 @@ namespace jsIO
        * @param nFrames number of frames to be written
        * @return JS_OK if successful
       */
-      int writeFrames(int frameIndex, float *frames, int nFrames);
+      int writeFrames(int frameIndex, float* frames, int nFrames);
 
       /**
        * @brief Writes single trace (works only for FLOAT and regular data)
@@ -279,7 +279,7 @@ namespace jsIO
        *                the corresponding position in TraceHeader(s)
        * @return JS_OK if successful
       */
-      int writeTrace(long traceIndex, const float *trace, const char *headbuf=NULL);
+      int writeTrace(long traceIndex, const float* trace, const char* headbuf=NULL);
 
 
       ///Closes the dataset and flushes all caches
@@ -346,8 +346,8 @@ namespace jsIO
       int writeSingleProperty(std::string datasetPath, std::string fileName, std::string propertyName,
                               std::string propertyValue);
 
-      int writeTraceBuffer(long offset, const char *buf, long buflen);
-      int writeHeaderBuffer(long offset, const char *buf, long buflen);
+      int writeTraceBuffer(long offset, const char* buf, long buflen);
+      int writeHeaderBuffer(long offset, const char* buf, long buflen);
 
       long getFrameIndex(const int* position);
       long getOffsetInExtents(int* indices, int len1d);

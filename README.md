@@ -3,7 +3,7 @@ Development based on [JSeisIO 1.0](http://jseisio.com/).
 
 # Build and install JSeisIO
 
-Default is to build and install shared library. For administrators:
+Default is to build and install both shared and static library. For administrators:
 ```shell
 cd jseisio
 mkdir build && cd build

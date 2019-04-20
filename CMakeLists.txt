@@ -12,8 +12,7 @@ else(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 # Let the user decide whether to build jseisIO as a static or shared library
-option(BUILD_SHARED_LIBS "Build jseisIO as shared library" TRUE)
-option(BUILD_STATIC_LIBS "Build jseisIO as static library" FALSE)
+#option(BUILD_SHARED_LIBS "Build jseisIO as shared library" TRUE)
 
 # Setup version numbers. They are used for generating the version header jsVersion.h
 # and for the package names.

@@ -9,60 +9,16 @@ else(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 # Let the user decide whether to build jseisIO as a static or shared library
-option(BUILD_SHARED_LIBS "Build jseisIO as shared library" TRUE)
-option(BUILD_STATIC_LIBS "Build jseisIO as static library" FALSE)
+#option(BUILD_SHARED_LIBS "Build jseisIO as shared library" TRUE)
 
 configure_file(jsVersion.h.in ${CMAKE_CURRENT_BINARY_DIR}/jsVersion.h)
 
 # create the libraries
-set(JSIO_src	 xmlParser/tinyxml.cpp
-		 xmlParser/tinyxmlparser.cpp
-		 xmlParser/tinyxmlerror.cpp
-		 xmlParser/tinystr.cpp
-		 PropertyDescription.cpp
-		 TraceProperties.cpp
-		 FileProperties.cpp 
-		 AxisLabel.cpp
-		 DataDomain.cpp
-		 AxisDefinition.cpp
-		 GridDefinition.cpp
-		 DataType.cpp
-		 DataFormat.cpp
-		 DataDefinition.cpp
-		 Units.cpp
-		 jsFileReader.cpp
-		 jsFileWriter.cpp
-		 jsWriterInput.cpp
-		 ByteArray.cpp
-		 Buffer.cpp
-		 CharBuffer.cpp
-		 ShortBuffer.cpp
-		 FloatBuffer.cpp
-		 IntBuffer.cpp
-		 jsByteOrder.cpp
-		 stringfuncs.cpp
-                 ExtentListEntry.cpp
-                 VirtualFolder.cpp
-                 VirtualFolders.cpp
-                 Parameter.cpp
-                 xmlreader.cpp
-                 ExtentList.cpp 
-                 TraceMap.cpp
-                 CustomProperties.cpp
-                 IOCachedWriter.cpp
-                 IOCachedReader.cpp
-                 catalogedHdrEntry.cpp
-                 compress/TraceCompressor.cpp
-                 compress/Transformer.cpp
-                 compress/BlockCompressor.cpp
-                 compress/HuffCoder.cpp
-                 compress/miniz.c
-                 compress/HdrCompressor.cpp
-                 compress/CompressedData.cpp
-                 compress/SeisPEG.cpp
-                 )
+file( GLOB_RECURSE JSIO_src *.cpp )
 
-add_library(jseisIO ${JSIO_src})
+add_library(jseisIO SHARED ${JSIO_src})
+add_library(jseisIO_static STATIC ${JSIO_src})
+set_target_properties(jseisIO_static PROPERTIES OUTPUT_NAME jseisIO)
 
 # install rules
 install(FILES CharBuffer.h
@@ -78,6 +34,7 @@ install(FILES CharBuffer.h
               jsWriterInput.h
               jsByteOrder.h
               jsDefs.h
+              jseisUtil.h
               jsStrDefs.h
               ${CMAKE_CURRENT_BINARY_DIR}/jsVersion.h
               stringfuncs.h
@@ -86,6 +43,9 @@ install(FILES CharBuffer.h
          DESTINATION include/jseisIO )
 
 install(TARGETS jseisIO
+        DESTINATION lib )
+
+install(TARGETS jseisIO_static
         DESTINATION lib )
 
 
