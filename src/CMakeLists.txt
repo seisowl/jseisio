@@ -16,7 +16,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 configure_file(jsVersion.h.in ${CMAKE_CURRENT_BINARY_DIR}/jsVersion.h)
 
 # create the libraries
-file( GLOB_RECURSE JSIO_src *.cpp *.c )
+file( GLOB JSIO_src *.cpp xmlParser/*.cpp compress/*.cpp compress/*.c )
 
 add_library(jseisIO SHARED ${JSIO_src})
 add_library(jseisIO_static STATIC ${JSIO_src})
