@@ -19,7 +19,7 @@ For installation to user's target directory, e.g., $HOME/local/lib :
 ```shell
 cd jseisio
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/local/lib ../src 
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/local ../src 
 make
 make install
 ```

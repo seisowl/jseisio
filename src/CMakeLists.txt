@@ -8,6 +8,8 @@ else(OPENMP_FOUND)
   message("ERROR: OpenMP could not be found.")
 endif(OPENMP_FOUND)
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 # Let the user decide whether to build jseisIO as a static or shared library
 #option(BUILD_SHARED_LIBS "Build jseisIO as shared library" TRUE)
 
