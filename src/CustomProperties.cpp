@@ -143,7 +143,10 @@ namespace jsIO
     survGeom.getGeom(minILine, maxILine, minXLine, maxXLine, 
                      xILine1End, yILine1End, xILine1Start, yILine1Start, xXLine1End, yXLine1End);
 
-
+    if (m_properties.size() == 0) {
+    	XMLstring = "";
+        return JS_OK;
+    }
 
     XMLstring = "  <parset name=\"CustomProperties\">\n";
     

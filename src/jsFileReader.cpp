@@ -173,10 +173,10 @@ namespace jsIO
     }
 
     ires = m_customProps->load(xmlString);
-    if(ires != JS_OK){
-       ERROR_PRINTF(jsFileReaderLog, "Invalid JavaSeis XML file %s", fname.c_str());
-       return JS_USERERROR;
-    }
+    //if(ires != JS_OK){
+    //   ERROR_PRINTF(jsFileReaderLog, "Invalid JavaSeis XML file %s", fname.c_str());
+    //   return JS_USERERROR;
+    //}
 
     ires = initExtents(m_filename);
     if(ires != JS_OK){
