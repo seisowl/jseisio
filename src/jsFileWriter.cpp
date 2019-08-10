@@ -180,6 +180,24 @@ namespace jsIO
 	}
   }
 
+  int jsFileWriter::updateGridAxis(int axisInd, long length, long logicalOrigin, long logicalDelta,
+                   double physicalOrigin, double physicalDelta) {
+	  if(axisInd>=0 && axisInd<m_numDim)
+	  {
+		  m_fileProps->axisLengths[axisInd] = length;
+		  m_fileProps->logicalOrigins[axisInd] = logicalOrigin;
+		  m_fileProps->logicalDeltas[axisInd] = logicalDelta;
+		  m_fileProps->physicalOrigins[axisInd] = physicalOrigin;
+		  m_fileProps->physicalDeltas[axisInd] = physicalDelta;
+		  return JS_OK;
+	  }
+	  else
+	  {
+	    ERROR_PRINTF(jsWriterInputLog, "Invalid axis index %d. Must be between 0 and %d", axisInd, m_numDim);
+	    return JS_USERERROR;
+	  }
+  }
+
   void copy_file( const char* srce_file, const char* dest_file )
   {
       std::ifstream srce( srce_file, std::ios::binary ) ;
@@ -210,7 +228,7 @@ namespace jsIO
 
 	axisGridToProps(m_gridDef);
 
-    Initialize();
+    // Initialize();
   }
 
   /**
@@ -249,7 +267,7 @@ namespace jsIO
        		m_fileProps->physicalDeltas[i] = jsReader->m_fileProps->physicalDeltas[i];
        	}
 
-       Initialize();
+       // Initialize();
 
     }
 
@@ -340,11 +358,22 @@ namespace jsIO
 
 //**********
 
+    if(m_fileProps->isMapped && m_jsReader != NULL && m_filename.compare(m_jsReader->m_filename) == 0)
+    {
+       if(m_trMap!=NULL) delete m_trMap;
+       m_trMap = new TraceMap;
+       long * trMap_axes = new long[m_numDim];
+       for(int i=0;i<m_numDim;i++)
+          trMap_axes[i]=m_fileProps->axisLengths[i];
+       m_trMap->Init(trMap_axes, m_numDim, m_byteOrder,  m_filename, "rw");
+       delete[]trMap_axes;
+    }
+
     m_bInit=true;
     return JS_OK;
   }
 
-  // remove flag: keep(0)/create(1)/copy(2); default 1;
+  // remove flag: create(1)/copy(2); default 1;
   int jsFileWriter::writeMetaData(const int remove)
   {
 	// call actural init based on the setup parameters
@@ -412,12 +441,13 @@ namespace jsIO
 //*** init TraceMap if mapped
     if(m_fileProps->isMapped)
     {
+      if(m_trMap!=NULL) delete m_trMap;
       m_trMap = new TraceMap;
       long * trMap_axes = new long[m_numDim];
       for(int i=0;i<m_numDim;i++)
         trMap_axes[i]=m_fileProps->axisLengths[i];
       m_trMap->Init(trMap_axes, m_numDim, m_byteOrder,  m_filename, "w");
-      if (m_jsReader != NULL) {
+      if (m_jsReader != NULL && remove==2) {
     	  // copy foldmap file;
     	  copy_file((m_jsReader->m_filename + JS_TRACE_MAP).c_str(), (m_filename + JS_TRACE_MAP).c_str());
       }
@@ -429,24 +459,26 @@ namespace jsIO
     //init the trace and header files for later parallel thread write only
     for (int i =0; i < m_TrFileExtents->getNumExtents(); i++) {
     	std::string fname = (*m_TrFileExtents)[i].getPath();
-    	if (m_jsReader == NULL) {
-		  int fd = :: open(fname.c_str(), O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+    	if (m_jsReader != NULL && remove==2) {
+    	   // copy from m_jsReader
+    	   copy_file((*(m_jsReader->m_TrFileExtents))[i].getPath().c_str(), fname.c_str());
+    	}
+        else {
+    	  int fd = :: open(fname.c_str(), O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 		  if( fd < 0 ) return JS_WARNING;
 		  ::close(fd);
-    	} else {
-    		// copy from m_jsReader
-    		copy_file((*(m_jsReader->m_TrFileExtents))[i].getPath().c_str(), fname.c_str());
     	}
     }
     for (int i =0; i < m_TrHeadExtents->getNumExtents(); i++) {
     	std::string fname = (*m_TrHeadExtents)[i].getPath();
-    	if (m_jsReader == NULL) {
-		  int fd = :: open(fname.c_str(), O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-		  if( fd < 0 ) return JS_WARNING;
-		  ::close(fd);
-    	} else {
+    	if (m_jsReader != NULL && remove==2 ) {
     		// copy from m_jsReader
     	  copy_file((*(m_jsReader->m_TrHeadExtents))[i].getPath().c_str(), fname.c_str());
+    	}
+    	else {
+    	  int fd = :: open(fname.c_str(), O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+		  if( fd < 0 ) return JS_WARNING;
+		  ::close(fd);
     	}
     }
 
@@ -486,16 +518,16 @@ namespace jsIO
 //TraceHeader(s) len1d=m_headerLengthBytes
   long jsFileWriter::getOffsetInExtents(int* indices, int len1d)
   {
-    int ind_len= m_fileProps->numDimensions-1;
-    unsigned long glb_offset = 0;
+    int ind_len= m_fileProps->numDimensions;
+    unsigned long glb_offset = indices[0];
     long volsize=1;
-    for(int i=0;i<ind_len;i++){
-      if(indices[i]<0 || indices[i]>=m_fileProps->axisLengths[ind_len-i]){
+    for(int i=1;i<ind_len;i++){
+      if(indices[i]<0 || indices[i]>=m_fileProps->axisLengths[i]){
         ERROR_PRINTF(jsFileWriterLog,"index %d must be positive and smaller than %ld", indices[i],m_fileProps->axisLengths[i]);
         return JS_USERERROR;
       }
       volsize=len1d;
-      for(int j=ind_len-i-1;j>=1;j--){
+      for(int j=i;j>=2;j--){
         volsize *= m_fileProps->axisLengths[j];
       }
       glb_offset += indices[i]*volsize;
@@ -503,7 +535,7 @@ namespace jsIO
     return glb_offset;
   }
 
-  int jsFileWriter::writeHeaderBuffer(long offset, const char *buf, long buflen)
+  int jsFileWriter::writeHeaderBuffer(long offset, char *buf, long buflen)
   {
     int lowInd = m_TrHeadExtents->getExtentIndex(offset+1);
     int upInd  = m_TrHeadExtents->getExtentIndex(offset+buflen);
@@ -549,7 +581,7 @@ namespace jsIO
 
 
 
-  int jsFileWriter::writeTraceBuffer(long offset, const char *buf, long buflen)
+  int jsFileWriter::writeTraceBuffer(long offset, char *buf, long buflen)
   {
     int lowInd = m_TrFileExtents->getExtentIndex(offset+1);
     int upInd  = m_TrFileExtents->getExtentIndex(offset+buflen);
@@ -601,7 +633,7 @@ namespace jsIO
   }
 
 
-  int jsFileWriter::writeFrames(int frameIndex, float *frames, int nFrames)
+  int jsFileWriter::writeFrames(long frameIndex, float *frames, int nFrames)
   {
     if(!m_bInit){
       ERROR_PRINTF(jsFileWriterLog,"Properties must be initialized first");
@@ -613,7 +645,7 @@ namespace jsIO
       return JS_USERERROR;
     }
     if(frameIndex<0 || frameIndex+nFrames>=m_TotalNumOfFrames){
-      ERROR_PRINTF(jsFileWriterLog,"Invalid frame index. [%d,%d] must be in [0,%ld)", frameIndex, frameIndex+nFrames, m_TotalNumOfFrames);
+      ERROR_PRINTF(jsFileWriterLog,"Invalid frame index. [%ld,%ld] must be in [0,%ld)", frameIndex, frameIndex+nFrames, m_TotalNumOfFrames);
       return JS_USERERROR;
     }
     long offset = frameIndex * m_frameSize;
@@ -642,7 +674,7 @@ namespace jsIO
   }
 
 
-  int jsFileWriter::writeTrace(long traceIndex, const float *trace,  const char *headbuf)
+  int jsFileWriter::writeTrace(long traceIndex, float *trace,  char *headbuf)
   {
     if(!m_bInit){
       ERROR_PRINTF(jsFileWriterLog,"Properties must be initialized first");
@@ -680,26 +712,47 @@ namespace jsIO
   }
 
 
-
-
-
-  long jsFileWriter::getFrameIndex(const int* position)
+ int jsFileWriter::indexToLogical(int* position) const // *input position must be in index, and will convert to logical corrdinates
   {
-    int numAxis= m_fileProps->numDimensions-1;
-    int pos[3]={0,0,0}; //max dim to determine frameIndex (since max dim=5)
-    for(int i=0;i<numAxis-1;i++) {
-      pos[i]=(int)((position[i]-m_fileProps->logicalOrigins[numAxis-i])/m_fileProps->logicalDeltas[ numAxis-i]);
-      if(pos[i]<0 || pos[i]>m_fileProps->axisLengths[numAxis-i])
+    int numAxis= m_fileProps->numDimensions;
+    for(int i=0;i<numAxis;i++)
+    {
+      position[i]=(int)(m_fileProps->logicalOrigins[i] + position[i] * m_fileProps->logicalDeltas[i]);
+    }
+  }
+
+  int jsFileWriter::logicalToIndex(int* position) const // *input position must be in logical corrdinates and will convert to index
+  {
+    int numAxis= m_fileProps->numDimensions;
+    for(int i=0;i<numAxis;i++)
+    {
+      position[i]=(int)((position[i]-m_fileProps->logicalOrigins[i])/m_fileProps->logicalDeltas[i]);
+      if(position[i]<0 || position[i]>m_fileProps->axisLengths[i])
+      {
+        ERROR_PRINTF(jsFileReaderLog, "Unable to locate a frame with value %d in dimension %d", position[i],i);
+        return -1;
+      }
+    }
+  }
+
+
+  long jsFileWriter::getFrameIndex(int* position) // *input position must be in logical corrdinates
+  {
+    int numAxis= m_fileProps->numDimensions;
+    int pos[5]={0,0,0,0,0}; //max dim to determine frameIndex (since max dim=5)
+    for(int i=0;i<numAxis;i++) {
+      pos[i]=(int)((position[i]-m_fileProps->logicalOrigins[i])/m_fileProps->logicalDeltas[i]);
+      if(pos[i]<0 || pos[i]>m_fileProps->axisLengths[i])
       {
         ERROR_PRINTF(jsFileWriterLog, "Unable to locate a frame with value %d in dimension %d", position[i],i);
         return -1;
       }
     }
 
-    long frIndex = 0;
-    for(int i=0;i<numAxis;i++){
+    long frIndex = pos[2];
+    for(int i=3;i<numAxis;i++){
       long volsize=1;
-      for(int j=2;j<numAxis-i;j++){
+      for(int j=2;j<i;j++){
         volsize *= m_fileProps->axisLengths[j];
       }
       frIndex += pos[i]*volsize;
@@ -727,7 +780,7 @@ namespace jsIO
     return m_TotalNumOfFrames;
   }
 
-  int jsFileWriter::writeFrame(const int* position, const float *frame, const char *headbuf, int numLiveTraces)
+  int jsFileWriter::writeFrame(int* position, float *frame, char *headbuf, int numLiveTraces)
   {
 //     position[m_fileProps->numDimensions-2]=0;
     long frameIndex = getFrameIndex(position);
@@ -736,7 +789,7 @@ namespace jsIO
 
 // write frame trace data and header 
 // (headbuf must be initalized with m_traceProps->getTraceHeader function)
-  int jsFileWriter::writeFrame(long frameIndex, const float *frame, const char *headbuf, int numLiveTraces)
+  int jsFileWriter::writeFrame(long frameIndex, float *frame, char *headbuf, int numLiveTraces)
   {
     if(!m_bInit){
       ERROR_PRINTF(jsFileWriterLog, "Properties must be initialized first");

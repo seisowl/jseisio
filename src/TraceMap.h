@@ -79,7 +79,7 @@ namespace jsIO
       int m_nVolumeIndex;
       int m_nCurrentVolIndex;
 
-      std::fstream m_mapIO;
+      // std::fstream m_mapIO;
       int m_mapfd;
 
       long m_nReadCacheHit;

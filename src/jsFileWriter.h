@@ -98,6 +98,12 @@ namespace jsIO
       void addCustomProperty(std::string name, std::string type, std::string value);
       void add_secondary_path(std::string _path){m_virtualFolders.push_back(_path);}
 
+      //Initializes the object using parameters assigned for mannual setup
+      int Initialize();
+
+      // change the grid of axis after Init( jsFileReader* jsReader) only, before Initialize and writeMetaData
+      int updateGridAxis(int axisInd, long length, long logicalOrigin, long logicalDelta,
+                       double physicalOrigin, double physicalDelta);
 
       /**
        * @brief Writes metadata (all XML and text files) for the dataset,
@@ -186,6 +192,10 @@ namespace jsIO
       int getNumOfExtents() const;
       int getNumOfVirtualFolders() const;
 
+      int indexToLogical(int* position) const; // *input position must be in index, and will convert to logical corrdinates
+
+      int logicalToIndex(int* position) const; // *input position must be in logical corrdinates and will convert to index
+
       /**
        * @brief Left justify input frame and header buffer (headbuf)
        * @details In JavaSeis dataset all live traces in a frame must be so called left-justified.
@@ -212,7 +222,7 @@ namespace jsIO
        * and here set/use only first two parameters.
        *
      */
-      int writeFrame(const int* position, const float* frame, const char* headbuf=NULL, int numLiveTraces=-1);
+      int writeFrame(int* position, float* frame, char* headbuf=NULL, int numLiveTraces=-1);
 
       /**
        * @brief Writes frame to the dataset
@@ -228,7 +238,7 @@ namespace jsIO
        * and here set/use only first two parameters.
        *
        */
-      int writeFrame(long frameIndex, const float* frame,  const char* headbuf=NULL, int numLiveTraces=-1);
+      int writeFrame(long frameIndex, float* frame,  char* headbuf=NULL, int numLiveTraces=-1);
 
       /**
        * @brief Writes frame header to the dataset
@@ -269,7 +279,7 @@ namespace jsIO
        * @param nFrames number of frames to be written
        * @return JS_OK if successful
       */
-      int writeFrames(int frameIndex, float* frames, int nFrames);
+      int writeFrames(long frameIndex, float* frames, int nFrames);
 
       /**
        * @brief Writes single trace (works only for FLOAT and regular data)
@@ -279,7 +289,7 @@ namespace jsIO
        *                the corresponding position in TraceHeader(s)
        * @return JS_OK if successful
       */
-      int writeTrace(long traceIndex, const float* trace, const char* headbuf=NULL);
+      int writeTrace(long traceIndex, float* trace, char* headbuf=NULL);
 
 
       ///Closes the dataset and flushes all caches
@@ -346,14 +356,12 @@ namespace jsIO
       int writeSingleProperty(std::string datasetPath, std::string fileName, std::string propertyName,
                               std::string propertyValue);
 
-      int writeTraceBuffer(long offset, const char* buf, long buflen);
-      int writeHeaderBuffer(long offset, const char* buf, long buflen);
+      int writeTraceBuffer(long offset, char* buf, long buflen);
+      int writeHeaderBuffer(long offset, char* buf, long buflen);
 
-      long getFrameIndex(const int* position);
-      long getOffsetInExtents(int* indices, int len1d);
+      long getFrameIndex(int* position);    // position must be in logical coordinate
+      long getOffsetInExtents(int* indices, int len1d); // indices must be in index
 
-      //Initializes the object using parameters assigned for mannual setup
-      int Initialize();
       void axisGridToProps(GridDefinition *gridDef);
 };
 }

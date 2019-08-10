@@ -152,7 +152,7 @@ namespace jsIO
       XMLstring +="    <par name=\""+m_properties[i].name+"\" type=\""+m_properties[i].type+"\"> "+m_properties[i].value+ " </par>\n";
     }
         
-    if(minILine<maxILine)
+    if(minILine<=maxILine)
     {
       XMLstring +="    <parset name=\"Geometry\">\n";
       XMLstring +="      <par name=\"minILine\" type=\"int\"> "+ num2Str(minILine) +" </par>\n";

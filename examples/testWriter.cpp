@@ -67,7 +67,7 @@ void updating(jsIO::jsFileWriter * jsWrtTest, int seed) {
 		  for(int iInline=0;iInline<NInlines;iInline++){
 		//	 printf("iInline=%d\n",iInline);
 			 for(int iXline=0;iXline<NXlines;iXline++){
-		//        printf("\t \t iXline=%d\n", iXline);
+		 //       printf("\t \t iXline=%d\n", iXline);
 			   for(int iTraces=0;iTraces<NOffsets;iTraces++){
 		//            if(iInline==0 && iXline<2 && iTraces%2 == 0 ) trc_type = 0; //test non-full frames
 		//            else trc_type = 1;
@@ -191,7 +191,7 @@ int readVerifyTest(const std::string &jsfilename, int value)
            printf("Error while trying to read frame #%d\n",i);
            break;
        }
-       // printf("Number of live traces in frame = %d\n", nTracesRead);
+       printf("Number of live traces in frame = %d\n", nTracesRead);
 
        //print some header info
        float sou_x, sou_y, rec_x, rec_y;
@@ -244,9 +244,9 @@ int writeTestbyWriter(const std::string &jsfilename)
 	  // Framework definition
 	  int numDim = 4;
 	  int NSamples = 501;
-	  int NOffsets =  197;
-	  int NXlines =   20;
-	  int NInlines =  10;
+	  int NOffsets =  59;
+	  int NXlines =   13;
+	  int NInlines =  5;
 	  float off0 = 0;
 	  float doff = 100;
 	  int xl0 = 10;
@@ -273,7 +273,7 @@ int writeTestbyWriter(const std::string &jsfilename)
 	  //  wrtInput.initData(jsIO::DataType::CUSTOM, jsIO::DataFormat::SEISPEG, jsIO::JSIO_LITTLEENDIAN);//DataFormat::FLOAT, COMPRESSED_INT16, SEISPEG
 	  //  wrtInput.setSeispegPolicy(1);//0 = FASTEST, 1 = MAX_COMPRESSION
 	  //  wrtInput.initGridDim(numDim);
-	  //  wrtInput.initGridAxis(0, jsIO::AxisLabel::TIME, jsIO::Units::SECONDS,jsIO::DataDomain::TIME, NSamples, 0, 1, 0, 0.004);
+	  //  wrtInput.initGridAxis(0, jsIO::AxisLabel::TIME, jsIO::Units::SECONDS,jsIO::DataDomain::TIME, NSamples, 0, 1, 0, 4);
 	  //  wrtInput.initGridAxis(1, jsIO::AxisLabel::OFFSET_BIN, jsIO::Units::M,jsIO::DataDomain::SPACE, NOffsets, 0, 1, off0, doff);
 	  //  wrtInput.initGridAxis(2, jsIO::AxisLabel::CROSSLINE, jsIO::Units::M,jsIO::DataDomain::SPACE, NXlines, 0, 1, xl0, dxl);
 	  //  wrtInput.initGridAxis(3, jsIO::AxisLabel::INLINE, jsIO::Units::M,jsIO::DataDomain::SPACE, NInlines, 0, 1, inl0, dinl);
@@ -292,7 +292,7 @@ int writeTestbyWriter(const std::string &jsfilename)
 	  jsWrtTest.setFileName(jsfilename);
 	  // jsWrtTest.initDataType("CUSTOM", "FLOAT", true, 4);
 	  jsWrtTest.initGridDim(numDim);
-	  jsWrtTest.initGridAxis(0, "TIME", "SECONDS","TIME", NSamples, 0, 1, 0, 0.004);
+	  jsWrtTest.initGridAxis(0, "TIME", "SECONDS","TIME", NSamples, 0, 1, 0, 4);
 	  jsWrtTest.initGridAxis(1, "OFFSET_BIN", "METERS", "SPACE", NOffsets, 0, 1, off0, doff);
 	  jsWrtTest.initGridAxis(2, "CROSSLINE", "METERS", "SPACE", NXlines, 0, 1, xl0, dxl);
 	  jsWrtTest.initGridAxis(3, "INLINE", "METERS", "SPACE", NInlines, 0, 1, inl0, dinl);
@@ -343,7 +343,7 @@ int writeTestbyCopy(const std::string &injsfilename, const std::string &outjsfil
    printf("init data...\n");
    jsWrtTest.Init(&jsReadTest);
    printf("write meta data (xml), and copy data ...\n");
-   int ires = jsWrtTest.writeMetaData();
+   int ires = jsWrtTest.writeMetaData(2);
    printf("write meta data and copy data done!\n");
 
    if (!update) return 0;
@@ -360,6 +360,109 @@ int writeTestbyCopy(const std::string &injsfilename, const std::string &outjsfil
    return 0;
 }
 
+int writeTestbyUpdate(const std::string &injsfilename)
+{
+   timeb time0,time1;
+   double total;
+   ftime(&time0);
+
+   jsFileReader jsReadTest;
+
+   int ierr = jsReadTest.Init(injsfilename);
+   if(ierr!=1){
+       printf("Error in JavaSeis file %s\n", injsfilename.c_str());
+       exit(-1);
+   }
+   jsIO::jsFileWriter jsWrtTest;
+   jsWrtTest.setFileName(injsfilename);
+   printf("init data...\n");
+   jsWrtTest.Init(&jsReadTest);
+   jsWrtTest.Initialize();
+
+   //printf("write meta data (xml), and copy data ...\n");
+   //int ires = jsWrtTest.writeMetaData(2);
+   //printf("write meta data and copy data done!\n");
+
+   // if (!update) return 0;
+
+   printf("update binary data, no create...\n");
+
+   updating(&jsWrtTest, 100);
+
+   printf("write binary data done!\n");
+   ftime(&time1);
+   total = (time1.time-time0.time) +(time1.millitm-time0.millitm)/1.e3;
+   std::cout << "\n Write time: " << total << " (sec)\n\n";
+
+   return 0;
+}
+
+int writeTestbyCopyHeader(const std::string &injsfilename, const std::string &outjsfilename)
+{
+   timeb time0,time1;
+   double total;
+   ftime(&time0);
+
+   jsFileReader jsReadTest;
+
+   int ierr = jsReadTest.Init(injsfilename);
+   if(ierr!=1){
+       printf("Error in JavaSeis file %s\n", injsfilename.c_str());
+       exit(-1);
+   }
+
+   jsIO::jsFileWriter jsWrtTest;
+   jsWrtTest.setFileName(outjsfilename);
+   printf("init data...\n");
+   jsWrtTest.Init(&jsReadTest);
+
+
+       int dim = jsReadTest.getNDim();
+   	   int NSamples = jsReadTest.getAxisLen(0);
+   	   int NOffsets  = jsReadTest.getAxisLen(1);
+   	   int NXlines = dim>2 ? jsReadTest.getAxisLen(2) : 0;
+   	   int NInlines = dim>3 ? jsReadTest.getAxisLen(3) : 0;
+   	   double off0 = jsReadTest.getAxisPhysicalOrigin(1);
+   	   double doff = jsReadTest.getAxisPhysicalDelta(1);
+   	   int xl0 = jsReadTest.getAxisLogicalOrigin(2);
+   	   int dxl = jsReadTest.getAxisLogicalDelta(2);
+   	   int inl0 = jsReadTest.getAxisLogicalOrigin(3);
+   	   int dinl = jsReadTest.getAxisLogicalOrigin(4);
+       printf("input length : (%d,%d,%d,%d) \n", NSamples, NOffsets, NXlines, NInlines);
+
+   	   NXlines /=2;
+   	   dxl *= 2;
+
+   	   int frameLen = NSamples*NOffsets;
+   	   int traceheaderSize = jsReadTest.getNumBytesInHeader();
+   	   int frameheaderSize  =  NOffsets*traceheaderSize;
+   	   char *headerBuf = new char[frameheaderSize];
+   	   float *gather = new float[frameLen];
+
+       // need update 3D axis because it might be decimated, not same as reader
+   	jsWrtTest.updateGridAxis(1, NOffsets, 1, NOffsets, off0, doff);
+   	jsWrtTest.updateGridAxis(2, NXlines, xl0, dxl,jsReadTest.getAxisPhysicalOrigin(2), jsReadTest.getAxisPhysicalDelta(2));
+       // create a new dataset on disk
+   	printf("output length : (%d,%d,%d,%d) \n", NSamples, NOffsets, NXlines, NInlines);
+   	jsWrtTest.writeMetaData();
+
+
+       printf("Create only 1 volume out of %d \n", NInlines);
+       int frame_offset = 0; //13*2
+       for (int i = 0; i < NXlines; i++) {
+    	   jsReadTest.readFrame(2*i+frame_offset, gather, headerBuf);
+           int numLiveTraces = jsWrtTest.leftJustify(gather, headerBuf, NOffsets);
+		   int ires1 = jsWrtTest.writeFrame(i, gather, headerBuf, numLiveTraces);
+       }
+
+       printf("write binary data done!\n");
+       ftime(&time1);
+       total = (time1.time-time0.time) +(time1.millitm-time0.millitm)/1.e3;
+       std::cout << "\n Write time: " << total << " (sec)\n\n";
+
+   return 0;
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -367,15 +470,29 @@ int main(int argc, char *argv[])
 
   readVerifyTest("/tmp/dataTest.js", 0);
 
+  printf("\n\n write test done!\n\n");
+
   writeTestbyCopy("/tmp/dataTest.js", "/tmp/dataTest2.js", 0);
 
   readVerifyTest("/tmp/dataTest2.js", 0);
+
+  printf("\n\n copy test done!\n\n");
 
   writeTestbyCopy("/tmp/dataTest.js", "/tmp/dataTest3.js", 1);
 
   readVerifyTest("/tmp/dataTest3.js", 10);
 
-  printf("read/write done!\n");
+  printf("\n\n copy and write test done!\n\n");
+
+  writeTestbyUpdate("/tmp/dataTest2.js");
+
+  readVerifyTest("/tmp/dataTest2.js", 100);
+
+  printf("\n\n overwrite test done!\n");
+
+  writeTestbyCopyHeader("/tmp/dataTest.js", "/tmp/dataTestSV.js");
+
+  readVerifyTest("/tmp/dataTestSV.js", 0);
 
   return 0;
 }

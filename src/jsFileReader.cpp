@@ -278,10 +278,10 @@ namespace jsIO
 
     if(m_bIsMapped){
       m_trMap = new TraceMap;
-      int trMap_numDim=m_fileProps->numDimensions-2;
+      int trMap_numDim=m_fileProps->numDimensions;
       long * trMap_axes = new long[trMap_numDim];
       for(int i=0;i<trMap_numDim;i++)
-        trMap_axes[i]=m_fileProps->axisLengths[m_fileProps->numDimensions-1-i];
+        trMap_axes[i]=m_fileProps->axisLengths[i];
 
       m_trMap->Init(trMap_axes, trMap_numDim, m_byteOrder,  m_filename, "r");
 
@@ -827,6 +827,20 @@ namespace jsIO
     return m_fileProps->numDimensions;
   }
 
+  int jsFileReader::getAxisDomains(std::vector<std::string> &domain) const
+  {
+    if(!m_bInit){
+      ERROR_PRINTF(jsFileReaderLog, "Properties must be initialized first");
+      return JS_USERERROR;
+    }
+    domain.clear();
+    for(int i=0;i<m_fileProps->numDimensions;i++)
+      domain.push_back(m_fileProps->axisDomainsStr[i]);
+
+    return m_fileProps->numDimensions;
+  }
+
+
   int jsFileReader::getAxisUnits(std::vector<std::string> &units) const
   {
     if(!m_bInit){
@@ -907,21 +921,21 @@ namespace jsIO
 //retrun global offset in TraceFile(s) or TraceHeader(s) corresponding to position (array position directly)
 //for TraceFile(s) len1d must be equal to traceLen, ie.len1d=m_compess_traceSize, and for 
 //TraceHeader(s) len1d=m_headerLengthBytes
-  long jsFileReader::getOffsetInExtents(int* position, int len1d) const
+  long jsFileReader::getOffsetInExtents(int* indices, int len1d) const
   {
-    int ind_len= m_fileProps->numDimensions-1;
-    unsigned long glb_offset = 0;
+    int ind_len= m_fileProps->numDimensions;
+    unsigned long glb_offset = indices[0];
     long volsize=1;
-    for(int i=0;i<ind_len;i++){
-      if(position[i]<0 || position[i]>=m_fileProps->axisLengths[ind_len-i]){
-        ERROR_PRINTF(jsFileReaderLog, "index %d must be positive and smaller than %ld", position[i],m_fileProps->axisLengths[i]);
+    for(int i=1;i<ind_len;i++){
+      if(indices[i]<0 || indices[i]>=m_fileProps->axisLengths[i]){
+        ERROR_PRINTF(jsFileReaderLog, "index %d must be positive and smaller than %ld", indices[i],m_fileProps->axisLengths[i]);
         return JS_USERERROR;
       }
       volsize=len1d;
-      for(int j=ind_len-i-1;j>=1;j--){
+      for(int j=i;j>=2;j--){
         volsize *= m_fileProps->axisLengths[j];
       }
-      glb_offset += position[i]*volsize;
+      glb_offset += indices[i]*volsize;
     }
     return glb_offset;
   }
@@ -1044,42 +1058,72 @@ namespace jsIO
     return readFrame(frameIndex, frame, headbuf);
   }
 
-  long jsFileReader::getFrameIndex(const int* position) const // *position must be in logical corrdinates
+  int jsFileReader::indexToLogical(int* position) const // *input position must be in index, and will convert to logical corrdinates
   {
-    int numAxis= m_fileProps->numDimensions-1;
-
-    int pos[3]={0,0,0}; //max dim to determine frameIndex (since max dim=5)
-    for(int i=0;i<numAxis-1;i++)
+    int numAxis= m_fileProps->numDimensions;
+    for(int i=0;i<numAxis;i++)
     {
-      pos[i]=(int)((position[i]-m_fileProps->logicalOrigins[numAxis-i])/m_fileProps->logicalDeltas[ numAxis-i]);
-      if(pos[i]<0 || pos[i]>m_fileProps->axisLengths[numAxis-i])
+      position[i]=(int)(m_fileProps->logicalOrigins[i] + position[i] * m_fileProps->logicalDeltas[i]);
+    }
+  }
+
+  int jsFileReader::logicalToIndex(int* position) const // *input position must be in logical corrdinates and will convert to index
+  {
+    int numAxis= m_fileProps->numDimensions;
+    for(int i=0;i<numAxis;i++)
+    {
+      position[i]=(int)((position[i]-m_fileProps->logicalOrigins[i])/m_fileProps->logicalDeltas[i]);
+      if(position[i]<0 || position[i]>m_fileProps->axisLengths[i])
       {
         ERROR_PRINTF(jsFileReaderLog, "Unable to locate a frame with value %d in dimension %d", position[i],i);
         return -1;
       }
     }
+  }
 
-    long frIndex = 0;
-    for(int i=0;i<numAxis-1;i++)
+  long jsFileReader::getFrameIndex(const int* position) const // *position must be in logical coordinate
+  {
+    int numAxis= m_fileProps->numDimensions;
+    int *index = new int[numAxis];
+    for (int i = 0; i < numAxis; i++) {
+            index[i] = position[i];
+    }
+    logicalToIndex(index);
+
+    long frIndex = index[2];
+    for(int i=3;i<numAxis;i++)
     {
       long volsize=1;
-      for(int j=2;j<numAxis-i;j++)
+      for(int j=2;j<i;j++)
       {
         volsize *= m_fileProps->axisLengths[j];
       }
-      frIndex += pos[i]*volsize;
+      frIndex += index[i]*volsize;
     }
 //   printf("for pos(%d,%d,%d), frame index = %d\n",position[0],position[1],position[2],frIndex);
     return frIndex;
   }
 
-  long jsFileReader::getTraceIndex(const int* position)  const // *position must be in logical corrdinates
+  long jsFileReader::getTraceIndex(const int* position)  const // *position must be in logical coordinate
   {
-    int numAxis= m_fileProps->numDimensions-1;
-    int pInd = numAxis - 1;
-    int trInd = (position[pInd]- m_fileProps->logicalOrigins[numAxis-pInd])/m_fileProps->logicalDeltas[numAxis-pInd];
-    long frameIndex = getFrameIndex(position);
-    return frameIndex * m_fileProps->axisLengths[1] + trInd;
+    int numAxis= m_fileProps->numDimensions;
+    int *index = new int[numAxis];
+    for (int i = 0; i < numAxis; i++) {
+            index[i] = position[i];
+    }
+    logicalToIndex(index);
+
+    long trIndex = index[1];
+    for(int i=2;i<numAxis;i++)
+    {
+      long volsize=1;
+      for(int j=1;j<i;j++)
+      {
+        volsize *= m_fileProps->axisLengths[j];
+      }
+      trIndex += index[i]*volsize;
+    }
+    return trIndex;
   }
 
   int jsFileReader::getNumOfLiveTraces(int _frameIndex) const

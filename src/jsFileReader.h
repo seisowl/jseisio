@@ -159,6 +159,8 @@ public:
   int getAxisPhysicalValues(int index, std::vector<double> &axis) const;
   int getAxisLabels(std::vector<std::string> &axis) const;
   int getAxisUnits(std::vector<std::string> &units) const;
+  int getAxisDomains(std::vector<std::string> &domain) const;
+
 
   /**
    * @brief Returns frame size (in bytes) on disk
@@ -190,8 +192,12 @@ public:
   std::vector<catalogedHdrEntry> getHdrEntries() const;
   int getHdrEntries(std::vector<std::string> &hdrEntries) const;
 
-  //in all following function  *position is an array of integers defining the position of a frame/trace   accorind to the logical coordintes
-  //len(position)=fileProps.numDimensions-1;
+  int indexToLogical(int* position) const; // *input position must be in index, and will convert to logical corrdinates
+
+  int logicalToIndex(int* position) const; // *input position must be in logical corrdinates and will convert to index
+
+  //in all following function  *position is an array of integers defining the position of a frame/trace  accorind to the logical coordintes
+  //len(position)=fileProps.numDimensions; and (sample, trace, frame, volume, hypercube)
 
   //you can read also headers together with frames with readFrame function
 
@@ -385,14 +391,14 @@ public:
    */
   int getNumOfVirtualFolders() const;
 
+  std::string m_filename;
+
 private:
   int m_NThreads;
 
   TraceProperties* m_traceProps;
   FileProperties* m_fileProps;
   CustomProperties * m_customProps;
-
-  std::string m_filename;
 
   bool m_bInit;
 
@@ -466,10 +472,10 @@ private:
 private:
   int initExtents(const std::string &jsfilename);
 
-  long getFrameIndex(const int* position) const;
-  long getTraceIndex(const int* position) const;
+  long getFrameIndex(const int* position) const;  // position is in logical coordinate
+  long getTraceIndex(const int* position) const;  // position is in logical coordinate
 
-  long getOffsetInExtents(int* position, int len1d) const;
+  long getOffsetInExtents(int* indices, int len1d) const; // indices is in index
   int readTraceBuffer(long offset, char* buf, long buflen);
   int readHeaderBuffer(long offset, char* buf, long buflen);
 
