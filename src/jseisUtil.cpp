@@ -33,11 +33,13 @@ oJseis3D::oJseis3D(const char* fname0, int n1, int n2, int n3, float d1, float d
     float o3, int io2, int inc2, int io3, int inc3, DataFormat dataFormat, bool is_depth) :
     _n1(n1), _n2(n2), _n3(n3), _i3(0), _io1(io1), _io2(io2), _io3(io3), _inc2(inc2), _inc3(inc3), _d1(d1), _d2(d2), _d3(
         d3), _o1(io1 * d1), _o2(o2), _o3(o3), _is_depth(is_depth), hdbuf(NULL) {
+  string descname;
+  string fname = jseisUtil::fullname(fname0, descname);
+  printf("fname = %s, n1=%d, n2=%d, n3=%d, d1=%f, d2=%f, d3=%f, io1=%d,  o2=%f, o3=%f, io2=%d, inc2=%d, io3=%d, inc3=%d, "
+  	  "format=%s, is_depth=%d\n", fname.c_str(),n1, n2,n3,d1,d2,d3,io1,o2,o3,io2,inc2,io3,inc3,dataFormat.getName().c_str(), is_depth);
 
-  printf("fname0 = %s, n1=%d, n2=%d, n3=%d, d1=%f, d2=%f, d3=%f, io1=%d,  o2=%f, o3=%f, io2=%d, inc2=%d, io3=%d, inc3=%d, "
-  	  "format=%s, is_depth=%d\n", fname0,n1, n2,n3,d1,d2,d3,io1,o2,o3,io2,inc2,io3,inc3,dataFormat.getName().c_str(), is_depth);
-
-  jsWrt.setFileName(fname0);
+  jsWrt.setFileName(fname);
+  jsWrt.setFileDescription(descname);
   jsWrt.initDataType("CMP", "FLOAT", true, 4);
   jsWrt.initGridDim(3);
   if (_is_depth) jsWrt.initGridAxis(0, "DEPTH", "METERS", "DEPTH", _n1, _io1, 1, _o1, _d1);
@@ -111,7 +113,8 @@ string& jseisUtil::js_dir() {
     const char * dir = getenv("PROMAX_RUNTIME_DIRECTORY");
     if (!dir) {
       char * dir2 = getenv("JSEIS_DEFAULT_DIR");
-      JS_DIR = dir2 ? dir2 : "/tmp/js_dir/";
+      JS_DIR = dir2 ? dir2 : ".";
+      if(JS_DIR.back() != '/') JS_DIR += "/";
     } else {
       string str = dir;
       // std::cout << "PROMAX_RUNTIME_DIRECTORY: '" << str << "'" << std::endl;

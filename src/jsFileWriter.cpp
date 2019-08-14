@@ -115,6 +115,11 @@ namespace jsIO
 	  m_traceProps->addDefaultProperties();
   }
 
+  // set the description name, setFileName() handles description properly. sometimes useful
+  int jsFileWriter::setFileDescription(const std::string _descname) {
+	  m_description = _descname;
+  }
+
   int jsFileWriter::initDataType(const std::string dataType, std::string dataFormat, bool isMapped, int nextends, std::string vpath) {
 	  m_fileProps->dataType =  DataType::get(dataType);
 	  m_fileProps->traceFormat = DataFormat::get(dataFormat);

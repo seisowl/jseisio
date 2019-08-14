@@ -86,6 +86,7 @@ namespace jsIO
 
       // set file name and description name
       int setFileName(const std::string _filename);
+      int setFileDescription(const std::string _descname);
       int initDataType(const std::string dataType, std::string dataFormat, bool isMapped, int nextends, std::string vpath="");
 
       void initGridDim(int numDim);
