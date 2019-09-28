@@ -131,14 +131,14 @@ string& jseisUtil::js_dir() {
 
 string jseisUtil::fullname(const char* fname0, string& descname) {
   string fname = (fname0[0] == '/') ? fname0 : jseisUtil::js_dir() + fname0;
-  if (fname.rfind(".js") != fname.length() - 3) fname = fname + ".js";
+  if (fname.rfind(".js") != fname.length() - 3 && fname.rfind(".VID") != fname.length() - 4 && fname.rfind(".vid") != fname.length() - 4) fname = fname + ".js";
 
   descname = fname;
-  size_t pos1 = descname.rfind(".js");
+  size_t pos1 = descname.rfind(".");
   size_t pos0 = descname.rfind('/');
   descname = descname.substr(pos0 + 1, pos1 - pos0 - 1);
   if ((pos0 = descname.rfind('@')) != string::npos) descname = descname.substr(pos0 + 1); // handle groupname for JavaSeis
-  pos0 = fname.rfind(descname + ".js");
+  pos0 = fname.rfind(descname + ".");
   std::transform(fname.begin() + pos0, fname.end(), fname.begin() + pos0, ::tolower); // convert file name corresponding to descname to lower case
 
   return fname;

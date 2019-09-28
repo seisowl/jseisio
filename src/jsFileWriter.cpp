@@ -39,7 +39,7 @@
 #include "AxisLabel.h"
 #include "DataType.h"
 #include "DataFormat.h"
-
+#include "jseisUtil.h"
 
 // #include "IOCachedWriter.h"
 
@@ -104,9 +104,9 @@ namespace jsIO
   // setup names, default values which can be over written later
   int jsFileWriter::setFileName(const std::string _filename) {
 	  m_filename = _filename;
-	  size_t pos1 = m_filename.rfind(".js");
-	  size_t pos0 = m_filename.rfind('/');
-	  m_description = m_filename.substr(pos0 + 1, pos1 - pos0 - 1);
+	  std::string descname;
+	  std::string fname = jseisUtil::fullname(_filename.c_str(), descname);
+	  m_description = descname;
 	  m_fileProps->isMapped = true;
 	  m_IOBufferSize = (4*1024*1024); //4MB
 	  m_numExtends = 3;

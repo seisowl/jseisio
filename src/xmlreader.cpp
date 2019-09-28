@@ -136,6 +136,7 @@ xmlElement* xmlreader::FirstChildBlock(xmlElement *element, std::string name, co
   int eq = 1;
   bool elementFound = false;
   parElement = element->FirstChildElement("parset");
+  if (parElement == 0) return parFoundElement;
   do {
     if (bequal) eq = strcmp(parElement->Attribute("name"), name.c_str());
     else eq = strncmp(parElement->Attribute("name"), name.c_str(), name.length());

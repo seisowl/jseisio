@@ -219,6 +219,7 @@ int TraceProperties::load(std::string &XMLstring) {
       } while ((parElement = reader.NextSiblingElement(parElement)));
     }
     traceProperty.set(label, description, sformat, count, offset);
+//   printf("read properties =%s,%s,%s,%d,%d\n",label.c_str(), description.c_str(), sformat.c_str(), count, offset);
 //        my_map.insert(std::pair<std::string, PropertyDescription>(traceProperty.getLabel(),traceProperty));
     propList.push_back(traceProperty);
     keyMap.insert(std::pair<std::string, int>(traceProperty.getLabel(), traceProperty.getOffset()));
@@ -241,12 +242,14 @@ int TraceProperties::save(std::string &XMLstring) {
 
   for (int i = 0; i < propList.size(); i++) {
     XMLstring += "    <parset name=\"" + ENTRY + num2Str(i) + "\">\n";
-    XMLstring += "      <par name=\"" + LABEL + "\" type=\"string\">" + propList[i].getLabel() + "</par>\n";
-    XMLstring += "      <par name=\"" + DESCRIPTION + "\" type=\"string\">\"" + propList[i].getDescription()
-        + "\"</par>\n";
-    XMLstring += "      <par name=\"" + FORMAT + "\" type=\"string\">" + propList[i].getFormatString() + "</par>\n";
-    XMLstring += "      <par name=\"" + COUNT + "\" type=\"int\">" + num2Str(propList[i].getCount()) + "</par>\n";
-    XMLstring += "      <par name=\"" + OFFSET + "\" type=\"int\">" + num2Str(propList[i].getOffset()) + "</par>\n";
+    XMLstring += "      <par name=\"" + LABEL + "\" type=\"string\"> " + propList[i].getLabel() + " </par>\n";
+    if (propList[i].getDescription().c_str()[0]=='"') 
+      XMLstring += "      <par name=\"" + DESCRIPTION + "\" type=\"string\"> " + propList[i].getDescription() + " </par>\n";
+    else
+      XMLstring += "      <par name=\"" + DESCRIPTION + "\" type=\"string\"> \"" + propList[i].getDescription() + "\" </par>\n";
+    XMLstring += "      <par name=\"" + FORMAT + "\" type=\"string\"> " + propList[i].getFormatString() + " </par>\n";
+    XMLstring += "      <par name=\"" + COUNT + "\" type=\"int\"> " + num2Str(propList[i].getCount()) + " </par>\n";
+    XMLstring += "      <par name=\"" + OFFSET + "\" type=\"int\"> " + num2Str(propList[i].getOffset()) + " </par>\n";
     XMLstring += "    </parset>\n";
   }
   XMLstring += "  </parset>\n";

@@ -478,9 +478,10 @@ int main(int argc, char *argv[])
 
   printf("\n\n copy test done!\n\n");
 
-  writeTestbyCopy("/tmp/dataTest.js", "/tmp/dataTest3.js", 1);
+  writeTestbyCopy("/tmp/dataTest.js", "/tmp/sk@dataTest3.VID", 1);
+  writeTestbyCopy("/tmp/dataTest.js", "/tmp/sk@dataTest3.vid", 1);
 
-  readVerifyTest("/tmp/dataTest3.js", 10);
+  readVerifyTest("/tmp/sk@dataTest3.VID", 10);
 
   printf("\n\n copy and write test done!\n\n");
 
