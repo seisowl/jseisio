@@ -67,7 +67,7 @@ namespace jsIO
 
       void intializeTraceMapOnDisk();
       const int* getTraceMapArray() const;
-      void close();
+      void closefp();
       long getFrameIndex(const int* position) const;
 
     private:

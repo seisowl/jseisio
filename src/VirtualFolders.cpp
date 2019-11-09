@@ -48,6 +48,17 @@ bool VirtualFolders::addFolder(std::string _path) {
   return true;
 }
 
+std::vector<std::string> VirtualFolders::getNewPaths(std::string infname) {
+  std::vector<std::string> paths;
+  std::string in = getPathRest(infname);
+  if(in[in.length()-1]!='/') in.append(1,'/');
+  for (int i = 0; i < m_vFolders.size(); i++) {
+	  std::string out = getPathBefore(m_vFolders[i].getPath());
+	  paths.push_back(out + in);
+  }
+  return paths;
+}
+
 bool VirtualFolders::removeFolder(std::string _path) {
   for (int i = 0; i < m_vFolders.size(); i++) {
     if (m_vFolders[i].getPath() == _path) {
@@ -56,6 +67,78 @@ bool VirtualFolders::removeFolder(std::string _path) {
     }
   }
   return false;
+}
+
+std::string VirtualFolders::getPathRest(std::string _path) {
+	//** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
+	//   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved
+	//   not the full path but "project" path to which vFolderPathRest must be added to get the full path
+	std::string jsDataPathTemp = _path;
+    if(jsDataPathTemp[jsDataPathTemp.length()-1]!='/') jsDataPathTemp.append(1,'/');
+
+    std::string vFolderPathRest = "";
+	size_t found;
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	return vFolderPathRest;
+}
+
+std::string VirtualFolders::getPathBefore(std::string _path) {
+	//** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
+	//   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved
+	//   not the full path but "project" path to which vFolderPathRest must be added to get the full path
+	std::string jsDataPathTemp = _path;
+	if(jsDataPathTemp[jsDataPathTemp.length()-1]!='/') jsDataPathTemp.append(1,'/');
+
+	std::string vFolderPathRest = "";
+	size_t found;
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	found = jsDataPathTemp.find_last_of('/');
+	if (found != std::string::npos)
+		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+				+ vFolderPathRest;
+
+	jsDataPathTemp = jsDataPathTemp.substr(0, found);
+	return jsDataPathTemp;
 }
 
 // load the list of virtual folders from XML file 
@@ -111,29 +194,12 @@ int VirtualFolders::load(std::string _path) {
   std::string sDIRtag_simple = "DIR-";
   std::string sDIRtag_ss = "FILESYSTEM-";
 
-  //** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee, then vFolderPathRest=ccc/ddd/eee
+  //** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
   //   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved 
   //   not the full path but "project" path to which vFolderPathRest must be added to get the full path
-  std::string jsDataPathTemp = _path;
-  std::string vFolderPathRest = "";
-  size_t found;
-  found = jsDataPathTemp.find_last_of('/');
-  if (found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-      + vFolderPathRest;
-  jsDataPathTemp = jsDataPathTemp.substr(0, found);
-  found = jsDataPathTemp.find_last_of('/');
-  if (found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-      + vFolderPathRest;
-  jsDataPathTemp = jsDataPathTemp.substr(0, found);
-  found = jsDataPathTemp.find_last_of('/');
-  if (found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-      + vFolderPathRest;
-  jsDataPathTemp = jsDataPathTemp.substr(0, found);
-  found = jsDataPathTemp.find_last_of('/');
-  if (found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-      + vFolderPathRest;
-  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  std::string vFolderPathRest = getPathRest(_path);
 
+  size_t found;
   if (NDIR > 0) {
     std::string curVal;
     std::string vFolderPath;
@@ -262,7 +328,7 @@ int VirtualFolders::save(std::string _path) {
     std::string vFolder;
     for (int i = 0; i < numVF; i++) {
       vFolder = m_vFolders[i].getPath();
-      found = vFolder.find_last_of('/'); // do this because in SeisSpace as VirtualFolder saved notr the whole folder but only "project folder"
+      found = vFolder.find_last_of('/'); // do this because in SeisSpace as VirtualFolder saved not the whole folder but only "project folder"
       found = vFolder.find_last_of('/', found - 1);
       found = vFolder.find_last_of('/', found - 1);
       vF += "  <par name=\"FILESYSTEM-" + num2Str(i) + "\" type=\"string\"> " + num2Str(vFolder.substr(0, found))

@@ -35,7 +35,7 @@ oJseis3D::oJseis3D(const char* fname0, int n1, int n2, int n3, float d1, float d
         d3), _o1(io1 * d1), _o2(o2), _o3(o3), _is_depth(is_depth), hdbuf(NULL) {
   string descname;
   string fname = jseisUtil::fullname(fname0, descname);
-  printf("fname = %s, n1=%d, n2=%d, n3=%d, d1=%f, d2=%f, d3=%f, io1=%d,  o2=%f, o3=%f, io2=%d, inc2=%d, io3=%d, inc3=%d, "
+  fprintf(stderr, "fname = %s, n1=%d, n2=%d, n3=%d, d1=%f, d2=%f, d3=%f, io1=%d,  o2=%f, o3=%f, io2=%d, inc2=%d, io3=%d, inc3=%d, "
   	  "format=%s, is_depth=%d\n", fname.c_str(),n1, n2,n3,d1,d2,d3,io1,o2,o3,io2,inc2,io3,inc3,dataFormat.getName().c_str(), is_depth);
 
   jsWrt.setFileName(fname);
@@ -61,7 +61,7 @@ oJseis3D::oJseis3D(const char* fname0, int n1, int n2, int n3, float d1, float d
 
   ires = jsWrt.writeMetaData();
   if (ires != JS_OK) {
-    printf("Error writing meta data!\n");
+    fprintf(stderr, "Error writing meta data!\n");
     return;
   }
 
@@ -184,7 +184,7 @@ int jseisUtil::check_vol(jsFileReader& js, const char* fname0, vector<int>& axis
 
   int ierr = js.Init(fname);
   if (ierr != 1) {
-    printf("Error in JavaSeis file %s\n", fname.c_str());
+    fprintf(stderr, "Error in JavaSeis file %s\n", fname.c_str());
     exit(-1);
   }
 
@@ -244,7 +244,7 @@ int jseisUtil::load_vol(const char* fname0, vector<float>& data, vector<int>& ax
   int n1 = axisLens[0];
   int n2 = axisLens[1];
   int n3 = axisLens[2];
-  printf("CDataFormats::read_vol: resizing data to %dx%dx%d\n", n1, n2, n3);
+  fprintf(stderr, "CDataFormats::read_vol: resizing data to %dx%dx%d\n", n1, n2, n3);
   data.resize((size_t) n1 * n2 * n3);
 
   read_vol(js, &data[0], n1, n2, n3, logicOrigs[1], logicDeltas[1]);
@@ -345,7 +345,7 @@ oJseisShots::oJseisShots(const char* fname0, bool recreate, int n1, int n2, int 
   if (recreate || !jseisUtil::file_exists(fname0)) { // TODO: if data exists and overwrite==false, check the data contexts and headers are the same!!
     ires = jsWrt.writeMetaData();
     if (ires != JS_OK) {
-      printf("Error writing meta data!\n");
+      fprintf(stderr, "Error writing meta data!\n");
       return;
     }
   }

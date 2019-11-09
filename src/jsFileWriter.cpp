@@ -54,19 +54,6 @@ namespace jsIO
   jsFileWriter::~jsFileWriter()
   {
     Close();
-    if(m_gridDef!=NULL) delete m_gridDef;
-//    if(m_dataDef!=NULL) delete m_dataDef;
-
-    if(m_traceProps!=NULL) delete m_traceProps;
-    if(m_fileProps!=NULL) delete m_fileProps;
-    if(m_customProps!=NULL) delete m_customProps;
-    if(m_TrFileExtents!=NULL) delete m_TrFileExtents;
-    if(m_TrHeadExtents!=NULL) delete m_TrHeadExtents;
-
-    if(m_trMap!=NULL) delete m_trMap;
-
-//    if(m_pCachedWriterHD!=NULL) delete m_pCachedWriterHD;
-//    if(m_pCachedWriterTR!=NULL) delete m_pCachedWriterTR;
   }
 
   jsFileWriter::jsFileWriter()
@@ -99,11 +86,25 @@ namespace jsIO
   void jsFileWriter::Close()
   {
     m_bInit=false;
+    if(m_gridDef!=NULL) delete m_gridDef;
+    //    if(m_dataDef!=NULL) delete m_dataDef;
+
+    if(m_traceProps!=NULL) delete m_traceProps;
+    if(m_fileProps!=NULL) delete m_fileProps;
+    if(m_customProps!=NULL) delete m_customProps;
+    if(m_TrFileExtents!=NULL) delete m_TrFileExtents;
+    if(m_TrHeadExtents!=NULL) delete m_TrHeadExtents;
+
+    if(m_trMap!=NULL) delete m_trMap;
+
+    //    if(m_pCachedWriterHD!=NULL) delete m_pCachedWriterHD;
+    //    if(m_pCachedWriterTR!=NULL) delete m_pCachedWriterTR;
   }
 
   // setup names, default values which can be over written later
   int jsFileWriter::setFileName(const std::string _filename) {
 	  m_filename = _filename;
+	  if(m_filename[m_filename.length()-1]!='/') m_filename.append(1,'/');
 	  std::string descname;
 	  std::string fname = jseisUtil::fullname(_filename.c_str(), descname);
 	  m_description = descname;
@@ -125,7 +126,15 @@ namespace jsIO
 	  m_fileProps->traceFormat = DataFormat::get(dataFormat);
 	  m_fileProps->isMapped = isMapped;
 	  m_numExtends = nextends;
-	  if (!vpath.empty()) m_virtualFolders.push_back(vpath);
+	  if (!vpath.empty()) {
+		  VirtualFolders vFolders;
+		  std::string vFolderPathRest = vFolders.getPathRest(m_filename);
+		  if (vFolderPathRest[vFolderPathRest.length() - 1] != '/') vFolderPathRest.append(1, '/');
+		  if (vFolderPathRest[0] == '/' && vpath[vpath.length() - 1] == '/')
+			  vFolderPathRest=vFolderPathRest.substr(1,vFolderPathRest.length());
+		  m_virtualFolders.push_back(vpath + vFolderPathRest);
+		  TRACE_PRINTF(jsWriterInputLog, "virtualFolder : %s", (vpath + vFolderPathRest).c_str());
+	  }
   }
 
   void jsFileWriter::initGridDim(int numDim){
@@ -208,6 +217,8 @@ namespace jsIO
       std::ifstream srce( srce_file, std::ios::binary ) ;
       std::ofstream dest( dest_file, std::ios::binary ) ;
       dest << srce.rdbuf() ;
+      srce.close();
+      dest.close();
   }
 
   /**
@@ -222,6 +233,7 @@ namespace jsIO
     *m_customProps = *(_writerInput->customProps);
 
     m_filename = _writerInput->jsfilename;
+    if(m_filename[m_filename.length()-1]!='/') m_filename.append(1,'/');
     m_description = _writerInput->description;
     m_numExtends = _writerInput->NExtends;
     m_virtualFolders = _writerInput->virtualFolders;
@@ -248,8 +260,9 @@ namespace jsIO
        *m_traceProps = *(jsReader->m_traceProps);
  	   *m_customProps = *(jsReader->m_customProps);
        m_numExtends = jsReader->getNumOfExtents();
-       m_virtualFolders.empty(); // set to use primary
-       // m_virtualFolders = jsReader->virtualFolders;
+       // m_virtualFolders.empty(); // set to use primary
+       m_virtualFolders = jsReader->vFolders->getNewPaths(m_filename);
+
        m_seispegPolicy = 0; //jsReader->m_bSeisPEG_data;
        m_IOBufferSize = jsReader->m_IOBufferSize;
        m_fileProps->dataType = DataType::get(jsReader->getDataType());
@@ -282,13 +295,12 @@ namespace jsIO
     if (m_jsReader == NULL) axisGridToProps(m_gridDef);
 
 	TRACE_PRINTF(jsFileWriterLog,"Init File Properties");
+    if(m_filename[m_filename.length()-1]!='/') m_filename.append(1,'/');
+
     if(m_virtualFolders.size()==0) //not defined
     {
       m_virtualFolders.push_back(m_filename);
     }
-
-    if(m_filename[m_filename.length()-1]!='/') m_filename.append(1,'/');
-
 
     m_fileProps->comments="www.javaseis.org - JavaSeis File Properties "+JS_VERSION;
     m_fileProps->version="2006.3";
@@ -317,7 +329,7 @@ namespace jsIO
     m_headerLengthWords = ceil(m_headerLengthBytes/4.f);
 //   fprintf(plogfile,"m_headerLengthBytes=%d, m_numTraces=%d, m_headerFileSize=%d\n",m_headerLengthBytes, m_numTraces, m_headerFileSize);
 
-    TRACE_PRINTF(jsFileWriterLog,"Init Virtual Folders");
+  //  TRACE_PRINTF(jsFileWriterLog,"Init Virtual Folders");
 
     VirtualFolders vFolders;
     for(int i=0;i<m_virtualFolders.size();i++)
@@ -400,6 +412,12 @@ namespace jsIO
 
 //*****  write xml files
     int ires;
+
+    ires = vFolders.mkdirp(m_filename.c_str(), 0777);
+    if (ires != JS_OK) {
+          TRACE_PRINTF(jsFileWriterLog, "Can't create direcory %s", m_filename.c_str());
+          return ires;
+    }
 
     ires = writeSingleProperty(m_filename, JS_FILE_STUB,"DescriptiveName",m_description);
     if(ires !=JS_OK) return ires;

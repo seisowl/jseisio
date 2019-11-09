@@ -57,6 +57,9 @@ public:
   std::vector<VirtualFolder> getFolders() {
     return m_vFolders;
   }
+
+  std::vector<std::string> getNewPaths(std::string infname);
+
   bool containPrecomputeExtents() {
     return m_containsPrecomputedExtents;
   }
@@ -68,6 +71,10 @@ public:
 
   int load(std::string _path);
   int save(std::string _path);
+
+  std::string getPathBefore(std::string _path);
+  std::string getPathRest(std::string _path);
+  int mkdirp(const char *dir, mode_t mode);
 
   //Must be implemented by extending classes
   std::string getType();
@@ -95,7 +102,6 @@ private:
 public:
 
 private:
-  int mkdirp(const char *dir, mode_t mode);
   std::string converErrno2Str(int error);
 };
 }

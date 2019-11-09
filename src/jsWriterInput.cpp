@@ -115,7 +115,7 @@ void jsWriterInput::addSurveyGeom(int i1, int i2, int i3, int i4, float f1, floa
   if (customProps != NULL) {
     customProps->survGeom.setGeom(i1, i2, i3, i4, f1, f2, f3, f4, f5, f6);
   } else {
-    printf("Error: you have to first allocate the pointes with allocPointers() function");
+    fprintf(stderr,"Error: you have to first allocate the pointes with allocPointers() function");
   }
 }
 

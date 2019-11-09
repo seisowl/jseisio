@@ -84,6 +84,22 @@ namespace jsIO
     m_bInit=false;
   }
 
+void jsFileReader::closefp() {
+	if (m_trMap != NULL) {
+		m_trMap->closefp();
+		delete m_trMap;
+		m_trMap = NULL;
+	}
+	if (m_curr_trffd > 0) {
+		::close (m_curr_trffd);
+		m_curr_trffd = -1;
+	}
+	if (m_curr_trhfd > 0) {
+		::close (m_curr_trhfd);
+		m_curr_trhfd = -1;
+	}
+}
+
   void jsFileReader::Close()
   {
     if(m_traceBufferArray!=NULL)delete []m_traceBufferArray;
@@ -103,13 +119,7 @@ namespace jsIO
     if(m_frame!=NULL)delete []m_frame;
     if(m_frameHeader!=NULL)delete []m_frameHeader;
 
-    if(m_trMap!=NULL){
-      m_trMap->close();
-      delete m_trMap;
-    }
-
-    ::close(m_curr_trffd);
-    ::close(m_curr_trhfd);
+	closefp();
 
     if(m_pCachedReaderHD!=NULL)delete m_pCachedReaderHD;
     if(m_pCachedReaderTR!=NULL)delete m_pCachedReaderTR;
@@ -253,6 +263,7 @@ namespace jsIO
         }
         numReadedInts += ints2Read;
       }
+      ifile.close();
       delete[]iBuffer;
     }
   //***
@@ -1622,6 +1633,7 @@ namespace jsIO
       ERROR_PRINTF(jsFileReaderLog, "Invalid JavaSeis Format. Error while opening file %s", fname.c_str());
       return "";
     }
+    ifile.close();
     
     xmlreader xmlReader;
     xmlReader.parseFile(fname.c_str());

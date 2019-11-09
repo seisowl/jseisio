@@ -391,6 +391,8 @@ public:
    */
   int getNumOfVirtualFolders() const;
 
+  void closefp();
+
   std::string m_filename;
 
 private:

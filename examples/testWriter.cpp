@@ -290,7 +290,7 @@ int writeTestbyWriter(const std::string &jsfilename)
 	  jsIO::jsFileWriter jsWrtTest;
 	  printf("init data...\n");
 	  jsWrtTest.setFileName(jsfilename);
-	  // jsWrtTest.initDataType("CUSTOM", "FLOAT", true, 4);
+	  jsWrtTest.initDataType("CUSTOM", "FLOAT", true, 4, "/tmp/second");
 	  jsWrtTest.initGridDim(numDim);
 	  jsWrtTest.initGridAxis(0, "TIME", "SECONDS","TIME", NSamples, 0, 1, 0, 4);
 	  jsWrtTest.initGridAxis(1, "OFFSET_BIN", "METERS", "SPACE", NOffsets, 0, 1, off0, doff);
@@ -466,34 +466,34 @@ int writeTestbyCopyHeader(const std::string &injsfilename, const std::string &ou
 int main(int argc, char *argv[])
 {
 
-  writeTestbyWriter("/tmp/dataTest.js");
+  writeTestbyWriter("/tmp/primary/area/proj/sub/dataTest.js");
 
-  readVerifyTest("/tmp/dataTest.js", 0);
+  readVerifyTest("/tmp/primary/area/proj/sub/dataTest.js", 0);
 
   printf("\n\n write test done!\n\n");
 
-  writeTestbyCopy("/tmp/dataTest.js", "/tmp/dataTest2.js", 0);
+  writeTestbyCopy("/tmp/primary/area/proj/sub/dataTest.js", "/tmp/primary/area/proj/sub/dataTest2.js", 0);
 
-  readVerifyTest("/tmp/dataTest2.js", 0);
+  readVerifyTest("/tmp/primary/area/proj/sub/dataTest2.js", 0);
 
   printf("\n\n copy test done!\n\n");
 
-  writeTestbyCopy("/tmp/dataTest.js", "/tmp/sk@dataTest3.VID", 1);
-  writeTestbyCopy("/tmp/dataTest.js", "/tmp/sk@dataTest3.vid", 1);
+  writeTestbyCopy("/tmp/primary/area/proj/sub/dataTest.js", "/tmp/primary/area/proj/sub/sk@dataTest3.VID", 1);
+  writeTestbyCopy("/tmp/primary/area/proj/sub/dataTest.js", "/tmp/primary/area/proj/sub/sk@dataTest3.vid", 1);
 
-  readVerifyTest("/tmp/sk@dataTest3.VID", 10);
+  readVerifyTest("/tmp/primary/area/proj/sub/sk@dataTest3.VID", 10);
 
   printf("\n\n copy and write test done!\n\n");
 
-  writeTestbyUpdate("/tmp/dataTest2.js");
+  writeTestbyUpdate("/tmp/primary/area/proj/sub/dataTest2.js");
 
-  readVerifyTest("/tmp/dataTest2.js", 100);
+  readVerifyTest("/tmp/primary/area/proj/sub/dataTest2.js", 100);
 
   printf("\n\n overwrite test done!\n");
 
-  writeTestbyCopyHeader("/tmp/dataTest.js", "/tmp/dataTestSV.js");
+  writeTestbyCopyHeader("/tmp/primary/area/proj/sub/dataTest.js", "/tmp/primary/area/proj/sub/dataTestSV.js");
 
-  readVerifyTest("/tmp/dataTestSV.js", 0);
+  readVerifyTest("/tmp/primary/area/proj/sub/dataTestSV.js", 0);
 
   return 0;
 }

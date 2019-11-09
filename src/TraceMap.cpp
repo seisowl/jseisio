@@ -35,6 +35,7 @@ TraceMap::~TraceMap()
 {
   if(m_pTraceMapArray!=NULL) delete[]m_pTraceMapArray;
   if(m_pAxisLengths!=NULL) delete[]m_pAxisLengths;
+  closefp();
 }
 
 TraceMap::TraceMap()
@@ -398,10 +399,11 @@ int TraceMap::assertAllValuesInitialized()
     return JS_OK;
 }
 
-void TraceMap::close()
+void TraceMap::closefp()
 {
 //    TRACE_PRINTF(TraceMapLog, "TraceMap reads = %li, read cached hits %li, TraceMap writes = %li",m_nReadCounter,m_nReadCacheHit,m_nWriteCounter) ;
 //   m_mapIO.close();
+	if( m_mapfd >= 0) ::close(m_mapfd);
 }
 
 }
