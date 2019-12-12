@@ -828,7 +828,9 @@ namespace jsIO
       numLiveTraces = m_numTraces; //default value
       bWriteTraceMap=false;
     } 
-  
+
+    if (numLiveTraces > 0) { // we do  need write anything.
+
     long glb_offset = frameIndex * m_frameSize;
     long bytesInFrame =  numLiveTraces * m_compess_traceSize;
 
@@ -904,8 +906,11 @@ namespace jsIO
       }
     }
 
+    }
+
   //in case of regular data TraceMap may be written at once with WriteTraceMap4RegularData function
   //(should be faster than with m_trMap->putFold)
+  // even if number of live trace is 0, we need update foldmap
     if(bWriteTraceMap==true)
     {
       int ires = m_trMap->putFold(frameIndex, numLiveTraces);
@@ -1004,11 +1009,11 @@ namespace jsIO
       int trc_type = *(reinterpret_cast<int*>( &headbuf[i*m_headerLengthBytes + keyoff]));
 //       printf("---   i=%d, trc_type=%d, ifull=%d\n", i, trc_type, ifull);
       int j=i;
-      if(trc_type==0){
+      if((trc_type==12 || trc_type==0)){
         do{
           j++;
           trc_type = *(reinterpret_cast<int*>( &headbuf[j*m_headerLengthBytes + keyoff]));
-        }while(trc_type==0 && j<m_numTraces);
+        }while((trc_type==12 || trc_type==0) && j<m_numTraces);
         memcpy(&tmpFrameBuf[ifull*m_numSamples], &frame[j*m_numSamples], (numTraces-j)*m_numSamples*sizeof(float));
         memcpy(&tmpHrdBuf[ifull*m_headerLengthBytes], &headbuf[j*m_headerLengthBytes], (numTraces-j)*m_headerLengthBytes);
       }

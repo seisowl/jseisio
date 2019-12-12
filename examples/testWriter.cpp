@@ -66,11 +66,11 @@ void updating(jsIO::jsFileWriter * jsWrtTest, int seed) {
 		  #pragma omp for
 		  for(int iInline=0;iInline<NInlines;iInline++){
 		//	 printf("iInline=%d\n",iInline);
-			 for(int iXline=0;iXline<NXlines;iXline++){
+			 for(int iXline=2;iXline<NXlines;iXline++){
 		 //       printf("\t \t iXline=%d\n", iXline);
 			   for(int iTraces=0;iTraces<NOffsets;iTraces++){
-		//            if(iInline==0 && iXline<2 && iTraces%2 == 0 ) trc_type = 0; //test non-full frames
-		//            else trc_type = 1;
+		          if(iInline%2 == 0 && iXline%2 == 0 && iTraces%2 == 0 ) trc_type = 12; //test non-full frames
+		          else trc_type = 1;
 				  itrcTypeHdr.setIntVal(&hdbuf[iTraces*traceheaderSize], trc_type);
 				  iTimeHdr.setIntVal(&hdbuf[iTraces*traceheaderSize], t0);
 				  fOffsetHdr.setFloatVal(&hdbuf[iTraces*traceheaderSize],  off0 + iTraces*doff);
@@ -81,6 +81,7 @@ void updating(jsIO::jsFileWriter * jsWrtTest, int seed) {
 				  iXLineHdr.setIntVal(&hdbuf[iTraces*traceheaderSize], iXline);
 
 				  // init frame with synth values
+				  if (trc_type == 1)
 				  for(int j=0;j<NSamples;j++)
 					 frame[iTraces*NSamples+j]= seed + j + (iInline*NXlines + iXline)*NOffsets+ iTraces;
 			   }
@@ -196,7 +197,7 @@ int readVerifyTest(const std::string &jsfilename, int value)
        //print some header info
        float sou_x, sou_y, rec_x, rec_y;
        float fOffset;
-       int il, xl;
+       int il, xl, ofb;
        int iType;
        for (int j=0; j<nTracesRead; j++)
        {
@@ -209,12 +210,13 @@ int readVerifyTest(const std::string &jsfilename, int value)
 	   xl = jsReadTestTh.getIntHdrVal("XLINE_NO", &headerBuf[j*traceheaderSize]);
 	   iType =  jsReadTestTh.getIntHdrVal("TRC_TYPE", &headerBuf[j*traceheaderSize]);
 	   fOffset =  jsReadTestTh.getFloatHdrVal("OFFSET", &headerBuf[j*traceheaderSize]);
+	   ofb = jsReadTestTh.getIntHdrVal("OFB_NO", &headerBuf[j*traceheaderSize]);
 
 	   //printf("\t%d: \tSOU_X=%3.2f, SOU_Y=%3.2f, REC_X=%3.2f, REC_Y=%3.2f, ILINE_NO=%d, XLINE_NO=%d, Offset=%g, Type=%d\n",
        //           j, sou_x, sou_y, rec_x, rec_y, il, xl, fOffset, iType);
 
 	   for(int k=0;k<nSamples;k++)
-	      if (gather[j*nSamples+k] != k + (il*nframes + xl)*nTraces+ j + value) {
+	      if (gather[j*nSamples+k] != k + (il*nframes + xl)*nTraces+ ofb + value) {
 	           printf("Error trace data #%d\n",k);
 	           exit(-1);
 	      };
@@ -450,9 +452,9 @@ int writeTestbyCopyHeader(const std::string &injsfilename, const std::string &ou
        printf("Create only 1 volume out of %d \n", NInlines);
        int frame_offset = 0; //13*2
        for (int i = 0; i < NXlines; i++) {
-    	   jsReadTest.readFrame(2*i+frame_offset, gather, headerBuf);
-           int numLiveTraces = jsWrtTest.leftJustify(gather, headerBuf, NOffsets);
-		   int ires1 = jsWrtTest.writeFrame(i, gather, headerBuf, numLiveTraces);
+    	   int numLiveTraces = jsReadTest.readFrame(2*i+frame_offset, gather, headerBuf);
+           if (numLiveTraces > 0) numLiveTraces = jsWrtTest.leftJustify(gather, headerBuf, numLiveTraces);
+           int ires1 = jsWrtTest.writeFrame(i, gather, headerBuf, numLiveTraces);
        }
 
        printf("write binary data done!\n");
@@ -489,7 +491,7 @@ int main(int argc, char *argv[])
 
   readVerifyTest("/tmp/primary/area/proj/sub/dataTest2.js", 100);
 
-  printf("\n\n overwrite test done!\n");
+  printf("\n\n overwrite test done!\n\n");
 
   writeTestbyCopyHeader("/tmp/primary/area/proj/sub/dataTest.js", "/tmp/primary/area/proj/sub/dataTestSV.js");
 
