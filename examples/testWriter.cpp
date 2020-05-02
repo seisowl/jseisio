@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <fstream>
+#include <vector>
 
 #include "jsFileWriter.h"
 #include "jsWriterInput.h"
@@ -103,6 +104,130 @@ void updating(jsIO::jsFileWriter * jsWrtTest, int seed) {
 		 delete[] frame;  //was allocated with jsWrtTest.allocFrameBuf()
 
 		}
+}
+
+int writeTestMultipleHdrs(const std::string &jsfilename)
+{
+	  timeb time0,time1;
+	  double total;
+	  ftime(&time0);
+
+	  // Framework definition
+	  int numDim = 3;
+	  int NSamples = 501;
+	  int NXlines =   13;
+	  int NInlines =  5;
+	  int xl0 = 10;
+	  int dxl = 20;
+	  int inl0 = 20;
+	  int dinl = 40;
+
+	  jsIO::jsFileWriter jsWrtTest;
+	  printf("init data...\n");
+	  jsWrtTest.setFileName(jsfilename);
+	  jsWrtTest.initDataType("CUSTOM", "FLOAT", true, 4, "/tmp/second");
+	  jsWrtTest.initGridDim(numDim);
+	  jsWrtTest.initGridAxis(0, "TIME", "SECONDS","TIME", NSamples, 0, 1, 0, 4);
+	  jsWrtTest.initGridAxis(1, "XLINE", "METERS", "SPACE", NXlines, 0, 1, xl0, dxl);
+	  jsWrtTest.initGridAxis(2, "ILINE", "METERS", "SPACE", NInlines, 0, 1, inl0, dinl);
+	  jsWrtTest.addSurveyGeom(inl0,inl0 + (NInlines-1)*dinl,xl0, xl0 + (NXlines-1)*dxl,
+			  5.5,6.6,7.7,8.8,9.9,10.10);
+	  jsWrtTest.addCustomProperty("Stacked", "boolean", "false");
+	  jsWrtTest.addProperty("XLINE", "XLINE", "INTEGER", 1);
+	  jsWrtTest.addProperty("ILINE", "ILINE", "INTEGER", 1);
+
+	  // multiple length header
+	  jsWrtTest.addProperty("HDRSHTS", "Header shorts description", "SHORT", 7);
+	  jsWrtTest.addProperty("HDRINTS", "Header ints description", "INTEGER", 6);
+	  jsWrtTest.addProperty("HDRLONGS", "Header longs description", "LONG", 5);
+	  jsWrtTest.addProperty("HDRFLTS", "Header floats description", "FLOAT", 4);
+	  jsWrtTest.addProperty("HDRDBLS", "Header doubles description", "DOUBLE", 3);
+
+	  // Create dataset (only meta data) using the data context
+	  // ------------------------------------------------------
+	  printf("write meta data (xml)...\n");
+	  int ires = jsWrtTest.writeMetaData();
+	  printf("write binary data...\n");
+
+	  float *frame = jsWrtTest.allocFrameBuf(); // Get directly from data context
+	  char *hdbuf = jsWrtTest.allocHdrBuf(true);//alloc buffer (with new[] command) and init with SeisSpace standard values.(parameter initVals=true)
+	  int traceheaderSize = jsWrtTest.getTraceHeaderSize();
+
+	  std::vector<short> shrtvec;
+	  std::vector<int> intvec;
+	  std::vector<long> longvec;
+	  std::vector<float> floatvec;
+	  std::vector<double> doublevec;
+
+	  for(int iTraces=0;iTraces<NXlines;iTraces++){
+		  shrtvec.push_back((short)iTraces);
+		  intvec.push_back((int)iTraces);
+		  longvec.push_back((long)iTraces);
+		  floatvec.push_back(iTraces*0.3333f);
+		  doublevec.push_back(iTraces*0.3333);
+
+		  for(int j=0;j<NSamples;j++) frame[iTraces*NSamples+j]= iTraces+j;
+		  jsWrtTest.getHdrEntry("TRC_TYPE").setIntVal(&hdbuf[iTraces*traceheaderSize], 1);
+		  jsWrtTest.getHdrEntry("XLINE").setIntVal(&hdbuf[iTraces*traceheaderSize], iTraces);
+		  jsWrtTest.getHdrEntry("ILINE").setIntVal(&hdbuf[iTraces*traceheaderSize], 1);
+		  jsWrtTest.getHdrEntry("HDRSHTS").setShortVector(&hdbuf[iTraces*traceheaderSize], shrtvec);
+		  jsWrtTest.getHdrEntry("HDRINTS").setIntVector(&hdbuf[iTraces*traceheaderSize], intvec);
+		  jsWrtTest.getHdrEntry("HDRLONGS").setLongVector(&hdbuf[iTraces*traceheaderSize], longvec);
+		  jsWrtTest.getHdrEntry("HDRFLTS").setFloatVector(&hdbuf[iTraces*traceheaderSize], floatvec);
+		  jsWrtTest.getHdrEntry("HDRDBLS").setDoubleVector(&hdbuf[iTraces*traceheaderSize], doublevec);
+	  }
+
+	  int numLiveTraces = jsWrtTest.leftJustify(frame, hdbuf, NXlines);
+	  long frameInd=1;
+	  int ires1 = jsWrtTest.writeFrame(frameInd,frame, hdbuf, numLiveTraces);
+      printf("write binary data done!\n");
+
+      jsFileReader jsReadTest;
+      int ierr = jsReadTest.Init(jsfilename);
+	  frame = jsReadTest.allocFrameBuf(); // Get directly from data context
+	  hdbuf = jsReadTest.allocHdrBuf(true);//alloc buffer (with new[] command) and init with SeisSpace standard values.(parameter initVals=true)
+	  traceheaderSize = jsReadTest.getNumBytesInHeader();
+	  int nTracesRead = jsReadTest.readFrame(1, frame, hdbuf);
+
+	  for(int iTraces=0;iTraces<NXlines;iTraces++){
+		  intvec = jsReadTest.getHdrEntry("TRC_TYPE").getIntVector(&hdbuf[iTraces*traceheaderSize]);
+		  int len = intvec.size();
+		  for (int i = 0; i< len; i++) printf(": %d ", intvec[i]); printf(" total trc_type %d \n", len);
+		  intvec = jsReadTest.getHdrEntry("XLINE").getIntVector(&hdbuf[iTraces*traceheaderSize]);
+		  len = intvec.size();
+		  for (int i = 0; i< len; i++) printf(": %d ", intvec[i]); printf(" total xline %d \n", len);
+
+		  intvec = jsReadTest.getHdrEntry("ILINE").getIntVector(&hdbuf[iTraces*traceheaderSize]);
+		  len = intvec.size();
+		  for (int i = 0; i< len; i++) printf(": %d ", intvec[i]); printf(" total iline %d \n", len);
+
+		  shrtvec = jsReadTest.getHdrEntry("HDRSHTS").getShortVector(&hdbuf[iTraces*traceheaderSize]);
+		  len = shrtvec.size();
+		  for (int i = 0; i< len; i++) printf(": %d ", shrtvec[i]); printf(" total short hdrs %d \n", len);
+
+		  intvec = jsReadTest.getHdrEntry("HDRINTS").getIntVector(&hdbuf[iTraces*traceheaderSize]);
+		  len = intvec.size();
+		  for (int i = 0; i< len; i++) printf(": %d ", intvec[i]); printf(" total int hdrs %d \n", len);
+
+		  longvec = jsReadTest.getHdrEntry("HDRLONGS").getLongVector(&hdbuf[iTraces*traceheaderSize]);
+		  len = longvec.size();
+		  for (int i = 0; i< len; i++) printf(": %ld ", longvec[i]); printf(" total long hdrs %d \n", len);
+
+		  floatvec = jsReadTest.getHdrEntry("HDRFLTS").getFloatVector(&hdbuf[iTraces*traceheaderSize]);
+		  len = floatvec.size();
+		  for (int i = 0; i< len; i++) printf(": %f ", floatvec[i]); printf(" total float hdrs %d \n", len);
+
+		  doublevec = jsReadTest.getHdrEntry("HDRDBLS").getDoubleVector(&hdbuf[iTraces*traceheaderSize]);
+		  len = doublevec.size();
+		  for (int i = 0; i< len; i++) printf(": %lf ", doublevec[i]); printf(" total double %d \n", len);
+	  }
+
+
+	  ftime(&time1);
+	  total = (time1.time-time0.time) +(time1.millitm-time0.millitm)/1.e3;
+	  std::cout << "\n Write time: " << total << " (sec)\n\n";
+
+	  return 0;
 }
 
 int readVerifyTest(const std::string &jsfilename, int value)
@@ -303,6 +428,13 @@ int writeTestbyWriter(const std::string &jsfilename)
 			  5.5,6.6,7.7,8.8,9.9,10.10);
 	  jsWrtTest.addCustomProperty("Stacked", "boolean", "false");
 
+	  // multiple length header
+	  jsWrtTest.addProperty("HDRINTS", "Header ints description", "INTEGER", 5);
+	  jsWrtTest.addProperty("HDRLONGS", "Header longs description", "LONG", 6);
+	  jsWrtTest.addProperty("HDRSHTS", "Header shorts description", "SHORT", 7);
+	  jsWrtTest.addProperty("HDRFLTS", "Header floats description", "SHORT", 4);
+	  jsWrtTest.addProperty("HDRDBLS", "Header doubles description", "SHORT", 4);
+
 	  // Create dataset (only meta data) using the data context
 	  // ------------------------------------------------------
 	  printf("write meta data (xml)...\n");
@@ -467,6 +599,8 @@ int writeTestbyCopyHeader(const std::string &injsfilename, const std::string &ou
 
 int main(int argc, char *argv[])
 {
+  writeTestMultipleHdrs("/tmp/primary/area/proj/sub/dataTesthdrs.js");
+  return 0;
 
   writeTestbyWriter("/tmp/primary/area/proj/sub/dataTest.js");
 

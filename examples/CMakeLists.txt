@@ -23,6 +23,7 @@ else()
   set(JSEISIO_LIBRARIES jseisIO)
   install(FILES testReader.cpp
                 testWriter.cpp
+				testJseisND.cpp
                 CMakeLists.txt
                 FindjseisIO.cmake
           DESTINATION share/jseisIO/examples/ )
@@ -34,3 +35,6 @@ target_link_libraries(reader ${JSEISIO_LIBRARIES} pthread)
 
 add_executable(writer testWriter.cpp)
 target_link_libraries(writer ${JSEISIO_LIBRARIES} pthread)
+
+add_executable(jsnd testJseisND.cpp)
+target_link_libraries(jsnd ${JSEISIO_LIBRARIES} pthread)

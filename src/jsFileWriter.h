@@ -292,6 +292,9 @@ namespace jsIO
       */
       int writeTrace(long traceIndex, float* trace, char* headbuf=NULL);
 
+      // write buffer directly to speed up, but need special care
+      int writeTraceBuffer(long offset, char* buf, long buflen);
+      int writeHeaderBuffer(long offset, char* buf, long buflen);
 
       ///Closes the dataset and flushes all caches
       void Close();
@@ -356,9 +359,6 @@ namespace jsIO
     private:
       int writeSingleProperty(std::string datasetPath, std::string fileName, std::string propertyName,
                               std::string propertyValue);
-
-      int writeTraceBuffer(long offset, char* buf, long buflen);
-      int writeHeaderBuffer(long offset, char* buf, long buflen);
 
       long getFrameIndex(int* position);    // position must be in logical coordinate
       long getOffsetInExtents(int* indices, int len1d); // indices must be in index

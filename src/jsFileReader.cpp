@@ -825,6 +825,49 @@ void jsFileReader::closefp() {
     return N;
   }
 
+  float* jsFileReader::allocFrameBuf()
+    {
+      if(!m_bInit){
+        ERROR_PRINTF(jsFileReaderLog,"Properties must be initialized first");
+        return NULL;
+      }
+      return new float[m_numSamples*m_numTraces];
+    }
+
+  char* jsFileReader::allocHdrBuf(bool initVals)
+    {
+      if(!m_bInit){
+        ERROR_PRINTF(jsFileReaderLog,"Properties must be initialized first");
+        return NULL;
+      }
+      char *hdrBuf = new char[m_headerLengthBytes*m_numTraces];
+      memset(hdrBuf, 0, m_headerLengthBytes*m_numTraces);
+
+      if(initVals) // init with SeisSpace standard values
+      {
+        float TFULL_E = m_fileProps->physicalOrigins[0] + m_fileProps->axisLengths[0]*m_fileProps->physicalDeltas[0];
+        float TLIVE_E = TFULL_E;
+        for(int i=0;i<m_numTraces;i++)
+        {
+          getHdrEntry("TRC_TYPE").setIntVal(&hdrBuf[i*m_headerLengthBytes], 1);
+          getHdrEntry("TLIVE_S").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 0.0f);
+          getHdrEntry("TFULL_S").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 0.0f);
+          getHdrEntry("TLIVE_E").setFloatVal(&hdrBuf[i*m_headerLengthBytes], TLIVE_E);
+          getHdrEntry("TFULL_E").setFloatVal(&hdrBuf[i*m_headerLengthBytes], TFULL_E);
+          getHdrEntry("LEN_SURG").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 0.0f);
+          getHdrEntry("TOT_STAT").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 0.0f);
+          getHdrEntry("NA_STAT").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 0.0f);
+          getHdrEntry("AMP_NORM").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 1.0f);
+          getHdrEntry("TR_FOLD").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 1.0f);
+          getHdrEntry("SKEWSTAT").setFloatVal(&hdrBuf[i*m_headerLengthBytes], 0.0f);
+          getHdrEntry("PAD_TRC").setIntVal(&hdrBuf[i*m_headerLengthBytes], 0);
+          getHdrEntry("NMO_APLD").setIntVal(&hdrBuf[i*m_headerLengthBytes], 1);
+        }
+      }
+
+      return hdrBuf;
+    }
+
   int jsFileReader::getAxisLabels(std::vector<std::string> &axis) const
   {
     if(!m_bInit){

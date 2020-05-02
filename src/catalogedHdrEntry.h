@@ -28,6 +28,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
+#include <algorithm>
 
 #include "jsByteOrder.h"
 
@@ -103,6 +105,19 @@ public:
   int setIntVal(char * headerBuf, int val);
   int setShortVal(char * headerBuf, short val);
   int setLongVal(char * headerBuf, long val);
+
+  int setFloatVector(char * headerBuf, std::vector<float> vec);
+  int setDoubleVector(char * headerBuf, std::vector<double> vec);
+  int setIntVector(char * headerBuf, std::vector<int> vec);
+  int setShortVector(char * headerBuf, std::vector<short> vec);
+  int setLongVector(char * headerBuf, std::vector<long> vec);
+
+  std::vector<float> getFloatVector(char * headerBuf);
+  std::vector<double> getDoubleVector(char * headerBuf);
+  std::vector<int> getIntVector(char * headerBuf);
+  std::vector<short> getShortVector(char * headerBuf);
+  std::vector<long> getLongVector(char * headerBuf);
+
 };
 }
 

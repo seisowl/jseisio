@@ -23,6 +23,9 @@
 #include <limits>
 #include <string>
 #include <string.h>
+#include <math.h>
+#include <limits.h>
+#include <float.h>
 
 #include "PropertyDescription.h"
 #include "PSProLogging.h"
@@ -328,6 +331,254 @@ void catalogedHdrEntry::getLongVals(signed char* headerBuf, long * vals, int nBy
       }
     }
   }
+}
+
+int catalogedHdrEntry::setFloatVector(char * headerBuf, std::vector<float> vec) {
+	if (format == PropertyDescription::HDR_FORMAT_FLOAT) {
+		int nbytes = getByteCount();
+		int vecsize = vec.size();
+		int ncnt = std::min(vecsize, count);
+	    for (int i = 0; i < ncnt; i++) {
+	    	float val = vec[i];
+	    	if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(float));
+	        char *pV = reinterpret_cast<char*>(&val);
+	        memcpy(&headerBuf[offset+i*nbytes], pV, sizeof(float));
+	    }
+	    for (int i = ncnt; i < count; i++) {
+	    	float val = - FLT_MAX;
+	    	if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(float));
+	        char *pV = reinterpret_cast<char*>(&val);
+	        memcpy(&headerBuf[offset+i*nbytes], pV, sizeof(float));
+	    }
+	    return JS_OK;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to write float value in a non-float header %s", name.c_str());
+	    return JS_USERERROR;
+	}
+}
+
+int catalogedHdrEntry::setDoubleVector(char * headerBuf, std::vector<double> vec) {
+	if (format == PropertyDescription::HDR_FORMAT_DOUBLE) {
+		int nbytes = getByteCount();
+		int vecsize = vec.size();
+		int ncnt = std::min(vecsize, count);
+		for (int i = 0; i < ncnt; i++) {
+		    double val = vec[i];
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(double));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset+i*nbytes], pV, sizeof(double));
+		}
+		for (int i = ncnt; i < count; i++) {
+		    double val = - DBL_MAX;
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(double));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset+i*nbytes], pV, sizeof(double));
+		}
+		return JS_OK;
+	} else {
+		ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to write double value in a non-double header %s", name.c_str());
+		return JS_USERERROR;
+	}
+}
+
+
+int catalogedHdrEntry::setIntVector(char * headerBuf, std::vector<int> vec){
+	if (format == PropertyDescription::HDR_FORMAT_INTEGER) {
+		int nbytes = getByteCount();
+		int vecsize = vec.size();
+		int ncnt = std::min(vecsize, count);
+		for (int i = 0; i < ncnt; i++) {
+		    int val = vec[i];
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(int));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset + i*nbytes], pV, sizeof(int));
+		}
+		for (int i = ncnt; i < count; i++) {
+		    int val = - INT_MAX;
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(int));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset + i*nbytes], pV, sizeof(int));
+		}
+	    return JS_OK;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to write int value in a non-int header %s", name.c_str());
+	    return JS_USERERROR;
+	}
+}
+
+
+int catalogedHdrEntry::setShortVector(char * headerBuf, std::vector<short> vec) {
+	if (format == PropertyDescription::HDR_FORMAT_SHORT) {
+		int nbytes = getByteCount();
+		int vecsize = vec.size();
+		int ncnt = std::min(vecsize, count);
+		for (int i = 0; i < ncnt; i++) {
+		    short val = vec[i];
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(short));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset + i*nbytes], pV, sizeof(short));
+		}
+		for (int i = ncnt; i < count; i++) {
+		    short val = - SHRT_MAX;
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(short));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset + i*nbytes], pV, sizeof(short));
+		}
+	    return JS_OK;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to write short value in a non-short header %s", name.c_str());;
+	    return JS_USERERROR;
+	}
+}
+
+
+int catalogedHdrEntry::setLongVector(char * headerBuf, std::vector<long> vec) {
+	if (format == PropertyDescription::HDR_FORMAT_LONG) {
+		int nbytes = getByteCount();
+		int vecsize = vec.size();
+		int ncnt = std::min(vecsize, count);
+		for (int i = 0; i < ncnt; i++) {
+		    long val = vec[i];
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(long));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset + i*nbytes], pV, sizeof(long));
+		}
+		for (int i = ncnt; i < count; i++) {
+		    long val = - LONG_MAX;
+		    if (byteOrder != natOrder) endian_swap(&val, 1, sizeof(long));
+		    char *pV = reinterpret_cast<char*>(&val);
+		    memcpy(&headerBuf[offset + i*nbytes], pV, sizeof(long));
+		}
+	    return JS_OK;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to write long value in a non-long header %s", name.c_str());
+	    return JS_USERERROR;
+	}
+}
+
+
+std::vector<float> catalogedHdrEntry::getFloatVector(char * headerBuf) {
+	std::vector<float> vec;
+	if (format == PropertyDescription::HDR_FORMAT_FLOAT) {
+		int nbytes = getByteCount();
+		for (int i = 0; i < count; i++) {
+			float v = *(reinterpret_cast<float*>(&headerBuf[offset + i*nbytes]));
+			if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(float));
+			if (v > - FLT_MAX) {
+				vec.push_back(v);
+			} else return vec;
+		}
+		return vec;
+	} else if (format == PropertyDescription::HDR_FORMAT_DOUBLE) {
+		int nbytes = getByteCount();
+		std::vector<float> vec;
+		for (int i = 0; i < count; i++) {
+			double v = *(reinterpret_cast<double*>(&headerBuf[offset + i * nbytes]));
+			if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(double));
+			if (v > - DBL_MAX) {
+				vec.push_back((float)v);
+			} else return vec;
+		}
+		return vec;
+	} else {
+		ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-float/double header as a float");
+		return vec;
+	}
+}
+
+
+std::vector<double> catalogedHdrEntry::getDoubleVector(char * headerBuf) {
+	std::vector<double> vec;
+	if (format == PropertyDescription::HDR_FORMAT_DOUBLE) {
+		int nbytes = getByteCount();
+		for (int i = 0; i < count; i++) {
+			double v = *(reinterpret_cast<double*>(&headerBuf[offset + i * nbytes]));
+			if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(double));
+			if (v > - DBL_MAX) {
+				vec.push_back(v);
+			} else return vec;
+		}
+		return vec;
+	} else if (format == PropertyDescription::HDR_FORMAT_FLOAT) {
+		int nbytes = getByteCount();
+		for (int i = 0; i < count; i++) {
+			float v = *(reinterpret_cast<float*>(&headerBuf[offset + i*nbytes]));
+			if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(float));
+			if (v > - FLT_MAX) {
+				vec.push_back((double)v);
+			} else return vec;
+		}
+		return vec;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-double/float header as a double");
+	    return vec;
+	}
+
+}
+
+std::vector<int> catalogedHdrEntry::getIntVector(char * headerBuf) {
+	std::vector<int> vec;
+	if (format == PropertyDescription::HDR_FORMAT_INTEGER) {
+		int nbytes = getByteCount();
+		for (int i = 0; i < count; i++) {
+		    int v = *(reinterpret_cast<int*>(&headerBuf[offset + i * nbytes]));
+		    if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(int));
+			if (v > - INT_MAX) {
+				vec.push_back(v);
+			} else return vec;
+		}
+		return vec;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-int header as an int %d", format);
+	    return vec;
+	}
+}
+
+std::vector<short> catalogedHdrEntry::getShortVector(char * headerBuf){
+	std::vector<short> vec;
+	if (format == PropertyDescription::HDR_FORMAT_SHORT) {
+		int nbytes = getByteCount();
+		for (int i = 0; i < count; i++) {
+		    int v = *(reinterpret_cast<short*>(&headerBuf[offset + i * nbytes]));
+		    if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(short));
+			if (v > - SHRT_MAX) {
+				vec.push_back(v);
+			} else return vec;
+		}
+		return vec;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-int header as an int %d", format);
+	    return vec;
+	}
+
+}
+
+std::vector<long> catalogedHdrEntry::getLongVector(char * headerBuf) {
+	std::vector<long> vec;
+	if (format == PropertyDescription::HDR_FORMAT_LONG) {
+		int nbytes = getByteCount();
+		for (int i = 0; i < count; i++) {
+			long v = *(reinterpret_cast<long*>(&headerBuf[offset + i * nbytes]));
+			if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(long));
+			if (v > - LONG_MAX) {
+				vec.push_back(v);
+			} else return vec;
+		}
+		return vec;
+	} else if (format == PropertyDescription::HDR_FORMAT_INTEGER) {
+		int nbytes = getByteCount();
+		for (int i = 0; i < count; i++) {
+		    int v = *(reinterpret_cast<int*>(&headerBuf[offset + i * nbytes]));
+		    if (byteOrder != natOrder) endian_swap(&v, 1, sizeof(int));
+			if (v > - INT_MAX) {
+				vec.push_back((long)v);
+			} else return vec;
+		}
+		return vec;
+	} else {
+	    ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to read non-long/int header as a long");
+	    return vec;
+	}
 }
 
 }

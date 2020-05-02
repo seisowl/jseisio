@@ -130,6 +130,21 @@ public:
   short getShortHdrVal(std::string _name, char*  headerBuf);
 
   /**
+    * @brief Allocates a buffer where a frame can be stored
+    * @details Allocates a float buffer (with new[] command) with a size of a full frame and return the pointer.
+    * It is up to the user to free the buffer afterwards
+    */
+  float* allocFrameBuf();
+
+  /**
+    * @brief Allocates a buffer where a frame header can be stored
+    * @param initVals If true, then the header-buffer the SeisSpace standard headers automatically will be initalized a corresponding values.
+    * @details Allocates a char buffer (with new[] command) with frame-header size.
+    * It is up to the user to free the buffer afterwards
+    */
+  char* allocHdrBuf(bool initVals=true);
+
+  /**
    * @brief Get the length (in bytes) of 'raw' frame
    * @details
    * A raw frame is a frame as it is saved on a disk, i.e. possibly in compressed format.

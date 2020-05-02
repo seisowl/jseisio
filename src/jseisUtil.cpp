@@ -4,6 +4,7 @@
  */
 
 #include "jseisUtil.h"
+#include "stringfuncs.h"
 
 #include <string.h>
 #include <stdexcept>
@@ -58,7 +59,6 @@ oJseis3D::oJseis3D(const char* fname0, int n1, int n2, int n3, float d1, float d
   int ires;
 
   // printf("write meta data (xml)...\n");
-
   ires = jsWrt.writeMetaData();
   if (ires != JS_OK) {
     fprintf(stderr, "Error writing meta data!\n");
@@ -77,10 +77,6 @@ oJseis3D::oJseis3D(const char* fname0, int n1, int n2, int n3, float d1, float d
   dCdpYHdr = jsWrt.getHdrEntry("CDP_YD");
   iInLineHdr = jsWrt.getHdrEntry("ILINE_NO");
   iXLineHdr = jsWrt.getHdrEntry("XLINE_NO");
-}
-
-oJseis3D::~oJseis3D() {
-  delete[] hdbuf;
 }
 
 int oJseis3D::write_frame(float* data, int i3) {
@@ -106,6 +102,381 @@ int oJseis3D::write_frame(float* data, int i3) {
   }
 
   return JS_OK;
+}
+
+oJseis3D::~oJseis3D() {
+  delete[] hdbuf;
+}
+
+oJseisND::~oJseisND() {
+  delete[] hdbuf;
+}
+
+float* oJseisND::allocFrameBuf() {
+	return jsWrt.allocFrameBuf();
+}
+
+char* oJseisND::allocHdrBuf(bool initVals) {
+	return jsWrt.allocHdrBuf(initVals);
+}
+
+
+//constructor used by slave after the master have created the output file already
+oJseisND::oJseisND(string fname0) {
+	string descname;
+	string fname = jseisUtil::fullname(fname0.c_str(), descname);
+	jsIO::jsFileReader jsRead;
+	int ierr = jsRead.Init(fname);
+	if(ierr!=1){
+	   printf("Error in JavaSeis file %s\n", fname.c_str());
+	   exit(-1);
+	}
+	jsWrt.setFileName(fname);
+	jsWrt.Init(&jsRead);
+	jsWrt.Initialize();
+
+	hdbuf = jsWrt.allocHdrBuf(true); //alloc buffer (with new[] command) and init with SeisSpace standard values.(parameter initVals=true)
+	traceheaderSize = jsWrt.getTraceHeaderSize();
+
+	_ndim = jsWrt.getNDim();
+	_n1 = jsWrt.getAxisLen(0);
+	_n2 = jsWrt.getAxisLen(1);
+	_n3 = jsWrt.getAxisLen(2);
+	_io1 = jsWrt.getAxisLogicalOrigin(0);
+	_io2 = jsWrt.getAxisLogicalOrigin(1);
+	_io3 = jsWrt.getAxisLogicalOrigin(2);
+	_inc1 = jsWrt.getAxisLogicalDelta(0);
+	_inc2 = jsWrt.getAxisLogicalDelta(1);
+	_inc3 = jsWrt.getAxisLogicalDelta(0);
+	_o1 = jsWrt.getAxisPhysicalOrigin(0);
+	_o2 = jsWrt.getAxisPhysicalOrigin(1);
+	_o3 = jsWrt.getAxisPhysicalOrigin(2);
+	_d1 = jsWrt.getAxisPhysicalDelta(0);
+	_d2 = jsWrt.getAxisPhysicalDelta(1);
+	_d3 = jsWrt.getAxisPhysicalDelta(2);
+	if (_ndim > 3) {
+		  _n4 = jsWrt.getAxisLen(3);
+		  _io4 = jsWrt.getAxisLogicalOrigin(3);
+		  _inc4 = jsWrt.getAxisLogicalDelta(3);
+		  _o4 = jsWrt.getAxisPhysicalOrigin(3);
+		  _d4 = jsWrt.getAxisPhysicalDelta(3);
+	}
+	if (_ndim > 4) {
+		  _n5 = jsWrt.getAxisLen(4);
+		  _io5 = jsWrt.getAxisLogicalOrigin(4);
+		  _inc5 = jsWrt.getAxisLogicalDelta(4);
+		  _o5 = jsWrt.getAxisPhysicalOrigin(4);
+		  _d5 = jsWrt.getAxisPhysicalDelta(4);
+    }
+
+	  //get access to header-words
+      axisHdr1 = jsWrt.getAxisHdrEntry(0).getName();
+	  itrcHdr = jsWrt.getAxisHdrEntry(1);
+	  axisHdr2 = itrcHdr.getName();
+	  ifrmHdr = jsWrt.getAxisHdrEntry(2);
+	  axisHdr3 = ifrmHdr.getName();
+	  if (_ndim > 3) {
+		  ivolHdr = jsWrt.getAxisHdrEntry(3);
+		  axisHdr4 = ivolHdr.getName();
+	  }
+	  if (_ndim > 4) {
+		  ihyperHdr = jsWrt.getAxisHdrEntry(4);
+		  axisHdr5 = ihyperHdr.getName();
+	  }
+
+	  itrcTypeHdr = jsWrt.getHdrEntry("TRC_TYPE");
+	  fRecElevHdr = jsWrt.getHdrEntry("REC_ELEV");
+	  dRecXHdr = jsWrt.getHdrEntry("REC_XD");
+	  dRecYHdr = jsWrt.getHdrEntry("REC_YD");
+	  fSouElevHdr = jsWrt.getHdrEntry("SOU_ELEV");
+	  dSouXHdr = jsWrt.getHdrEntry("SOU_XD");
+	  dSouYHdr = jsWrt.getHdrEntry("SOU_YD");
+	  dCdpXHdr = jsWrt.getHdrEntry("CDP_XD");
+	  dCdpYHdr = jsWrt.getHdrEntry("CDP_YD");
+	  fAOffsetHdr = jsWrt.getHdrEntry("AOFFSET");
+	  iInLineHdr = jsWrt.getHdrEntry("ILINE_NO");
+	  iXLineHdr = jsWrt.getHdrEntry("XLINE_NO");
+	  iSourceHdr = jsWrt.getHdrEntry("SOURCE");
+	  iChanHdr = jsWrt.getHdrEntry("CHAN");
+}
+
+// constuctor
+oJseisND::oJseisND(string fname0, int ndim, int* lengths, int* logicalOrigins, int* logicalDeltas, double* physicalOrigins, double* physicalDeltas,
+		std::vector<string>  axisHdrs, DataFormat dataFormat, bool is_depth,
+		std::vector<string> * extendHdrNames, std::vector<string> * extendHdrTypes) {
+
+  string descname;
+  string fname = jseisUtil::fullname(fname0.c_str(), descname);
+  fprintf(stderr, "fname = %s, ndim=%d, format=%s, is_depth=%d\n", fname.c_str(), ndim, dataFormat.getName().c_str(), is_depth);
+
+  if (ndim < 3 || ndim > 5) {
+    fprintf(stderr, "Error dimensions, must be 3, 4, or 5!\n");
+    return;
+  }
+
+  if ( !(extendHdrNames == NULL  || (extendHdrNames != NULL && extendHdrTypes !=NULL && (*extendHdrNames).size() == (*extendHdrTypes).size()))) {
+	fprintf(stderr, "Extend header vectors not consistent !\n");
+    return;
+  }
+
+  _ndim = ndim;
+  _n1 = lengths[0];
+  _n2 = lengths[1];
+  _n3 = lengths[2];
+  _io1 = logicalOrigins[0];
+  _io2 = logicalOrigins[1];
+  _io3 = logicalOrigins[2];
+  _inc1 = logicalDeltas[0];
+  _inc2 = logicalDeltas[1];
+  _inc3 = logicalDeltas[2];
+  _o1 = physicalOrigins[0];
+  _o2 = physicalOrigins[1];
+  _o3 = physicalOrigins[2];
+  _d1 = physicalDeltas[0];
+  _d2 = physicalDeltas[1];
+  _d3 = physicalDeltas[2];
+  if (_ndim > 3) {
+	  _n4 = lengths[3];
+	  _io4 = logicalOrigins[3];
+	  _inc4 = logicalDeltas[3];
+	  _o4 = physicalOrigins[3];
+	  _d4 = physicalDeltas[3];
+  }
+  if (_ndim > 4) {
+	  _n5 = lengths[4];
+	  _io5 = logicalOrigins[4];
+	  _inc5 = logicalDeltas[4];
+	  _o5 = physicalOrigins[4];
+	  _d5 = physicalDeltas[4];
+  }
+
+  int nExts = ((long)_n5*_n4*_n3*_n2*_n1 -1 ) /2048/1024/1024 + 1;  // 2GB per extend
+
+  jsWrt.setFileName(fname);
+  jsWrt.initDataType("CUSTOM", dataFormat.getName().c_str(), true, nExts);
+  jsWrt.setFileDescription(descname);
+  jsWrt.initGridDim(_ndim);
+
+  axisHdr1 = axisHdrs[0];
+  StrToUpper(axisHdr1);
+  jsWrt.addProperty(axisHdr1, axisHdr1, "INTEGER", 1);
+  axisHdr2 = axisHdrs[1];
+  StrToUpper(axisHdr2);
+  jsWrt.addProperty(axisHdr2, axisHdr2, "INTEGER", 1);
+  axisHdr3 = axisHdrs[2];
+  StrToUpper(axisHdr3);
+  jsWrt.addProperty(axisHdr3, axisHdr3, "INTEGER", 1);
+  if (_ndim > 3) {
+	  axisHdr4 = axisHdrs[3];
+	  StrToUpper(axisHdr4);
+	  jsWrt.addProperty(axisHdr4, axisHdr4, "INTEGER", 1);
+  }
+  if (_ndim > 4) {
+	  axisHdr5 = axisHdrs[4];
+	  StrToUpper(axisHdr5);
+	  jsWrt.addProperty(axisHdr5, axisHdr5, "INTEGER", 1);
+  }
+
+  jsWrt.addProperty("SOURCE", "Source number", "INTEGER", 1);
+  jsWrt.addProperty("CHAN", "Recording channel number", "INTEGER", 1);
+  jsWrt.addProperty("AOFFSET", "Absolute value of offset", "FLOAT", 1);
+  jsWrt.addProperty("SOU_ELEV", "Source elevation", "FLOAT", 1);
+  jsWrt.addProperty("REC_ELEV", "Receiver elevation", "FLOAT", 1);
+  jsWrt.addProperty("SOU_XD", "Source x-coordinate", "DOUBLE", 1);
+  jsWrt.addProperty("SOU_YD", "Source y-coordinate", "DOUBLE", 1);
+  jsWrt.addProperty("REC_XD", "Receiver x-coordinate", "DOUBLE", 1);
+  jsWrt.addProperty("REC_YD", "Receiver y-coordinate", "DOUBLE", 1);
+
+  // extend headers
+  if (extendHdrNames != NULL && (*extendHdrNames).size() > 0) {
+	  int nhs = (*extendHdrNames).size();
+	  for (int i =0; i < nhs; i++) {
+		  StrToUpper((*extendHdrNames)[i]);
+		  StrToUpper((*extendHdrTypes)[i]);
+		  fprintf(stderr, "Addding Header: %s, %s\n", (*extendHdrNames)[i].c_str(), (*extendHdrTypes)[i].c_str());
+		  jsWrt.addProperty( (*extendHdrNames)[i], (*extendHdrNames)[i], (*extendHdrTypes)[i], 1);
+	  }
+  }
+
+  if (is_depth) jsWrt.initGridAxis(0, axisHdr1, "METERS", "DEPTH", _n1, _io1, _inc1, _o1, _d1);
+  else jsWrt.initGridAxis(0, axisHdr1, "MILLISECONDS", "TIME", _n1, _io1, _inc1, _o1, _d1);
+  jsWrt.initGridAxis(1, axisHdr2, "METERS", "SPACE", _n2, _io2, _inc2, _o2, _d2);
+  jsWrt.initGridAxis(2, axisHdr3, "METERS", "SPACE", _n3, _io3, _inc3, _o3, _d3);
+  if (_ndim > 3) jsWrt.initGridAxis(3, axisHdr4, "METERS", "SPACE", _n4, _io4, _inc4, _o4, _d4);
+  if (_ndim > 4) jsWrt.initGridAxis(4, axisHdr5, "METERS", "SPACE", _n5, _io5, _inc5, _o5, _d5);
+  jsWrt.addCustomProperty("Stacked", "boolean", "false");
+  jsWrt.addSurveyGeom(_io3, _io3 + (_n3-1)*_inc3, _io2, _io2 + (_n2-1)*_inc2,	_o2+(_n2-1)*_d2, _o3, _o2, _o3, _o2, _o3 + (_n3-1)*_d3);
+
+  // Initalize jsFileWriter object with the defined data context wrtInput
+  int ires = jsWrt.writeMetaData();
+  if (ires != JS_OK) {
+    fprintf(stderr, "Error writing meta data!\n");
+    return;
+  }
+  hdbuf = jsWrt.allocHdrBuf(true); //alloc buffer (with new[] command) and init with SeisSpace standard values.(parameter initVals=true)
+  traceheaderSize = jsWrt.getTraceHeaderSize();
+
+  //get access to header-words
+  itrcHdr = jsWrt.getHdrEntry(axisHdr2);
+  ifrmHdr = jsWrt.getHdrEntry(axisHdr3);
+  if (_ndim > 3) ivolHdr = jsWrt.getHdrEntry(axisHdr4);
+  if (_ndim > 4) ihyperHdr = jsWrt.getHdrEntry(axisHdr5);
+
+  itrcTypeHdr = jsWrt.getHdrEntry("TRC_TYPE");
+  fRecElevHdr = jsWrt.getHdrEntry("REC_ELEV");
+  dRecXHdr = jsWrt.getHdrEntry("REC_XD");
+  dRecYHdr = jsWrt.getHdrEntry("REC_YD");
+  fSouElevHdr = jsWrt.getHdrEntry("SOU_ELEV");
+  dSouXHdr = jsWrt.getHdrEntry("SOU_XD");
+  dSouYHdr = jsWrt.getHdrEntry("SOU_YD");
+  dCdpXHdr = jsWrt.getHdrEntry("CDP_XD");
+  dCdpYHdr = jsWrt.getHdrEntry("CDP_YD");
+  fAOffsetHdr = jsWrt.getHdrEntry("AOFFSET");
+  iInLineHdr = jsWrt.getHdrEntry("ILINE_NO");
+  iXLineHdr = jsWrt.getHdrEntry("XLINE_NO");
+  iSourceHdr = jsWrt.getHdrEntry("SOURCE");
+  iChanHdr = jsWrt.getHdrEntry("CHAN");
+}
+
+// write header only
+int oJseisND::write_frameHeader(char* hdr, int iframe, int ivolume, int ihypercube) { // index start from 0
+
+	  if (iframe >= _n3 || (_ndim > 3 && ivolume >= _n4) || (_ndim > 4 && ihypercube >= _n5)) {
+	    fprintf(stderr, "JS write_frame:(%d %d %d) out of bound(%d %d %d)\n",
+	    		iframe,  ivolume, ihypercube, _n3, _n4, _n5);
+	    return JS_WARNING;
+	  }
+
+//	  fprintf(stderr, "JS write_frameHeader:(%d %d %d)\n", iframe,  ivolume, ihypercube);
+
+	  int i3 = ihypercube*_n4*_n3 + ivolume*_n3 + iframe;
+	  int ires = jsWrt.writeFrameHeader(i3, hdr);
+	  return JS_OK;
+}
+
+int oJseisND::write_frame(float* data, char* hdr, int iframe, int ivolume, int ihypercube) { // index start from 0
+
+  if (iframe >= _n3 || (_ndim > 3 && ivolume >= _n4) || (_ndim > 4 && ihypercube >= _n5)) {
+    fprintf(stderr, "JS write_frame:(%d %d %d) out of bound(%d %d %d)\n",
+    		iframe,  ivolume, ihypercube, _n3, _n4, _n5);
+    return JS_WARNING;
+  }
+
+//  fprintf(stderr, "JS write_frame:(%d %d %d)\n", iframe,  ivolume, ihypercube);
+
+  int numLiveTraces = jsWrt.leftJustify(data, hdbuf, _n2); // does not needed for all trc_type == 1
+  int i3 = ihypercube*_n4*_n3 + ivolume*_n3 + iframe;
+  int ires = jsWrt.writeFrame(i3, data, hdr, numLiveTraces);
+  if (ires != numLiveTraces) {
+    fprintf(stderr, "Error while writing frame # %d\n", i3);
+    return JS_FATALERROR;
+  }
+  return JS_OK;
+}
+
+int oJseisND::write_frame(float* data, int iframe, int ivolume, int ihypercube) { // index start from 0
+
+  if (iframe >= _n3 || (_ndim > 3 && ivolume >= _n4) || (_ndim > 4 && ihypercube >= _n5)) {
+    fprintf(stderr, "JS write_frame:(%d %d %d) out of bound(%d %d %d)\n",
+    		iframe,  ivolume, ihypercube, _n3, _n4, _n5);
+    return JS_FATALERROR;
+  }
+
+//  fprintf(stderr, "JS write_frame:(%d %d %d)\n", iframe,  ivolume, ihypercube);
+
+  for (int i2 = 0; i2 < _n2; i2++) {
+    itrcTypeHdr.setIntVal(&hdbuf[i2 * traceheaderSize], 1); // default 1 is OK
+    itrcHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io2 + i2 * _inc2 );
+	ifrmHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io3 + iframe * _inc3 );
+    if (_ndim > 3) ivolHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io4 + ivolume * _inc4 );
+    if (_ndim > 4) ihyperHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io5 + ihypercube * _inc5 );
+    fRecElevHdr.setFloatVal(&hdbuf[i2 * traceheaderSize], 0);
+    dRecXHdr.setDoubleVal(&hdbuf[i2 * traceheaderSize], _o2 + i2 * _d2);
+    dRecYHdr.setDoubleVal(&hdbuf[i2 * traceheaderSize], _o3 + i2 * _d3);
+    fSouElevHdr.setFloatVal(&hdbuf[i2 * traceheaderSize], 0);
+    dSouXHdr.setDoubleVal(&hdbuf[i2 * traceheaderSize], _o2 + i2 * _d2);
+    dSouYHdr.setDoubleVal(&hdbuf[i2 * traceheaderSize], _o3 + i2 * _d3);
+    dCdpXHdr.setDoubleVal(&hdbuf[i2 * traceheaderSize], _o2 + i2 * _d2);
+    dCdpYHdr.setDoubleVal(&hdbuf[i2 * traceheaderSize], _o3 + i2 * _d3);
+    fAOffsetHdr.setFloatVal(&hdbuf[i2 * traceheaderSize], 0);
+    iXLineHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io2 + i2 * _inc2 );
+    iInLineHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io3 + iframe * _inc3 );
+    iSourceHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io3 + iframe * _inc3 );
+    iChanHdr.setIntVal(&hdbuf[i2 * traceheaderSize], _io2 + i2 * _inc2 );
+  }
+
+  int numLiveTraces = _n2; //jsWrt.leftJustify(data, hdbuf, _n2); // does not needed for all trc_type == 1
+  int i3 = ihypercube*_n4*_n3 + ivolume*_n3 + iframe;
+  int ires = jsWrt.writeFrame(i3, data, hdbuf, numLiveTraces);
+  if (ires != numLiveTraces) {
+    fprintf(stderr, "Error while writing frame # %d\n", i3);
+    return JS_FATALERROR;
+  }
+
+  return JS_OK;
+}
+
+int oJseisND::write_volume(float* data, char* hdr, int ivolume, int ihypercube){ // index start from 0
+  for (int ifr = 0; ifr < _n3; ifr++) {
+	write_frame(data + (size_t) _n1 * _n2 * ifr, hdr + (size_t) traceheaderSize * _n2 * ifr,
+			  ifr, ivolume, ihypercube);
+  }
+  return JS_OK;
+}
+
+int oJseisND::write_volume(float* data, int ivolume, int ihypercube){ // index start from 0
+  for (int ifr = 0; ifr < _n3; ifr++) {
+    write_frame(data + (size_t) _n1 * _n2 * ifr, ifr, ivolume, ihypercube);
+  }
+  return JS_OK;
+}
+
+/*
+int oJseisND::write_volume_reg(float* data, int ivolume, int ihypercube){ // index start from 0
+  if ((_ndim > 3 && ivolume >= _n4) || (_ndim > 4 && ihypercube >= _n5)) {
+    fprintf(stderr, "JS write_volume_reg:(%d %d) out of bound(%d %d)\n",
+ 		ivolume, ihypercube, _n4, _n5);
+    return JS_FATALERROR;
+  }
+  if (!(jsWrt.getTraceFormatName() == "FLOAT") ) {
+    fprintf(stderr, "Must be float and full size to use write_volume_reg method!!!" );
+    return JS_FATALERROR;
+  }
+
+  long frameIndex = (long)ihypercube*_n4*_n3 + ivolume*_n3;
+  int ires = jsWrt.writeFrames(frameIndex, data, _n3);
+  if(ires!=JS_OK){
+    fprintf(stderr, "write data volume error");
+    return ires;
+  }
+}
+*/
+
+int oJseisND::write_volume_reg(float* data, char* hdr, int ivolume, int ihypercube){ // index start from 0
+  if ((_ndim > 3 && ivolume >= _n4) || (_ndim > 4 && ihypercube >= _n5)) {
+    fprintf(stderr, "JS write_volume_reg:(%d %d) out of bound(%d %d)\n",
+ 		ivolume, ihypercube, _n4, _n5);
+    return JS_FATALERROR;
+  }
+  if (!(jsWrt.getTraceFormatName() == "FLOAT") ) {
+    fprintf(stderr, "Must be float and full size to use write_volume_reg method!!!" );
+    return JS_FATALERROR;
+  }
+
+  long frameIndex = (long)ihypercube*_n4*_n3 + ivolume*_n3;
+  int ires = jsWrt.writeFrames(frameIndex, data, _n3);
+  if(ires!=JS_OK){
+	  fprintf(stderr,"write data volume error");
+    return ires;
+  }
+
+  long frameHeaderSize = jsWrt.getHdrBufSize();
+  long glb_hd_offset = frameIndex * frameHeaderSize;
+  ires = jsWrt.writeHeaderBuffer(glb_hd_offset, hdr, frameHeaderSize*_n3);
+  if(ires!=JS_OK){
+	  fprintf(stderr, "write header volume error");
+    return ires;
+  }
 }
 
 string& jseisUtil::js_dir() {

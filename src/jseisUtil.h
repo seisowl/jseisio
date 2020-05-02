@@ -47,6 +47,44 @@ public:
 
   int write_frame(float* data, int iframe);
 
+
+};
+
+class oJseisND {
+
+public:
+  char *hdbuf;
+  int traceheaderSize;
+  jsIO::jsFileWriter jsWrt;
+
+  string axisHdr1, axisHdr2, axisHdr3, axisHdr4, axisHdr5;
+  jsIO::catalogedHdrEntry itrcTypeHdr, itrcHdr, ifrmHdr, ivolHdr, ihyperHdr;
+  jsIO::catalogedHdrEntry dRecXHdr, dRecYHdr, dSouXHdr, dSouYHdr, dCdpXHdr, dCdpYHdr,
+                          iInLineHdr, iXLineHdr, iSourceHdr, iChanHdr, fSouElevHdr, fRecElevHdr, fAOffsetHdr;
+  int _ndim = 3;
+  int _n1, _n2, _n3, _n4=1, _n5=1;
+  int _io1, _io2, _io3, _io4=0, _io5=0;
+  int _inc1, _inc2, _inc3, _inc4=1, _inc5=1;
+  float _d1, _d2, _d3, _d4, _d5;
+  float _o1, _o2, _o3, _o4, _o5;
+
+public:
+  //constructor used by slave after the master have created the output file already
+  oJseisND(string fname0);
+  // constuctor
+  oJseisND(string fname0, int ndim, int* lengths, int* logicalOrigins, int* logicalDeltas, double* physicalOrigins, double* physicalDeltas,
+		  std::vector<string> axisHdrs, DataFormat dataFormat = jsIO::DataFormat::COMPRESSED_INT16, bool is_depth = true,
+		  std::vector<string> *extendHdrNames = NULL, std::vector<string> * extendHdrTypes = NULL);
+  virtual ~oJseisND();
+  int write_frameHeader(char* hdr, int iframe, int ivolume=0, int ihypercube=0); // index start from 0
+  int write_frame(float* data, int iframe, int ivolume=0, int ihypercube=0); // index start from 0
+  int write_frame(float* data, char* hdr, int iframe, int ivolume=0, int ihypercube=0); // index start from 0
+  int write_volume(float* data, char* hdr, int ivolume, int ihypercube=0); // index start from 0
+  int write_volume(float* data, int ivolume, int ihypercube=0); // index start from 0
+  int write_volume_reg(float* data, char* hdr, int ivolume, int ihypercube=0); // index start from 0
+  float* allocFrameBuf();
+  char* allocHdrBuf(bool initVals=true);
+
 };
 
 class oJseisShots {
