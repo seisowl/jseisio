@@ -510,7 +510,8 @@ string jseisUtil::fullname(const char* fname0, string& descname) {
   descname = descname.substr(pos0 + 1, pos1 - pos0 - 1);
   if ((pos0 = descname.rfind('@')) != string::npos) descname = descname.substr(pos0 + 1); // handle groupname for JavaSeis
   pos0 = fname.rfind(descname + ".");
-  std::transform(fname.begin() + pos0, fname.end(), fname.begin() + pos0, ::tolower); // convert file name corresponding to descname to lower case
+
+  // std::transform(fname.begin() + pos0, fname.end(), fname.begin() + pos0, ::tolower); // convert file name corresponding to descname to lower case
 
   return fname;
 }

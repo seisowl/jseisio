@@ -667,8 +667,8 @@ namespace jsIO
       ERROR_PRINTF(jsFileWriterLog,"This function can be used only for FLOAT data");
       return JS_USERERROR;
     }
-    if(frameIndex<0 || frameIndex+nFrames>=m_TotalNumOfFrames){
-      ERROR_PRINTF(jsFileWriterLog,"Invalid frame index. [%ld,%ld] must be in [0,%ld)", frameIndex, frameIndex+nFrames, m_TotalNumOfFrames);
+    if(frameIndex<0 || frameIndex+nFrames-1 >= m_TotalNumOfFrames){
+      ERROR_PRINTF(jsFileWriterLog,"Invalid frame index. [%ld,%ld] must be in [0,%ld)", frameIndex, frameIndex+nFrames-1, m_TotalNumOfFrames);
       return JS_USERERROR;
     }
     long offset = frameIndex * m_frameSize;
