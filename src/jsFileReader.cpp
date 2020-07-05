@@ -1307,7 +1307,7 @@ void jsFileReader::closefp() {
       {
 //          TRACE_VAR(jsFileReaderLog,offset);
 //          TRACE_VAR(jsFileReaderLog,extInd);
-          ::close(m_curr_trffd);
+          if (m_curr_trffd!=-1) ::close(m_curr_trffd);
           std::string fname = (*m_TrFileExtents)[extInd].getPath();
           m_curr_trffd = :: open(fname.c_str(), O_RDONLY);
           TRACE_PRINTF(jsFileReaderLog, "Open new file %d, %d, %s, %d", m_currIndexOfTrFileExtent,extInd, fname.c_str(), m_curr_trffd );
@@ -1358,7 +1358,7 @@ void jsFileReader::closefp() {
       }
 
       if(m_currIndexOfTrHeadExtent!=extInd){
-          ::close(m_curr_trhfd);
+          if (m_curr_trhfd!=-1) ::close(m_curr_trhfd);
           std::string fname = (*m_TrHeadExtents)[extInd].getPath();
           m_curr_trhfd = :: open(fname.c_str(), O_RDONLY);
 //        printf("****** open new header file pInd=%d, cInd=%d, name=%s, fd=%d\n", m_currIndexOfTrHeadExtent,extInd, fname.c_str(), m_curr_trhfd );
@@ -1375,7 +1375,7 @@ void jsFileReader::closefp() {
       if(m_pCachedReaderHD->read(loc_offset_trFile, (unsigned char*) &buf[buflen-rest_buflen], bytes2read)!=true){
 //       printf("*************** lowInd=%d, upInd=%d, extInd=%d, m_curr_trhfd=%d, bytes2read=%ld, loc_offset_trFile=%lu\t %s \n",lowInd, upInd, extInd,m_curr_trhfd,bytes2read, loc_offset_trFile, strerror(errno));
         m_currIndexOfTrHeadExtent=-1;
-          ::close(m_curr_trhfd);
+        if (m_curr_trhfd!=-1) ::close(m_curr_trhfd);
           m_curr_trhfd=-1;
           return JS_WARNING;
       }
