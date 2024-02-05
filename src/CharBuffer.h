@@ -1,7 +1,7 @@
 /***************************************************************************
  CharBuffer.h  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -60,12 +60,12 @@ public:
   }
   ;
 
-  void setBuffer(char *_buffer, unsigned long _bufsize) {
-    setBufferBase(_buffer, _bufsize);
+  void copyBuffer(char *_buffer, unsigned long _bufsize) {
+    copyBufferBase(_buffer, _bufsize);
     buffer_pos = 0;
   }
   ;
-  void wrap(char* _buffer, unsigned long _bufsize) {
+  void wrap(char *_buffer, unsigned long _bufsize) {
     wrapBase(_buffer, _bufsize);
     buffer_pos = 0;
   }
@@ -76,8 +76,8 @@ public:
   void asShortBuffer(ShortBuffer &sBuf);
   void asIntBuffer(IntBuffer &iBuf);
 
-  const char* array() {
-    return (const char*) (arrayBase());
+  const char *array() {
+    return (const char *)(arrayBase());
   }
   ;
 
@@ -102,7 +102,7 @@ public:
   long putLong(long a);
   short putShort(short a);
 
-// private atributes
+  // private atributes
 private:
   JS_BYTEORDER byteOrder;
   JS_BYTEORDER natOrder;

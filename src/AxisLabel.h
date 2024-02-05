@@ -33,12 +33,18 @@
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <map>
+using std::string;
+using std::map;
 
 namespace jsIO {
 /**
  * This class is for representation of an axis label.
  */
 class AxisLabel {
+public:
+  static map<string, string> LABEL2HDR;
 public:
   ~AxisLabel() {
   }
@@ -58,7 +64,7 @@ public:
     return description;
   }
 
-  static void getDefault(int ndim, AxisLabel *& axes);
+  static void getDefault(int ndim, AxisLabel *&axes);
 
 public:
 
@@ -77,7 +83,7 @@ public:
   static const AxisLabel SAIL_LINE;
   static const AxisLabel VOLUME;
 
-// private atributes
+  // private atributes
 private:
   std::string name;
   std::string description;

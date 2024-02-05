@@ -1,7 +1,7 @@
 /***************************************************************************
  CharBuffer.cpp  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -35,30 +35,30 @@ CharBuffer::CharBuffer() {
 }
 
 int CharBuffer::position(unsigned long _buffer_pos) {
-  if (_buffer_pos <= size()) {
+  if(_buffer_pos <= size()) {
     buffer_pos = _buffer_pos;
     return JS_OK;
   }
-//   else{
-//      ERROR_PRINTF(CharBufferLog, "Illegal buffer position. %lu must be smaller than %lu", _buffer_pos, size());
-//   }
+  //   else{
+  //      ERROR_PRINTF(CharBufferLog, "Illegal buffer position. %lu must be smaller than %lu", _buffer_pos, size());
+  //   }
   return JS_USERERROR;
 }
 
 void CharBuffer::asByteBuffer(CharBuffer &bBuf) {
-  bBuf.wrap((char*) array(), size());
+  bBuf.wrap((char *) array(), size());
 }
 
 void CharBuffer::asFloatBuffer(FloatBuffer &fBuf) {
-  fBuf.wrap((float*) array(), (unsigned long) (size() / sizeof(float)));
+  fBuf.wrap((float *) array(), (unsigned long)(size() / sizeof(float)));
 }
 
 void CharBuffer::asShortBuffer(ShortBuffer &sBuf) {
-  sBuf.wrap((short*) array(), (unsigned long) (size() / sizeof(short)));
+  sBuf.wrap((short *) array(), (unsigned long)(size() / sizeof(short)));
 }
 
 void CharBuffer::asIntBuffer(IntBuffer &iBuf) {
-  iBuf.wrap((int*) array(), (unsigned long) (size() / sizeof(int)));
+  iBuf.wrap((int *) array(), (unsigned long)(size() / sizeof(int)));
 }
 
 char CharBuffer::get() {
@@ -68,16 +68,16 @@ char CharBuffer::get() {
 }
 
 char CharBuffer::get(unsigned long index) {
-  if (index < size()) return buffer[index];
+  if(index < size()) return buffer[index];
   else {
-//      ERROR_PRINTF(CharBufferLog, "Error: %lu must be in [0,%lu) \n",index, size());
+    //      ERROR_PRINTF(CharBufferLog, "Error: %lu must be in [0,%lu) \n",index, size());
     return 0;
   }
 }
 
 int CharBuffer::get(char *dst, int len) {
-  if (buffer_pos + len > size()) {
-//         ERROR_PRINTF(CharBufferLog, " %lu + %lu must smaller than %lu \n",buffer_pos, len, size());
+  if(buffer_pos + len > size()) {
+    //         ERROR_PRINTF(CharBufferLog, " %lu + %lu must smaller than %lu \n",buffer_pos, len, size());
     return JS_USERERROR;
   }
   const char *buf = (const char *) array();
@@ -87,8 +87,8 @@ int CharBuffer::get(char *dst, int len) {
 }
 
 int CharBuffer::get(unsigned long pos, char *dst, int len) {
-  if (pos + len > size()) {
-//         ERROR_PRINTF(CharBufferLog, "%d must be smaller than the size of the remaining buffer %lu\n",len, size()-pos);
+  if(pos + len > size()) {
+    //         ERROR_PRINTF(CharBufferLog, "%d must be smaller than the size of the remaining buffer %lu\n",len, size()-pos);
     return JS_USERERROR;
   }
   const char *buf = (const char *) array();
@@ -102,8 +102,8 @@ void CharBuffer::put(char ch) {
 }
 
 int CharBuffer::put(unsigned long index, char ch) {
-  if (index >= size()) {
-//      printf("Error: %lu must be in [0,%lu) \n",index, size());
+  if(index >= size()) {
+    //      printf("Error: %lu must be in [0,%lu) \n",index, size());
     return JS_USERERROR;
   }
   buffer[index] = ch;
@@ -116,9 +116,9 @@ void CharBuffer::put(char *src, int len) {
 }
 
 int CharBuffer::put(unsigned long pos, char *src, int len) {
-  if (pos > 0 && pos < size()) buffer.insert(pos, src, len);
+  if(pos > 0 && pos < size()) buffer.insert(pos, src, len);
   else return JS_USERERROR;
-//       printf("Error: %lu must be in [0,%lu) \n",pos, size());
+  //       printf("Error: %lu must be in [0,%lu) \n",pos, size());
 
   return JS_OK;
 }
@@ -126,76 +126,76 @@ int CharBuffer::put(unsigned long pos, char *src, int len) {
 // the endian_swap function should be persolaized (for float, int ...) for high performance
 
 short CharBuffer::putShort(short value) {
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
-  char *pV = reinterpret_cast<char*>(&value);
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  char *pV = reinterpret_cast<char *>(&value);
   buffer.insert(buffer_pos, pV, sizeof(short));
   buffer_pos += sizeof(short);
   return (value);
 }
 
 int CharBuffer::putInt(int value) {
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
-  char *pV = reinterpret_cast<char*>(&value);
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  char *pV = reinterpret_cast<char *>(&value);
   buffer.insert(buffer_pos, pV, sizeof(int));
   buffer_pos += sizeof(int);
   return (value);
 }
 
 long CharBuffer::putLong(long value) {
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
-  char *pV = reinterpret_cast<char*>(&value);
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  char *pV = reinterpret_cast<char *>(&value);
   buffer.insert(buffer_pos, pV, sizeof(long));
   buffer_pos += sizeof(long);
   return (value);
 }
 
 float CharBuffer::putFloat(float value) {
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
-  char *pV = reinterpret_cast<char*>(&value);
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  char *pV = reinterpret_cast<char *>(&value);
   buffer.insert(buffer_pos, pV, sizeof(float));
   buffer_pos += sizeof(float);
   return (value);
 }
 
 double CharBuffer::putDouble(double value) {
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
-  char *pV = reinterpret_cast<char*>(&value);
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  char *pV = reinterpret_cast<char *>(&value);
   buffer.insert(buffer_pos, pV, sizeof(double));
   buffer_pos += sizeof(double);
   return (value);
 }
 
 short CharBuffer::getShort() {
-  short value = *(reinterpret_cast<short*>(&buffer[buffer_pos]));
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  short value = *(reinterpret_cast<short *>(&buffer[buffer_pos]));
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
   buffer_pos += sizeof(value);
   return (value);
 }
 
 int CharBuffer::getInt() {
-  int value = *(reinterpret_cast<int*>(&buffer[buffer_pos]));
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  int value = *(reinterpret_cast<int *>(&buffer[buffer_pos]));
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
   buffer_pos += sizeof(value);
   return (value);
 }
 
 long CharBuffer::getLong() {
-  long value = *(reinterpret_cast<long*>(&buffer[buffer_pos]));
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  long value = *(reinterpret_cast<long *>(&buffer[buffer_pos]));
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
   buffer_pos += sizeof(value);
   return (value);
 }
 
 float CharBuffer::getFloat() {
-  float value = *(reinterpret_cast<float*>(&buffer[buffer_pos]));
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  float value = *(reinterpret_cast<float *>(&buffer[buffer_pos]));
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
   buffer_pos += sizeof(value);
   return (value);
 }
 
 double CharBuffer::getDouble() {
-  double value = *(reinterpret_cast<double*>(&buffer[buffer_pos]));
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  double value = *(reinterpret_cast<double *>(&buffer[buffer_pos]));
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
   buffer_pos += sizeof(value);
   return (value);
 }

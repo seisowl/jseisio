@@ -28,7 +28,7 @@ namespace jsIO {
 DECLARE_LOGGER(GridDefinitionLog);
 
 GridDefinition::~GridDefinition() {
-  if (axis != NULL) delete[] axis;
+  if(axis != NULL) delete[] axis;
 }
 
 GridDefinition::GridDefinition() {
@@ -40,28 +40,28 @@ GridDefinition::GridDefinition(int _numDimensions, AxisDefinition *_axis) {
 }
 
 void GridDefinition::Init(int _numDimensions, AxisDefinition *_axis) {
-  if (_numDimensions < 1) {
+  if(_numDimensions < 1) {
     ERROR_PRINTF(GridDefinitionLog, "Number of dimensions must be greater than 0.");
   }
   numDimensions = _numDimensions;
   axis = new AxisDefinition[numDimensions];
-  for (int i = 0; i < numDimensions; i++) {
+  for(int i = 0; i < numDimensions; i++) {
     axis[i] = _axis[i];
   }
 }
 
-void GridDefinition::CopyClass(const GridDefinition & Other) {
+void GridDefinition::CopyClass(const GridDefinition &Other) {
   numDimensions = Other.numDimensions;
-  if (axis != NULL) delete[] axis;
+  if(axis != NULL) delete[] axis;
 
   axis = new AxisDefinition[numDimensions];
-  for (int i = 0; i < numDimensions; i++) {
+  for(int i = 0; i < numDimensions; i++) {
     axis[i] = Other.axis[i];
   }
 }
 
-GridDefinition GridDefinition::getDefault(int ndim, int* idim) const {
-  AxisDefinition * _axes;
+GridDefinition GridDefinition::getDefault(int ndim, int *idim) const {
+  AxisDefinition *_axes;
   AxisDefinition::getDefault(ndim, idim, _axes);
   GridDefinition gd(ndim, _axes);
   delete[] _axes;
@@ -76,7 +76,7 @@ AxisDefinition GridDefinition::getAxis(int index) const {
   return (axis[index]);
 }
 
-AxisDefinition* GridDefinition::getAxisPtr(int index) const {
+AxisDefinition *GridDefinition::getAxisPtr(int index) const {
   return (&axis[index]);
 }
 
@@ -141,7 +141,7 @@ long GridDefinition::getNumVolumesPerHypercube() const {
 }
 
 std::string GridDefinition::getIndexName(int index) const {
-  switch (index) {
+  switch(index) {
   case SAMPLE_INDEX:
     return "Sample";
   case TRACE_INDEX:

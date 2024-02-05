@@ -46,13 +46,13 @@ public:
   static const int OFFSET = 2;
   static const int VOLUME = 3;
 
-// private atributes
+  // private atributes
 private:
 
   int numDimensions;
   AxisDefinition *axis;
 
-//     bool bInit;
+  //     bool bInit;
 public:
   ~GridDefinition();
   /** No descriptions */
@@ -60,20 +60,19 @@ public:
   GridDefinition(int _numDimensions, AxisDefinition *_axis);
   void Init(int _numDimensions, AxisDefinition *_axis);
 
-  GridDefinition(GridDefinition const& other) {
+  GridDefinition(GridDefinition const &other) {
     CopyClass(other);
   }
   ; //Copy constructor
-  GridDefinition & operator =(const GridDefinition & other) //Assignment operator
-      {
-    if (this != &other) CopyClass(other);
+  GridDefinition &operator =(const GridDefinition &other) { //Assignment operator
+    if(this != &other) CopyClass(other);
     return *this;
   }
 
-  GridDefinition getDefault(int ndim, int* idim) const;
+  GridDefinition getDefault(int ndim, int *idim) const;
   int getNumDimensions() const;
   AxisDefinition getAxis(int index) const;
-  AxisDefinition* getAxisPtr(int index) const;
+  AxisDefinition *getAxisPtr(int index) const;
   AxisLabel getAxisLabel(int index) const;
   std::string getAxisLabelString(int index) const;
   Units getAxisUnits(int index) const;
@@ -92,7 +91,7 @@ public:
   std::string getIndexName(int index) const;
 
 private:
-  void CopyClass(const GridDefinition & Other);
+  void CopyClass(const GridDefinition &Other);
 
 protected:
 

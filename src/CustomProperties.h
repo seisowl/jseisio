@@ -27,12 +27,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
+using std::vector;
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
-
-#include "xmlreader.h"
 
 #include "stringfuncs.h"
 #include "jsDefs.h"
@@ -43,46 +42,76 @@ namespace jsIO {
 
 class SurveyGeometry {
 public:
-  SurveyGeometry() :
-      minILine(0), maxILine(-1), minXLine(0), maxXLine(-1), xILine1End(0), yILine1End(0), xILine1Start(0), yILine1Start(
-          0), xXLine1End(0), yXLine1End(0) {
+  SurveyGeometry() : minILine(0), maxILine(-1), nILine(1), minXLine(0), maxXLine(-1), nXLine(1), xILine1End(0), yILine1End(0), xILine1Start(
+      0), yILine1Start(0), xXLine1End(0), yXLine1End(0), resetOrigin(-1) {
   }
-  void setGeom(int i1, int i2, int i3, int i4, float f1, float f2, float f3, float f4, float f5, float f6) {
+  void setGeom(int i1, int i2, int nIL, int i3, int i4, int nXL, double f1, double f2, double f3, double f4, double f5, double f6,
+      int reset) {
     minILine = i1;
     maxILine = i2;
+    nILine = nIL;
     minXLine = i3;
     maxXLine = i4;
+    nXLine = nXL;
     xILine1End = f1;
     yILine1End = f2;
     xILine1Start = f3;
     yILine1Start = f4;
     xXLine1End = f5;
     yXLine1End = f6;
-
+    resetOrigin = reset;
   }
-  void getGeom(int &i1, int &i2, int &i3, int &i4, float &f1, float &f2, float &f3, float &f4, float &f5, float &f6) {
+  void getGeom(int &i1, int &i2, int &nIL, int &i3, int &i4, int &nXL, double &f1, double &f2, double &f3, double &f4, double &f5,
+      double &f6, int &reset_origin) {
     i1 = minILine;
     i2 = maxILine;
+    nIL = nILine;
     i3 = minXLine;
     i4 = maxXLine;
+    nXL = nXLine;
     f1 = xILine1End;
     f2 = yILine1End;
     f3 = xILine1Start;
     f4 = yILine1Start;
     f5 = xXLine1End;
     f6 = yXLine1End;
+    reset_origin = resetOrigin;
   }
-private:
+public:
+  int resetOrigin = -1; // unset
   int minILine;
   int maxILine;
+  int nILine;
   int minXLine;
   int maxXLine;
-  float xILine1End;
-  float yILine1End;
-  float xILine1Start;
-  float yILine1Start;
-  float xXLine1End;
-  float yXLine1End;
+  int nXLine;
+  double xILine1End;
+  double yILine1End;
+  double xILine1Start;
+  double yILine1Start;
+  double xXLine1End;
+  double yXLine1End;
+};
+
+class AltGrid {
+public:
+  AltGrid() {
+  }
+  AltGrid(vector<float> &irregZs, int nzReg, double dzReg, int flagAlt = 0, int nxReg = 0, int nyReg = 0, int nxAlt = 0, int nyAlt = 0,
+      double dxReg = 0, double dyReg = 0, double dxAlt = 0, double dyAlt = 0, int ix0Regular = 0, int iy0Regular = 0, int incxRegular = 0,
+      int incyRegular = 0, float x0Regular = 0, float y0Regular = 0, float x0Alt = 0, float y0Alt = 0);
+  void updateZAlt();
+  float zmax();
+
+  vector<float> irregZs;
+  bool initialized { };
+  int flagAlt { }; // 0: no AltGrid, 1: regular-z, AltGrid, 2: irreg-z AltGrid, -1: regular-z, RegGrid with Alt info, -2: irreg-z, RegGrid with Alt info
+  int ix0Regular { }, iy0Regular { }, incxRegular { }, incyRegular { };
+  float x0Regular { }, y0Regular { }, x0Alt { }, y0Alt { };
+  int nxRegular { }, nyRegular { }, nzRegular { };
+  int nxAlt { }, nyAlt { }, nzAlt { };
+  double dxRegular { }, dyRegular { }, dzRegular { };
+  double dxAlt { }, dyAlt { }, dzAlt { };
 };
 
 class CustomProperties {
@@ -94,6 +123,7 @@ class CustomProperties {
 
 public:
   SurveyGeometry survGeom;
+  AltGrid altGrid;
 
 public:
   ~CustomProperties();

@@ -2,7 +2,7 @@
                           Units.h  -  description
                              -------------------
  * This class provides a type-safe representation of units.
- 
+
     copyright            : (C) 2012 Fraunhofer ITWM
 
     This file is part of jseisIO.
@@ -31,57 +31,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace jsIO
-{
-  /**
-   * This class is for type-safe representation of units.
-   */
+namespace jsIO {
+/**
+ * This class is for type-safe representation of units.
+ */
 
-   class Units{
-    public:
+class Units {
+public:
 
-      static const Units FEET;
-      static const Units FT;
-      static const Units METERS;
-      static const Units M;
-      static const Units MILLISECONDS;
-      static const Units MS;
-      static const Units MSEC;
-      static const Units SECONDS;
-      static const Units MICROSEC;
-      static const Units HERTZ;
-      static const Units HZ;
-      static const Units DEGREES;
-      static const Units UNDEFINED;//named NULL in java version
-      static const Units UNKNOWN;
+  static const Units FEET;
+  static const Units FT;
+  static const Units METERS;
+  static const Units M;
+  static const Units MILLISECONDS;
+  static const Units MS;
+  static const Units MSEC;
+  static const Units SECONDS;
+  static const Units MICROSEC;
+  static const Units HERTZ;
+  static const Units HZ;
+  static const Units DEGREES;
+  static const Units UNDEFINED;//named NULL in java version
+  static const Units UNKNOWN;
 
-// private atributes
-    private:
+  // private atributes
+private:
 
-    public:
-      ~Units();
-      /** No descriptions */
-      Units();
+public:
+  ~Units();
+  /** No descriptions */
+  Units();
 
-      Units(std::string _name, std::string _description);
-      Units(std::string _name);
+  Units(std::string _name, std::string _description);
+  Units(std::string _name);
 
-      void Init(std::string _name, std::string _description);
-      void Init(std::string _name);
+  void Init(std::string _name, std::string _description);
+  void Init(std::string _name);
 
-      std::string getName() const {return name;}
-      std::string toString()  const {return name;}
-      std::string getDescription()  const {return description;}
+  std::string getName() const {return name;}
+  std::string toString()  const {return name;}
+  std::string getDescription()  const {return description;}
 
-      static Units get(std::string _name);
+  static Units get(std::string _name);
 
-    private:
-      std::string name;
-      std::string description;
+private:
+  std::string name;
+  std::string description;
 
-    protected:
+protected:
 
-  };
+};
 
 }
 

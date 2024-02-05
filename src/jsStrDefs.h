@@ -94,47 +94,59 @@ enum JS_HEADER {
   JSHDR_OFFSET_INLINE = 36,
   JSHDR_OFFSET_INLINE_BIN = 37,
   JSHDR_OFFSET_XLINE = 38,
-  JSHDR_OFFSET_XLINE_BIN = 39
+  JSHDR_OFFSET_XLINE_BIN = 39,
+  JSHDR_SOURCE = 40,
+  JSHDR_CHAN = 41,
+  JSHDR_AOFFSET = 42
 };
 
 static const std::string JS_HEADER_NAMES[] = { "TRC_TYPE", "T0", "DEPTH", "SOU_XD", "SOU_YD", "SOU_ELEV", "REC_XD",
-    "REC_YD", "REC_ELEV", "OFFSET", "OFB_NO", "ILINE_NO", "XLINE_NO", "CDP_XD", "CDP_YD", "CDP_ELEV", "ANG_VALU",
-    "ANG_VBIN", "SR_AZIM", "SRAZ_BIN", "TLIVE_S", "TFULL_S", "TFULL_E", "TLIVE_E", "LEN_SURG", "TOT_STAT", "NA_STAT",
-    "AMP_NORM", "TR_FOLD", "SKEWSTAT", "PAD_TRC", "NMO_APLD", "TIME", "FREQ_IND", "DEPTH", "FREQUENCY", "OFFSET_IL",
-    "OFB_IL", "OFFSET_XL", "OFB_XL" };
+                                               "REC_YD", "REC_ELEV", "OFFSET", "OFB_NO", "ILINE_NO", "XLINE_NO", "CDP_XD", "CDP_YD", "CDP_ELEV", "ANG_VALU",
+                                               "ANG_VBIN", "SR_AZIM", "SRAZ_BIN", "TLIVE_S", "TFULL_S", "TFULL_E", "TLIVE_E", "LEN_SURG", "TOT_STAT", "NA_STAT",
+                                               "AMP_NORM", "TR_FOLD", "SKEWSTAT", "PAD_TRC", "NMO_APLD", "TIME", "FREQ_IND", "DEPTH", "FREQ", "OFFSETIL",
+                                               "OFB_IL", "OFFSETXL", "OFB_XL", "SOURCE", "CHAN", "AOFFSET"
+                                             };
 
 static const std::string JS_HEADER_DESC[] = { "Trace type (data, aux,etc.)", "Start time of live samples",
-    "Source Depth", "Source X coordinate (double)", "Source Y coordinate (double)", "Source elevation(Z coordinate)",
-    "Receiver X coordinate (double)", "Receiver Y coordinate (double)", "Receiver elevation(Z coordinate)",
-    "Signed source-receiver offset", "Offset bin number", "Inline number", "Crossline number",
-    "X coordinate of CDP (double)", "Y coordinate of CDP (double)", "Elevation of CDP (Z coordinate)",
-    "Angle of incidence", "Angle of incidence bin", "Source to receiver azimuth", "Source to receiver azimuth bin",
-    "Start time of live samples", "Start time of full samples", "End time of full samples", "End time of live samples",
-    "Length of surgical mute taper", "Total static for this trace*", "Portion of static not applied*",
-    "Amplitude normalization factor", "Actual trace fold", "Multiplex skew static", "Artificially padded trace",
-    "Indicates whether or not NMO has been applied", "Vertical time index", "Vertical frequency sample index",
-    "Vertical depth index", "Start frequency of live samples", "Signed source-receiver offset along crossline",
-    "Inline indexed offset bin number", "Signed source-receiver offset along inline",
-    "Crossline indexed offset bin number" };
+                                              "Source Depth", "Source X coordinate (double)", "Source Y coordinate (double)", "Source elevation(Z coordinate)",
+                                              "Receiver X coordinate (double)", "Receiver Y coordinate (double)", "Receiver elevation(Z coordinate)",
+                                              "Signed source-receiver offset", "Offset bin number", "Inline number", "Crossline number",
+                                              "X coordinate of CDP (double)", "Y coordinate of CDP (double)", "Elevation of CDP (Z coordinate)",
+                                              "Angle of incidence", "Angle of incidence bin", "Source to receiver azimuth", "Source to receiver azimuth bin",
+                                              "Start time of live samples", "Start time of full samples", "End time of full samples", "End time of live samples",
+                                              "Length of surgical mute taper", "Total static for this trace*", "Portion of static not applied*",
+                                              "Amplitude normalization factor", "Actual trace fold", "Multiplex skew static", "Artificially padded trace",
+                                              "Indicates whether or not NMO has been applied", "Vertical time index", "Vertical frequency sample index",
+                                              "Vertical depth index", "Start frequency of live samples", "Signed source-receiver offset along crossline",
+                                              "Inline indexed offset bin number", "Signed source-receiver offset along inline",
+                                              "Crossline indexed offset bin number", "Source number", "Chan number", "Absolute value of offset"
+                                            };
 
 static const std::string JS_HEADER_TYPES[] = { "INTEGER", "FLOAT", "FLOAT", "DOUBLE", "DOUBLE", "FLOAT", "DOUBLE",
-    "DOUBLE", "FLOAT", "FLOAT", "INTEGER", "INTEGER", "INTEGER", "DOUBLE", "DOUBLE", "FLOAT", "FLOAT", "INTEGER",
-    "FLOAT", "INTEGER", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT",
-    "INTEGER", "INTEGER", "INTEGER", "INTEGER", "INTEGER", "FLOAT", "FLOAT", "INTEGER", "FLOAT", "INTEGER" };
+                                               "DOUBLE", "FLOAT", "FLOAT", "INTEGER", "INTEGER", "INTEGER", "DOUBLE", "DOUBLE", "FLOAT", "FLOAT", "INTEGER",
+                                               "FLOAT", "INTEGER", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT",
+                                               "INTEGER", "INTEGER", "INTEGER", "INTEGER", "INTEGER", "FLOAT", "FLOAT", "INTEGER", "FLOAT", "INTEGER", "INTEGER", "INTEGER",
+                                               "FLOAT"
+                                             };
 
 static const int JS_HEADER_TYPES_INT[] = { 3, 5, 5, 6, 6, 5, 6, 6, 5, 5, 3, 3, 3, 6, 6, 5, 5, 3, 5, 3, 5, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 3, 3, 3, 3, 3, 5, 5, 3, 5, 3 };
+                                           5, 5, 5, 5, 3, 3, 3, 3, 3, 5, 5, 3, 5, 3, 3, 3, 5
+                                         };
 
 //correct later
 static const std::string JS_HEADER_UNITS[] = { "meters", "seconds", "meters", "meters", "meters", "meters", "meters",
-    "meters", "meters", "meters", "meters", "meters", "meters", "meters", "meters", "meters", "degrees", "degrees",
-    "degrees", "degrees", "seconds", "seconds", "seconds", "seconds", "meters", "meters", "meters", "meters", "meters",
-    "meters", "meters", "meters", "seconds", "hertz", "meters", "hertz", "meters", "meters", "meters", "meters" };
+                                               "meters", "meters", "meters", "meters", "meters", "meters", "meters", "meters", "meters", "degrees", "degrees",
+                                               "degrees", "degrees", "seconds", "seconds", "seconds", "seconds", "meters", "meters", "meters", "meters", "meters",
+                                               "meters", "meters", "meters", "seconds", "hertz", "meters", "hertz", "meters", "meters", "meters", "meters", "meters",
+                                               "meters", "meters"
+                                             };
 
 static const std::string JS_HEADER_DOMAINS[] = { "space", "time", "space", "space", "space", "space", "space", "space",
-    "space", "space", "space", "space", "space", "space", "space", "space", "incidence angle", "incidence angle",
-    "rotation angle", "rotation angle", "space", "space", "space", "space", "space", "space", "space", "space", "space",
-    "space", "space", "space", "time", "frequency", "space", "frequency", "space", "space", "space", "space" };
+                                                 "space", "space", "space", "space", "space", "space", "space", "space", "incidence angle", "incidence angle",
+                                                 "rotation angle", "rotation angle", "space", "space", "space", "space", "space", "space", "space", "space", "space",
+                                                 "space", "space", "space", "time", "frequency", "space", "frequency", "space", "space", "space", "space", "space",
+                                                 "space", "space"
+                                               };
 
 }
 

@@ -1,7 +1,7 @@
 /***************************************************************************
  IntBuffer.cpp  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -31,7 +31,7 @@ IntBuffer::IntBuffer() {
 }
 
 int IntBuffer::position(unsigned long _buffer_pos) {
-  if (_buffer_pos <= size()) buffer_pos = _buffer_pos;
+  if(_buffer_pos <= size()) buffer_pos = _buffer_pos;
   else {
     return JS_USERERROR;
   }
@@ -41,16 +41,16 @@ int IntBuffer::position(unsigned long _buffer_pos) {
 // the endian_swap function should be personilized (for int, int ...) for high performance
 
 void IntBuffer::put(int value) {
-  if (natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
-  char *pV = reinterpret_cast<char*>(&value);
+  if(natOrder != byteOrder) endian_swap(&value, 1, sizeof(value));
+  char *pV = reinterpret_cast<char *>(&value);
   buffer.insert(buffer_pos * SIZEOFINT, pV, SIZEOFINT);
   buffer_pos += 1;
 }
 
 int IntBuffer::put(unsigned long index, int value) {
-  if (index < size()) {
-    if (natOrder != byteOrder) endian_swap(&value, 1, SIZEOFINT);
-    char *pV = reinterpret_cast<char*>(&value);
+  if(index < size()) {
+    if(natOrder != byteOrder) endian_swap(&value, 1, SIZEOFINT);
+    char *pV = reinterpret_cast<char *>(&value);
     buffer.insert(index * SIZEOFINT, pV, SIZEOFINT);
     return JS_OK;
   }
@@ -58,34 +58,34 @@ int IntBuffer::put(unsigned long index, int value) {
 }
 
 void IntBuffer::put(const int *src, int len) {
-  char *pV = (char*) (src);
+  char *pV = (char *)(src);
   buffer.insert(buffer_pos * SIZEOFINT, pV, len * SIZEOFINT);
-  if (natOrder != byteOrder) buffer.swap_endianness(buffer_pos * SIZEOFINT, len, SIZEOFINT);
+  if(natOrder != byteOrder) buffer.swap_endianness(buffer_pos * SIZEOFINT, len, SIZEOFINT);
   buffer_pos += len;
 }
 
 int IntBuffer::put(unsigned long pos, const int *src, int len) {
   int ires = JS_OK;
-  if (pos + len > size()) {
+  if(pos + len > size()) {
     return JS_USERERROR;
   }
-  char *pV = (char*) (src);
+  char *pV = (char *)(src);
   buffer.insert(pos * SIZEOFINT, pV, len * SIZEOFINT);
-  if (natOrder != byteOrder) ires = buffer.swap_endianness(pos * SIZEOFINT, len, SIZEOFINT);
+  if(natOrder != byteOrder) ires = buffer.swap_endianness(pos * SIZEOFINT, len, SIZEOFINT);
   return ires;
 }
 
 int IntBuffer::get() {
-  int value = *(reinterpret_cast<int*>(&buffer[buffer_pos * SIZEOFINT]));
-  if (natOrder != byteOrder) endian_swap(&value, 1, SIZEOFINT);
+  int value = *(reinterpret_cast<int *>(&buffer[buffer_pos * SIZEOFINT]));
+  if(natOrder != byteOrder) endian_swap(&value, 1, SIZEOFINT);
   buffer_pos += 1;
   return (value);
 }
 
 int IntBuffer::get(unsigned long index) {
-  if (index < size()) {
-    int value = *(reinterpret_cast<int*>(&buffer[index * SIZEOFINT]));
-    if (natOrder != byteOrder) endian_swap(&value, 1, SIZEOFINT);
+  if(index < size()) {
+    int value = *(reinterpret_cast<int *>(&buffer[index * SIZEOFINT]));
+    if(natOrder != byteOrder) endian_swap(&value, 1, SIZEOFINT);
     return (value);
   } else {
     return 0;
@@ -93,33 +93,33 @@ int IntBuffer::get(unsigned long index) {
 }
 
 int IntBuffer::get(int *dst, int len) {
-  if (buffer_pos + len > size()) {
+  if(buffer_pos + len > size()) {
     return JS_USERERROR;
   }
   const int *buf = (const int *) array();
   memcpy(dst, &buf[buffer_pos], len * SIZEOFINT);
-  if (natOrder != byteOrder) endian_swap(dst, len, SIZEOFINT);
+  if(natOrder != byteOrder) endian_swap(dst, len, SIZEOFINT);
   buffer_pos += len;
   return JS_OK;
 }
 
 int IntBuffer::get(unsigned long pos, int *dst, int len) {
-  if (pos + len > size()) {
+  if(pos + len > size()) {
     return JS_USERERROR;
   }
   const int *buf = (const int *) array();
   memcpy(dst, &buf[pos], len * SIZEOFINT);
-  if (natOrder != byteOrder) endian_swap(dst, len, SIZEOFINT);
+  if(natOrder != byteOrder) endian_swap(dst, len, SIZEOFINT);
   return JS_OK;
 }
 
-void IntBuffer::setBuffer(int* farray, unsigned long farraylen) {
-  setBufferBase((char*) farray, farraylen * SIZEOFINT);
+void IntBuffer::copyBuffer(int *farray, unsigned long farraylen) {
+  copyBufferBase((char *) farray, farraylen * SIZEOFINT);
   buffer_pos = 0;
 }
 
-void IntBuffer::wrap(int* farray, unsigned long farraylen) {
-  wrapBase((char*) farray, farraylen * SIZEOFINT);
+void IntBuffer::wrap(int *farray, unsigned long farraylen) {
+  wrapBase((char *) farray, farraylen * SIZEOFINT);
   buffer_pos = 0;
 }
 

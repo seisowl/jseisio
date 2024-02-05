@@ -2,7 +2,7 @@
                            BlockCompressor.h  -  description
                              -------------------
  * Transformed block compression using run-length coding and Huffman coding.
- 
+
     copyright            : (C) 2012 Fraunhofer ITWM
 
     This file is part of jseisIO.
@@ -36,60 +36,59 @@
 #include "HuffCoder.h"
 #include "../jsDefs.h"
 
-namespace jsIO
-{
-  class  BlockCompressor{
-    public:
-      ~ BlockCompressor();
-      BlockCompressor();
-      BlockCompressor(const int* huffTable);
+namespace jsIO {
+class  BlockCompressor {
+public:
+  ~ BlockCompressor();
+  BlockCompressor();
+  BlockCompressor(const int *huffTable);
 
-      void Init(const int* huffTable);
+  void Init(const int *huffTable);
 
-      static int runLengthEncode(int* quantdata, int n, char* encodedChars);
-      void setDelta(float delta);
-     
-      int dataEncode(float* data, int nsamps, float distortion, char* encodedData, int index, int outputBufferSize);
-      int dataDecode(const char* encodedData, int index, char* workBuffer, int workBufferSize, int nsamps, float* data);
+  static int runLengthEncode(int *quantdata, int n, char *encodedChars);
+  void setDelta(float delta);
 
-      static void stuffIntInBytes( int ival, char* bvals, int offset);
-      static int stuffBytesInInt(const char* bvals, int index);
-//    static float stuffBytesInFloat(char* bvals, int index);
-      static int stuffBytesInShort(const char* bvals, int index);
-      static void stuffShortInBytes( short uval, char* bvals, int index);
-      static void stuffInBytes( int ival, char* bvals, int offset);
-      static void stuffInBytes( float fval, char* bvals, int offset);
-      static float intBitsToFloat(int x);
+  int dataEncode(float *data, int nsamps, float distortion, char *encodedData, int index, int outputBufferSize);
+  int dataDecode(const char *encodedData, int index, char *workBuffer, int workBufferSize, int nsamps, float *data);
 
-    public:
+  static void stuffIntInBytes(int ival, char *bvals, int offset);
+  static int stuffBytesInInt(const char *bvals, int index);
+  //    static float stuffBytesInFloat(char* bvals, int index);
+  static int stuffBytesInShort(const char *bvals, int index);
+  static void stuffShortInBytes(short uval, char *bvals, int index);
+  static void stuffInBytes(int ival, char *bvals, int offset);
+  static void stuffInBytes(float fval, char *bvals, int offset);
+  static float intBitsToFloat(int x);
 
+public:
 
 
-// private atributes
-    private:
 
-      static int nint(double a) {return (a > 0.0) ? (int)(a+0.5F) : (int)(a-0.5F);} // Faster than Math.round().
-      static int unsignedByte( char i );
-      static int unsignedShort( short i );
-      static float computeDelta( float* x, int n, float distortion );
-      static void quantize( float* x, int n, float delta, int* ix );
-      static void runLengthDecodeDequant(char* huffchars, int nbytes, float delta, float* quantdata);
-    private:
-      bool c_littleEndian;
-      static const int SIZEOF_INT = 4;
-      static const int SIZEOF_CHAR = 1;
-      static const int SIZEOF_FLOAT = 4;
-      static constexpr float CPDF = 0.26F;               /* quantization factor */
-      static constexpr float maxFloat = 1e+038;
+  // private atributes
+private:
 
-      HuffCoder huffCoder;
-      int* idata; 
-      char* huffchars;
-      int idata_len;
-      int huffchars_len;
-      float manualDelta;
+  static int nint(double a) {return (a > 0.0) ? (int)(a + 0.5F) : (int)(a - 0.5F);} // Faster than Math.round().
+  static int unsignedByte(char i);
+  static int unsignedShort(short i);
+  static float computeDelta(float *x, int n, float distortion);
+  static void quantize(float *x, int n, float delta, int *ix);
+  static void runLengthDecodeDequant(char *huffchars, int nbytes, float delta, float *quantdata);
+private:
+  bool c_littleEndian;
+  static const int SIZEOF_INT = 4;
+  static const int SIZEOF_CHAR = 1;
+  static const int SIZEOF_FLOAT = 4;
+  static constexpr float CPDF = 0.26F;               /* quantization factor */
+  static constexpr float maxFloat = 1e+038;
 
-  };
+  HuffCoder huffCoder;
+  int *idata;
+  char *huffchars;
+  int idata_len;
+  int huffchars_len;
+  float manualDelta;
+
+};
 }
 
 

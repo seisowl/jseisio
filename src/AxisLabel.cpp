@@ -1,7 +1,7 @@
 /***************************************************************************
  AxisLabel.h  -  description
  -------------------
- 
+
  * This class encapsulates an axis label.  The primary reason that an axis label is
  * a class, instead of just a String, is to couple a name with a description.
  * A secondary reason is to encourage (but not require) naming convention.
@@ -33,6 +33,14 @@
 namespace jsIO {
 DECLARE_LOGGER(AxisLabelLog);
 
+// for SeisSpace compatibility
+map<string, string> AxisLabel::LABEL2HDR = { { "CROSSLINE", "XLINE_NO" }, { "INLINE", "ILINE_NO" }, { "SAIL_LINE",
+    "S_LINE"
+  }, { "TIME", "V_TIME" }, { "DEPTH", "V_DEPTH" }, { "CMP", "CDP" }, { "RECEIVER_LINE", "R_LINE" }, {
+    "CHANNEL", "CHAN"
+  }, { "RECEIVER", "REC_SLOC" }, { "OFFSET_BIN", "OFB_NO" }
+};
+
 const AxisLabel AxisLabel::UNDEFINED("UNDEFINED", "Undefined");
 const AxisLabel AxisLabel::TIME("TIME", "Vertical time");
 const AxisLabel AxisLabel::DEPTH("DEPTH", "Vertical depth");
@@ -53,8 +61,8 @@ AxisLabel::AxisLabel(std::string _name, std::string _description) {
 }
 
 void AxisLabel::Init(std::string _name, std::string _description) {
-  if (_name == "" || _description == "") {
-    ERROR_PRINTF(AxisLabelLog, "Null input argumentss are not allowed");
+  if(_name == "" || _description == "") {
+    ERROR_PRINTF(AxisLabelLog, "Null input arguments are not allowed (name=%s,description=%s)", _name.c_str(), _description.c_str());
     return;
   }
   name = _name;
@@ -62,12 +70,12 @@ void AxisLabel::Init(std::string _name, std::string _description) {
   description = _description;
 }
 
-void AxisLabel::getDefault(int ndim, AxisLabel *& axes) {
+void AxisLabel::getDefault(int ndim, AxisLabel *&axes) {
   axes = new AxisLabel[ndim];
   axes[0] = AxisLabel("Sample", "Sample Index");
-  if (ndim > 1) axes[1].Init("Trace", "Trace Index");
-  if (ndim > 2) axes[2].Init("Frame", "Frame Index");
-  if (ndim > 3) axes[3].Init("Volume", "Volume Index");
-  if (ndim > 4) axes[4].Init("Hypercube", "Hypercube Index");
+  if(ndim > 1) axes[1].Init("Trace", "Trace Index");
+  if(ndim > 2) axes[2].Init("Frame", "Frame Index");
+  if(ndim > 3) axes[3].Init("Volume", "Volume Index");
+  if(ndim > 4) axes[4].Init("Hypercube", "Hypercube Index");
 }
 }

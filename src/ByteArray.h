@@ -28,6 +28,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <vector>
+using std::vector;
+
 #include "jsDefs.h"
 
 namespace jsIO {
@@ -36,44 +40,41 @@ public:
   ~ByteArray();
   ByteArray();
 
-  ByteArray(ByteArray const& other) {
+  ByteArray(ByteArray const &other) {
     CopyClass(other);
-  }
-  ; //Copy constructor
+  } //Copy constructor
 
-  ByteArray & operator =(const ByteArray & other) //Assignment operator
-      {
-    if (this != &other) CopyClass(other); //AssignClass(other);
+  ByteArray &operator =(const ByteArray &other) { //Assignment operator
+    if(this != &other) CopyClass(other);  //AssignClass(other);
     return *this;
   }
-  const char* getBuffer() const {
-    return (const char*) buffer;
+  const char *getBuffer() const {
+    return (const char *) buffer;
   }
-  ;
+
   unsigned long size() const {
     return bufsize;
   }
-  ;
+
   unsigned long capacity() const {
     return buflen;
   }
-  ;
 
-  void setBuffer(char *_buffer, unsigned long _bufsize);
-  void wrap(char* _buffer, unsigned long _bufsize);
+  void copyBuffer(char *_buffer, unsigned long _bufsize);
+  void wrap(char *_buffer, unsigned long _bufsize);
   void resize(unsigned long sz);
   void reserve(unsigned long sz);
   void insert(unsigned long pos, char *val, unsigned long valsize);
-//    void load(unsigned long pos, char *val , unsigned long valsize);
+  //    void load(unsigned long pos, char *val , unsigned long valsize);
 
-  inline char& operator [](const unsigned long& i) {
+  inline char &operator [](const unsigned long &i) {
     return buffer[i];
   }
-  ;
 
   int swap_endianness(unsigned long start_pos, int n, int nb);
 
 private:
+  vector<char> vbuf;
   char *buffer;
   unsigned long buflen;
   unsigned long bufsize;
@@ -82,7 +83,8 @@ private:
   static const int bufInitSize = 256;
 private:
   void checkMem(unsigned long sizeneeded);
-  void CopyClass(const ByteArray & Other);
+  void CopyClass(const ByteArray &Other);
+  void resize_vbuf(unsigned long bufsize_old = 0);
 };
 }
 

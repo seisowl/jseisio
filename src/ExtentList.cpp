@@ -21,6 +21,8 @@
 
  ***************************************************************************/
 
+#include <unistd.h>
+#include <csignal>
 #include "ExtentList.h"
 
 #include "PSProLogging.h"
@@ -55,21 +57,21 @@ const std::string ExtentList::sVFIO_VERSION_val = "2006.2";
 const std::string ExtentList::sVFIO_POLICY_val = "RANDOM";
 
 ExtentList::ExtentList(std::string _extBaseName, int _numExtents, long _maxFilePosition, long _extentSize,
-    VirtualFolders _vFolders) {
+                       VirtualFolders _vFolders) {
   Init(_extBaseName, _numExtents, _maxFilePosition, _extentSize, _vFolders);
 }
 
 int ExtentList::Init(std::string _extBaseName, int _numExtents, long _maxFilePosition, long _extentSize,
-    VirtualFolders _vFolders) {
-  if (_extBaseName.length() == 0) {
+                     VirtualFolders _vFolders) {
+  if(_extBaseName.length() == 0) {
     ERROR_PRINTF(ExtentListLog, "Invalid baseName for the extents");
     return JS_USERERROR;
   }
-  if (_maxFilePosition <= 0) {
+  if(_maxFilePosition <= 0) {
     ERROR_PRINTF(ExtentListLog, "maxFilePosition must be greater than 0");
     return JS_USERERROR;
   }
-  if (_extentSize <= 0) {
+  if(_extentSize <= 0) {
     ERROR_PRINTF(ExtentListLog, "extentSize must be greater than 0");
     return JS_USERERROR;
   }
@@ -81,33 +83,33 @@ int ExtentList::Init(std::string _extBaseName, int _numExtents, long _maxFilePos
   extentSize = _extentSize;
 
   int numVFolders = vFolders.count();
-  int numExtInEachFolder = (int) (numExtents / numVFolders);
+  int numExtInEachFolder = (int)(numExtents / numVFolders);
   int numExtInFirstFolder = numExtInEachFolder + (numExtents - numExtInEachFolder * numVFolders);
 
-//     printf(" numVFolders=%d, numExtInEachFolder=%d, numExtInFirstFolder=%d\n",numVFolders, numExtInEachFolder, numExtInFirstFolder);
+  //     printf(" numVFolders=%d, numExtInEachFolder=%d, numExtInFirstFolder=%d\n",numVFolders, numExtInEachFolder, numExtInFirstFolder);
 
   extents.clear();
   extents.resize(numExtents);
   long startOffset = 0;
 
   int extInd = 0;
-  for (int j = 0; j < numExtInFirstFolder; j++) {
+  for(int j = 0; j < numExtInFirstFolder; j++) {
     std::string extName = extBaseName + num2Str(extInd);
     std::string extPath = vFolders[0].getPath() + "/" + extName;
     extents[extInd].Init(extName, extInd, startOffset, extentSize, extPath);
     TRACE_PRINTF(ExtentListLog, "Extent Info: Name=%s, Ind=%d, startOffset=%lu, Size=%lu, Path=%s", extName.c_str(),
-        extInd, startOffset, extentSize, extPath.c_str());
+                 extInd, startOffset, extentSize, extPath.c_str());
     startOffset += extentSize;
     extInd++;
   }
 
-  for (int i = 1; i < numVFolders; i++) {
-    for (int j = 0; j < numExtInEachFolder; j++) {
+  for(int i = 1; i < numVFolders; i++) {
+    for(int j = 0; j < numExtInEachFolder; j++) {
       std::string extName = extBaseName + num2Str(extInd);
       std::string extPath = vFolders[i].getPath() + "/" + extName;
       extents[extInd].Init(extName, extInd, startOffset, extentSize, extPath);
       TRACE_PRINTF(ExtentListLog, "Extent Info: Name=%s, Ind=%d, startOffset=%lu, Size=%lu, Path=%s", extName.c_str(),
-          extInd, startOffset, extentSize, extPath.c_str());
+                   extInd, startOffset, extentSize, extPath.c_str());
       startOffset += extentSize;
       extInd++;
     }
@@ -121,7 +123,7 @@ void ExtentList::addFolder(std::string _path) {
 }
 
 int ExtentList::getExtent(int index, ExtentListEntry *ext) const {
-  if (index < 0 || index > numExtents) {
+  if(index < 0 || index > numExtents) {
     ERROR_PRINTF(ExtentListLog, "Extent: with an index %d  does not exist", index);
     return JS_USERERROR;
   }
@@ -144,13 +146,13 @@ int ExtentList::loadExtents() {
   long extStartOff;
   std::string path;
 
-  for (int i = 0; i < numVFolders; i++) {
+  for(int i = 0; i < numVFolders; i++) {
     extNames.clear();
     int ires = vFolders[i].loadExtents(extBaseName, extNames);
-    if (ires != JS_OK) {
+    if(ires != JS_OK) {
       return JS_USERERROR;
     }
-    for (int j = 0; j < extNames.size(); j++) {
+    for(int j = 0; j < extNames.size(); j++) {
       extName = extNames[j];
       int ipos = extBaseName.length();
       int ilen = extName.length() - extBaseName.length();
@@ -162,7 +164,7 @@ int ExtentList::loadExtents() {
     }
   }
   int numExtentsFound = extents.size();
-  if (numExtentsFound == 0) {
+  if(numExtentsFound == 0) {
     TRACE_PRINTF(ExtentListLog, " WARNING: no %s extents found in Virtual Folders", extBaseName.c_str());
   }
 
@@ -170,12 +172,12 @@ int ExtentList::loadExtents() {
   sort(extents.begin(), extents.end(), compare_ExtentListEntry);
 
   //remove from a list "wrong" extens (for regual case it should do nothing)
-  //i.e. if numExtents for TraceFile(s) is 8 but in Virtaul Folders 
+  //i.e. if numExtents for TraceFile(s) is 8 but in Virtaul Folders
   //there was a file named TraceFile15, it will be removed from the list
-  //since it does not belong to the data 
-  for (int i = 0; i < numExtentsFound; i++) {
+  //since it does not belong to the data
+  for(int i = 0; i < numExtentsFound; i++) {
     extIndex = extents[i].getIndex();
-    if (extIndex >= numExtents) {
+    if(extIndex >= numExtents) {
       extents.erase(extents.begin() + i);
       i--;
       numExtentsFound--;
@@ -183,12 +185,12 @@ int ExtentList::loadExtents() {
   }
 
   //set start offsets
-  for (int i = 0; i < numExtents; i++) {
+  for(int i = 0; i < numExtents; i++) {
     extIndex = -1;
-    if (i < numExtentsFound) extIndex = extents[i].getIndex(); //normally it must be equal to i, however in cases where
-    //	i.e. all frames belonging to tracefile7 are empty tracefile7 does't exist on the disk, so
-    //	index of extents[6] is not 6 but 7. In this case create dummy extent with index 6
-    if (extIndex != i) {
+    if(i < numExtentsFound) extIndex = extents[i].getIndex();  //normally it must be equal to i, however in cases where
+    //  i.e. all frames belonging to tracefile7 are empty tracefile7 does't exist on the disk, so
+    //  index of extents[6] is not 6 but 7. In this case create dummy extent with index 6
+    if(extIndex != i) {
       extName = extBaseName + num2Str(i);
       path = vFolders[0].getPath() + '/' + extName;
       extName = extName + "_NOT_FOUND"; //dummy extent name
@@ -201,21 +203,21 @@ int ExtentList::loadExtents() {
    //set start offsets
    for (int i=0; i<numExtentsFound; i++ ){
    extIndex = extents[i].getIndex();//normally it must be equal to i, however in cases where
-   //	i.e. all frames belonging to tracefile7 are empty tracefile7 does't exist on the disk, so
-   //	index of extents[6] is not 6 but 7
+   // i.e. all frames belonging to tracefile7 are empty tracefile7 does't exist on the disk, so
+   // index of extents[6] is not 6 but 7
    extents[i].setStartOffset(extentSize*extIndex);
    }
    */
-  if (numExtentsFound > 0) {
+  if(numExtentsFound > 0) {
     long lastExtentSize = maxFilePosition - extents[numExtentsFound - 1].getStartOffset();
     extents[numExtentsFound - 1].setExtentSize(lastExtentSize);
   }
-//   if(numExtents>0) maxFilePosition = extents[numExtents-1].getStartOffset()+extents[numExtents-1].getExtentSize();
+  //   if(numExtents>0) maxFilePosition = extents[numExtents-1].getStartOffset()+extents[numExtents-1].getExtentSize();
 
   TRACE_PRINTF(ExtentListLog, "List of %s Extents . Found: %d, Max:%d", extBaseName.c_str(), numExtentsFound,
-      numExtents);
+               numExtents);
 
-  for (int i = 0; i < numExtents; i++) {
+  for(int i = 0; i < numExtents; i++) {
     extents[i].print_info();
   }
 
@@ -228,47 +230,76 @@ int ExtentList::loadExtents() {
  * all extents are the same size and the extents are in order.
  */
 int ExtentList::getExtentIndex(long position) const {
-  if (position < 0 || position > maxFilePosition) {
-    ERROR_PRINTF(ExtentListLog, "Requested position %li is invalid", position);
-    return JS_USERERROR;
+  if(position < 0 || position > maxFilePosition) {
+    fprintf(stderr, "Requested position %ld must between [0,%ld]", position, maxFilePosition);
+    raise(SIGINT);
   }
   int index = 0;
-  while (position > extents[index].getStartOffset() && index < numExtents) {
+  while(index < numExtents && position > extents[index].getStartOffset()) {
     index++;
   }
   index--;
   return index;
 }
 
-// The the path based on the extent index 
+// The the path based on the extent index
 std::string ExtentList::getExtentPath(int index) const {
-  if (index < 0 || index >= numExtents) return "";
+  if(index < 0 || index >= numExtents) return "";
   return extents[index].getPath();
 }
 
 int ExtentList::InitFromXML(const std::string &jsDataPath, std::string ExtentManagerXML) {
 
   int ires;
-  if (vFolders.count() == 0) {
+  if(vFolders.count() == 0) {
     TRACE_PRINTF(ExtentListLog, "VirtualFolders are not set. Trying to load.");
     ires = vFolders.load(jsDataPath);
-    if (ires < 0) {
+    if(ires < 0) {
       ERROR_PRINTF(ExtentListLog, "Unable to load VirtualFolders from  %s\n", jsDataPath.c_str());
       return JS_USERERROR;
     }
   }
+
+  std::string ExtentBase = ExtentManagerXML;
 
   xmlreader reader;
   Parameter par;
 
   ExtentManagerXML = jsDataPath + ExtentManagerXML;
 
-//read ExtentManagerXML file into ExtentManagerXMLstring
+  //read ExtentManagerXML file into ExtentManagerXMLstring
   std::ifstream ifile;
   ifile.open(ExtentManagerXML.c_str(), std::ifstream::in);
-  if (!ifile.good()) {
-    ERROR_PRINTF(ExtentListLog, "Can't open file %s", ExtentManagerXML.c_str());
-    return JS_USERERROR;
+  if(!ifile.good()) {
+    // ERROR_PRINTF(ExtentListLog, "Can't open file %s", ExtentManagerXML.c_str());
+    // return JS_USERERROR;
+    TRACE_PRINTF(ExtentListLog, "Can't open file %s, try directly read...", ExtentManagerXML.c_str());
+
+    // no xml file, need read TraceFile or TraceHeader directly, only assume 1 extent now
+    std::size_t pos = ExtentBase.find(".xml");
+    extBaseName = ExtentBase.substr(0, pos);
+    extents.clear();
+    std::vector<std::string> extNames;
+    ExtentListEntry exEntry;
+    extNames.clear();
+    int ires = vFolders[0].loadExtents(extBaseName, extNames);
+    if(ires != JS_OK) {
+      return JS_USERERROR;
+    }
+    std::string path = vFolders[0].getPath() + '/' + extNames[0];
+    ifile.open(path.c_str(), std::ifstream::in);
+    ifile.seekg(0, std::ios::end);
+    long length = ifile.tellg();
+    ifile.close();
+
+    exEntry.Init(extNames[0], 0, 0, length, path);
+    extents.push_back(exEntry);
+
+    numExtents = 1;
+    maxFilePosition = length;
+    extentSize = length;
+
+    return JS_OK;
   }
   // get length of file:
   ifile.seekg(0, std::ios::end);
@@ -280,45 +311,45 @@ int ExtentList::InitFromXML(const std::string &jsDataPath, std::string ExtentMan
   ifile.close();
   buffer[length] = '\0';
   std::string ExtentManagerXMLstring(buffer);
-//   printf("length=%d\n*********\n%s\n*********\n",length,buffer);
+  //   printf("length=%d\n*********\n%s\n*********\n",length,buffer);
   delete[] buffer;
   // ************
 
   // Init Extents
   reader.clear();
   reader.parse(ExtentManagerXMLstring);
-  xmlElement* parSetExtentManager = 0;
+  xmlElement *parSetExtentManager = 0;
   parSetExtentManager = reader.getBlock("ExtentManager");
-  if (parSetExtentManager == 0) {
+  if(parSetExtentManager == 0) {
     ERROR_PRINTF(ExtentListLog, "There is no ExtentManager part in %s", ExtentManagerXML.c_str());
     return JS_USERERROR;
   }
 
-//   int numExt=0;
-  xmlElement* parNumExt = 0;
-  xmlElement* parExtSize = 0;
-  xmlElement* parExtBaseName = 0;
-  xmlElement* parMaxFilePos = 0;
+  //   int numExt=0;
+  xmlElement *parNumExt = 0;
+  xmlElement *parExtSize = 0;
+  xmlElement *parExtBaseName = 0;
+  xmlElement *parMaxFilePos = 0;
 
   parNumExt = reader.FirstChildElement(parSetExtentManager, sVFIO_MAXFILE);
   parExtSize = reader.FirstChildElement(parSetExtentManager, sVFIO_EXTSIZE);
   parExtBaseName = reader.FirstChildElement(parSetExtentManager, sVFIO_EXTNAME);
   parMaxFilePos = reader.FirstChildElement(parSetExtentManager, sVFIO_MAXPOS);
 
-  if (parNumExt == 0 || parExtSize == 0 || parExtBaseName == 0 || parMaxFilePos == 0) {
+  if(parNumExt == 0 || parExtSize == 0 || parExtBaseName == 0 || parMaxFilePos == 0) {
     ERROR_PRINTF(ExtentListLog, "Error in XML file %s. Some of these %s, %s, %s, %s tags are missing.",
-        ExtentManagerXML.c_str(), sVFIO_EXTSIZE.c_str(), sVFIO_MAXFILE.c_str(), sVFIO_EXTNAME.c_str(),
-        sVFIO_MAXPOS.c_str());
+                 ExtentManagerXML.c_str(), sVFIO_EXTSIZE.c_str(), sVFIO_MAXFILE.c_str(), sVFIO_EXTNAME.c_str(),
+                 sVFIO_MAXPOS.c_str());
     return JS_USERERROR;
   }
 
   reader.load2Parameter(parNumExt, &par);
-//   par.valuesAsInts(&numExt);
+  //   par.valuesAsInts(&numExt);
   par.valuesAsInts(&numExtents);
 
   reader.load2Parameter(parMaxFilePos, &par);
   par.valuesAsLongs(&maxFilePosition);
-//   printf("maxFilePosition=%ld\n", maxFilePosition);
+  //   printf("maxFilePosition=%ld\n", maxFilePosition);
 
   reader.load2Parameter(parExtSize, &par);
   par.valuesAsLongs(&extentSize);
@@ -326,7 +357,7 @@ int ExtentList::InitFromXML(const std::string &jsDataPath, std::string ExtentMan
   reader.load2Parameter(parExtBaseName, &par);
   par.valuesAsStrings(&extBaseName);
   ires = loadExtents();
-  if (ires < 0) {
+  if(ires < 0) {
     ERROR_PRINTF(ExtentListLog, "Can't initalize %s extents", extBaseName.c_str());
     return JS_USERERROR;
   }
@@ -343,22 +374,22 @@ int ExtentList::InitFromXML(const std::string &jsDataPath, std::string ExtentMan
 
 long ExtentList::getSumOfExtSizes() const {
   long sz = 0;
-  for (int i = 0; i < numExtents; i++)
+  for(int i = 0; i < numExtents; i++)
     sz += extents[i].getExtentSize();
 
   return sz;
 }
 
 long ExtentList::computeExtentSize(long fileLength, int numExtents, long frameSize) {
-  if (fileLength <= 0 || numExtents <= 0 || frameSize <= 0) {
-    ERROR_PRINTF(ExtentListLog, "invalid input parameters");
+  if(fileLength <= 0 || numExtents <= 0 || frameSize <= 0) {
+    ERROR_PRINTF(ExtentListLog, "invalid input parameters fileLength=%ld, numExtents=%d, frameSize=%ld", fileLength, numExtents, frameSize);
     return JS_USERERROR;
   }
 
   long extentCreateSize = fileLength / (long) numExtents;
-  if (fileLength % numExtents != 0) extentCreateSize++;
+  if(fileLength % numExtents != 0) extentCreateSize++;
   long fact = extentCreateSize / frameSize;
-  if (extentCreateSize % frameSize != 0) fact = fact + 1;
+  if(extentCreateSize % frameSize != 0) fact = fact + 1;
   extentCreateSize = frameSize * fact;
   return extentCreateSize;
 }
@@ -366,11 +397,11 @@ long ExtentList::computeExtentSize(long fileLength, int numExtents, long frameSi
 //for the given glbOffset corresponding to a certain frame return extIndex and locOffset
 //where that frame could be read
 int ExtentList::getExtentInfoForFrame(long glbOffset, int &extIndex, long &locOffset) const {
-  if (glbOffset < 0 || glbOffset > maxFilePosition) {
+  if(glbOffset < 0 || glbOffset > maxFilePosition) {
     ERROR_PRINTF(ExtentListLog, "invalid input parameter %ld, %ld", glbOffset, maxFilePosition);
     return JS_USERERROR;
   }
-  extIndex = (int) (glbOffset / extentSize);
+  extIndex = (int)(glbOffset / extentSize);
   locOffset = glbOffset - extIndex * extentSize;
   return JS_OK;
 }
@@ -379,26 +410,28 @@ int ExtentList::getExtentInfoForFrame(long glbOffset, int &extIndex, long &locOf
 int ExtentList::saveXML(std::string _path) {
   std::string fpath = _path + extBaseName + ".xml";
   FILE *pfile = fopen(fpath.c_str(), "w");
-  if (pfile == NULL) {
+  if(pfile == NULL) {
     ERROR_PRINTF(ExtentListLog, "Can't open file %s.\n", fpath.c_str());
     return JS_USERERROR;
   }
 
   std::string VExtManXML =
-      "<parset name=\"ExtentManager\">\n\
+    "<parset name=\"ExtentManager\">\n\
         <par name=\"VFIO_VERSION\" type=\"string\"> 2006.2 </par>\n\
         <par name=\"VFIO_EXTSIZE\" type=\"long\"> "
-          + num2Str(extentSize) + " </par>\n\
+    + num2Str(extentSize) + " </par>\n\
         <par name=\"VFIO_MAXFILE\" type=\"int\"> " + num2Str(numExtents)
-          + " </par>\n\
+    + " </par>\n\
         <par name=\"VFIO_MAXPOS\" type=\"long\"> " + num2Str(maxFilePosition)
-          + " </par>\n\
+    + " </par>\n\
         <par name=\"VFIO_EXTNAME\" type=\"string\"> " + extBaseName
-          + " </par>\n\
+    + " </par>\n\
         <par name=\"VFIO_POLICY\" type=\"string\"> RANDOM </par>\n\
         </parset>\n";
 
   fprintf(pfile, "%s", VExtManXML.c_str());
+  fflush(pfile);
+  ::fsync(fileno(pfile));
   fclose(pfile);
   return JS_OK;
 }

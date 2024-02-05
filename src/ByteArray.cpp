@@ -1,7 +1,7 @@
 /***************************************************************************
  ByteArray.cpp  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -26,53 +26,44 @@
 
 namespace jsIO {
 ByteArray::~ByteArray() {
-  if (!bWrap) delete[] buffer;
 }
 
 ByteArray::ByteArray() {
-  buffer = new char[bufInitSize];
   buflen = bufInitSize;
+  resize_vbuf();
   bufsize = 0;
   bWrap = false;
 }
 
-void ByteArray::CopyClass(const ByteArray & Other) {
-  if (!bWrap) delete[] buffer;
+void ByteArray::CopyClass(const ByteArray &Other) {
   bWrap = false;
   buflen = Other.buflen;
   bufsize = Other.bufsize;
-  buffer = new char[buflen];
+  resize_vbuf();
   memcpy(buffer, Other.buffer, bufsize);
 }
 
 void ByteArray::wrap(char *_buffer, unsigned long _bufsize) {
-  if (!bWrap) delete[] buffer;
   buffer = _buffer;
   bufsize = _bufsize;
   buflen = bufsize;
   bWrap = true;
 }
 
-void ByteArray::setBuffer(char *_buffer, unsigned long _bufsize) {
+void ByteArray::copyBuffer(char *_buffer, unsigned long _bufsize) {
   bWrap = false;
   bufsize = _bufsize;
   buflen = bufsize + bufInitSize;
-  delete[] buffer;
-  buffer = new char[buflen];
+  resize_vbuf();
   memcpy(buffer, _buffer, _bufsize);
 }
 
 void ByteArray::resize(unsigned long newsize) {
-  if (newsize > buflen) {
-    char *tmpbuf = new char[bufsize];
-    memcpy(tmpbuf, buffer, bufsize);
-    delete[] buffer;
-    buffer = new char[newsize + bufInitSize];
-    memcpy(buffer, tmpbuf, bufsize);
-    memset(&buffer[bufsize], 0, newsize - bufsize);
-    delete[] tmpbuf;
+  if(newsize > buflen) {
+    long bufsize_old = bufsize;
     bufsize = newsize;
     buflen = newsize + bufInitSize;
+    resize_vbuf(bufsize_old);
   } else {
     bufsize = newsize;
     memset(&buffer[bufsize], 0, newsize - bufsize);
@@ -80,21 +71,16 @@ void ByteArray::resize(unsigned long newsize) {
 }
 
 void ByteArray::reserve(unsigned long newlen) {
-  if (newlen > buflen) {
-    char *tmpbuf = new char[bufsize];
-    memcpy(tmpbuf, buffer, bufsize);
-    delete[] buffer;
-    buffer = new char[newlen];
-    memcpy(buffer, tmpbuf, bufsize);
-    delete[] tmpbuf;
+  if(newlen > buflen) {
     buflen = newlen;
+    resize_vbuf(bufsize);
   }
 }
 
 void ByteArray::checkMem(unsigned long sizeneeded) {
-  if (sizeneeded > buflen) {
+  if(sizeneeded > buflen) {
     unsigned long newsize = buflen;
-    while (newsize < sizeneeded) {
+    while(newsize < sizeneeded) {
       newsize += buflen;
     }
     reserve(newsize);
@@ -102,8 +88,8 @@ void ByteArray::checkMem(unsigned long sizeneeded) {
 }
 
 int ByteArray::swap_endianness(unsigned long start_pos, int n, int nb) {
-  if (start_pos + n * nb >= bufsize) return JS_USERERROR;
-  endian_swap((void*) &buffer[start_pos], n, nb);
+  if(start_pos + n * nb >= bufsize) return JS_USERERROR;
+  endian_swap((void *) &buffer[start_pos], n, nb);
   return JS_OK;
 }
 
@@ -115,5 +101,16 @@ void ByteArray::insert(unsigned long pos, char *val, unsigned long valsize) {
 // void ByteArray::load(unsigned long pos, char *val , unsigned long valsize){
 //    memcpy(val, &buffer[pos], valsize);
 // }
+
+void ByteArray::resize_vbuf(unsigned long bufsize_old) {
+  vbuf.resize(buflen);
+  if(bufsize_old > 0 && bWrap) {
+    assert(buflen > bufsize_old);
+    memcpy(&vbuf[0], buffer, bufsize_old);
+  }
+  bWrap = false;
+  buffer = &vbuf[0];
+}
+
 }
 

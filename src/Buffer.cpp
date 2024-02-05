@@ -1,7 +1,7 @@
 /***************************************************************************
  Buffer.cpp  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -24,11 +24,11 @@
 #include "Buffer.h"
 
 namespace jsIO {
-void Buffer::setBufferBase(char *_buffer, unsigned long _bufsize) {
-  buffer.setBuffer(_buffer, _bufsize);
+void Buffer::copyBufferBase(char *_buffer, unsigned long _bufsize) {
+  buffer.copyBuffer(_buffer, _bufsize);
 }
 
-void Buffer::wrapBase(char* _buffer, unsigned long _bufsize) {
+void Buffer::wrapBase(char *_buffer, unsigned long _bufsize) {
   buffer.wrap(_buffer, _bufsize);
 }
 

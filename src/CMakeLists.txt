@@ -8,7 +8,7 @@ else(OPENMP_FOUND)
   message("ERROR: OpenMP could not be found.")
 endif(OPENMP_FOUND)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
 # Let the user decide whether to build jseisIO as a static or shared library
 #option(BUILD_SHARED_LIBS "Build jseisIO as shared library" TRUE)
@@ -31,6 +31,7 @@ install(FILES CharBuffer.h
               DataDomain.h
               DataFormat.h
               DataType.h
+              FileUtil.h
               jsFileReader.h
               jsFileWriter.h
               jsWriterInput.h
@@ -41,6 +42,7 @@ install(FILES CharBuffer.h
               ${CMAKE_CURRENT_BINARY_DIR}/jsVersion.h
               stringfuncs.h
               TraceProperties.h
+	      CustomProperties.h
               Units.h
          DESTINATION include/jseisIO )
 

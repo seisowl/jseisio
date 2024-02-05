@@ -47,12 +47,12 @@ void DataType::Init(std::string _name, std::string _description) {
 }
 
 DataType DataType::get(std::string _name) {
-  if (_name == "CUSTOM") return CUSTOM;
-  else if (_name == "CMP") return CMP;
-  else if (_name == "SOURCE") return SOURCE;
-  else if (_name == "RECEIVER") return RECEIVER;
-  else if (_name == "OFFSET_BIN") return OFFSET_BIN;
-  else if (_name == "STACK") return STACK;
+  if(_name == "CUSTOM") return CUSTOM;
+  else if(_name == "CMP") return CMP;
+  else if(_name == "SOURCE") return SOURCE;
+  else if(_name == "RECEIVER") return RECEIVER;
+  else if(_name == "OFFSET_BIN") return OFFSET_BIN;
+  else if(_name == "STACK") return STACK;
   return UNKNOWN;
 }
 

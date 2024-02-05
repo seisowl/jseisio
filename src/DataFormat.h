@@ -60,7 +60,7 @@ public:
 private:
   std::string name;
   std::string description;
-  int bytesPerSample;
+  int bytesPerSample  = sizeof(float);
 
 public:
   static const DataFormat FLOAT;

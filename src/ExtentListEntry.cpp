@@ -33,18 +33,18 @@ bool compare_ExtentListEntry(ExtentListEntry first, ExtentListEntry second) {
 ;
 
 ExtentListEntry::ExtentListEntry(std::string &_extName, int _extIndex, long _extStartOff, long _extSize,
-    std::string &_path) {
+                                 std::string &_path) {
   Init(_extName, _extIndex, _extStartOff, _extSize, _path);
 }
 
 int ExtentListEntry::Init(std::string &_extName, int _extIndex, long _extStartOff, long _extSize, std::string &_path) {
   std::string strerror = "";
-  if (_extName.length() == 0) strerror += "Invalid extent name. ";
-  if (_extStartOff < 0) strerror += "Invalid starting offset. ";
-  if (_extSize < 0) strerror += "Invalid extent size. ";
-  if (_path.length() == 0) strerror += "Invalid extent path. ";
+  if(_extName.length() == 0) strerror += "Invalid extent name. ";
+  if(_extStartOff < 0) strerror += "Invalid starting offset. ";
+  if(_extSize < 0) strerror += "Invalid extent size. ";
+  if(_path.length() == 0) strerror += "Invalid extent path. ";
 
-  if (strerror != "") {
+  if(strerror != "") {
     ERROR_PRINTF(ExtentListEntryLog, "%s", strerror.c_str());
     return JS_USERERROR;
   }
@@ -59,20 +59,20 @@ int ExtentListEntry::Init(std::string &_extName, int _extIndex, long _extStartOf
 
 void ExtentListEntry::print_info() const {
   TRACE_PRINTF(ExtentListEntryLog, "Name=%s, Index=%d, StartOffset=%li, Size=%li, Path=%s", extentName.c_str(),
-      extentIndex, extentStartOffset, extentSize, extentPath.c_str());
+               extentIndex, extentStartOffset, extentSize, extentPath.c_str());
 }
 
 long ExtentListEntry::getExtentSizeOnDisk() const {
   std::string fname = extentPath;
   long fsize = 0;
 
-  FILE * pFile = fopen(fname.c_str(), "rb");
-  if (pFile != NULL) {
+  FILE *pFile = fopen(fname.c_str(), "rb");
+  if(pFile != NULL) {
     fseek(pFile, 0, SEEK_END);
     fsize = ftell(pFile);
     fclose(pFile);
   }
-//  printf("fname=%s, fsize=%ld\n",fname.c_str(),fsize);
+  //  printf("fname=%s, fsize=%ld\n",fname.c_str(),fsize);
   return fsize;
 }
 

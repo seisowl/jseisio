@@ -23,6 +23,7 @@
 
  ***************************************************************************/
 
+#include <unistd.h>
 #include "VirtualFolders.h"
 
 #include "PSProLogging.h"
@@ -40,8 +41,8 @@ VirtualFolders::VirtualFolders() {
 }
 
 bool VirtualFolders::addFolder(std::string _path) {
-  for (int i = 0; i < m_vFolders.size(); i++) {
-    if (m_vFolders[i].getPath() == _path) return false;
+  for(int i = 0; i < m_vFolders.size(); i++) {
+    if(m_vFolders[i].getPath() == _path) return false;
   }
   m_vFolders.push_back(VirtualFolder(_path));
   TRACE_PRINTF(VirtualFoldersLog, "%s added to the list of Virtual Folders", _path.c_str());
@@ -51,17 +52,17 @@ bool VirtualFolders::addFolder(std::string _path) {
 std::vector<std::string> VirtualFolders::getNewPaths(std::string infname) {
   std::vector<std::string> paths;
   std::string in = getPathRest(infname);
-  if(in[in.length()-1]!='/') in.append(1,'/');
-  for (int i = 0; i < m_vFolders.size(); i++) {
-	  std::string out = getPathBefore(m_vFolders[i].getPath());
-	  paths.push_back(out + in);
+  if(in[in.length() - 1] != '/') in.append(1, '/');
+  for(int i = 0; i < m_vFolders.size(); i++) {
+    std::string out = getPathBefore(m_vFolders[i].getPath());
+    paths.push_back(out + in);
   }
   return paths;
 }
 
 bool VirtualFolders::removeFolder(std::string _path) {
-  for (int i = 0; i < m_vFolders.size(); i++) {
-    if (m_vFolders[i].getPath() == _path) {
+  for(int i = 0; i < m_vFolders.size(); i++) {
+    if(m_vFolders[i].getPath() == _path) {
       m_vFolders.erase(m_vFolders.begin() + i);
       return true;
     }
@@ -70,86 +71,85 @@ bool VirtualFolders::removeFolder(std::string _path) {
 }
 
 std::string VirtualFolders::getPathRest(std::string _path) {
-	//** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
-	//   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved
-	//   not the full path but "project" path to which vFolderPathRest must be added to get the full path
-	std::string jsDataPathTemp = _path;
-    if(jsDataPathTemp[jsDataPathTemp.length()-1]!='/') jsDataPathTemp.append(1,'/');
+  //** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
+  //   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved
+  //   not the full path but "project" path to which vFolderPathRest must be added to get the full path
+  std::string jsDataPathTemp = _path;
+  if(jsDataPathTemp[jsDataPathTemp.length() - 1] != '/') jsDataPathTemp.append(1, '/');
 
-    std::string vFolderPathRest = "";
-	size_t found;
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  std::string vFolderPathRest = "";
+  size_t found;
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	return vFolderPathRest;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  return vFolderPathRest;
 }
 
 std::string VirtualFolders::getPathBefore(std::string _path) {
-	//** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
-	//   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved
-	//   not the full path but "project" path to which vFolderPathRest must be added to get the full path
-	std::string jsDataPathTemp = _path;
-	if(jsDataPathTemp[jsDataPathTemp.length()-1]!='/') jsDataPathTemp.append(1,'/');
+  //** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
+  //   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved
+  //   not the full path but "project" path to which vFolderPathRest must be added to get the full path
+  std::string jsDataPathTemp = _path;
+  if(jsDataPathTemp[jsDataPathTemp.length() - 1] != '/') jsDataPathTemp.append(1, '/');
 
-	std::string vFolderPathRest = "";
-	size_t found;
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  std::string vFolderPathRest = "";
+  size_t found;
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	found = jsDataPathTemp.find_last_of('/');
-	if (found != std::string::npos)
-		vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
-				+ vFolderPathRest;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  found = jsDataPathTemp.find_last_of('/');
+  if(found != std::string::npos) vFolderPathRest = jsDataPathTemp.substr(found, jsDataPathTemp.length())
+        + vFolderPathRest;
 
-	jsDataPathTemp = jsDataPathTemp.substr(0, found);
-	return jsDataPathTemp;
+  jsDataPathTemp = jsDataPathTemp.substr(0, found);
+  return jsDataPathTemp;
 }
 
-// load the list of virtual folders from XML file 
+// load the list of virtual folders from XML file
 int VirtualFolders::load(std::string _path) {
   std::string VirualFoldersXML = _path + JS_VIRTUAL_FOLDERS_XML;
 
   //read VirualFoldersXML file into VirualFoldersXMLstring
   std::ifstream ifile(VirualFoldersXML.c_str(), std::ifstream::in);
-  if (!ifile.good()) {
-    ERROR_PRINTF(VirtualFoldersLog, "Can't open file %s", VirualFoldersXML.c_str());
-    return JS_USERERROR;
+  if(!ifile.good()) {
+    // ERROR_PRINTF(VirtualFoldersLog, "Can't open file %s", VirualFoldersXML.c_str());
+    // return JS_USERERROR;
+
+    // missing VirtualFolder, assume is current path
+    TRACE_PRINTF(VirtualFoldersLog, "Missing file %s, using default", VirualFoldersXML.c_str());
+    m_vFolders.clear();
+    m_vFolders.push_back(VirtualFolder(_path));
+    TRACE_PRINTF(VirtualFoldersLog, "VirtualFolder[%d]=%s", 0, _path.c_str());
+    return JS_OK;
   }
   // get length of file:
   ifile.seekg(0, std::ios::end);
@@ -170,17 +170,17 @@ int VirtualFolders::load(std::string _path) {
 
   // Init vFolders
   reader.parse(VirualFoldersXMLstring);
-  xmlElement* parSetVirtalFolders = 0;
+  xmlElement *parSetVirtalFolders = 0;
   parSetVirtalFolders = reader.getBlock("VirtualFolders");
-  if (parSetVirtalFolders == 0) {
+  if(parSetVirtalFolders == 0) {
     ERROR_PRINTF(VirtualFoldersLog, "There is no VirtalFolders part in %s\n", VirualFoldersXML.c_str());
     return JS_USERERROR;
   }
 
   int NDIR = 0;
-  xmlElement* parElement = 0;
+  xmlElement *parElement = 0;
   parElement = reader.FirstChildElement(parSetVirtalFolders, "NDIR");
-  if (parElement == 0) {
+  if(parElement == 0) {
     ERROR_PRINTF(VirtualFoldersLog, "There is no NDIR part in %s\n", VirualFoldersXML.c_str());
     return JS_USERERROR;
   }
@@ -188,19 +188,19 @@ int VirtualFolders::load(std::string _path) {
   reader.load2Parameter(parElement, &par);
   par.valuesAsInts(&NDIR);
 
-//   printf("NDir=%d\n",NDIR);
+  //   printf("NDir=%d\n",NDIR);
   TRACE_PRINTF(VirtualFoldersLog, "Number of Virtual Folders = %d", NDIR);
 
   std::string sDIRtag_simple = "DIR-";
   std::string sDIRtag_ss = "FILESYSTEM-";
 
   //** find the last 3 subdirectories in jsDataPath, e.g. if jsDataPath=/aaa/bbb/ccc/ddd/eee/, then vFolderPathRest=ccc/ddd/eee/
-  //   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved 
+  //   vFolderPathRest needed for initalization from SeisSpace generated JavaSeis data, because there in VirualFolders.xml saved
   //   not the full path but "project" path to which vFolderPathRest must be added to get the full path
   std::string vFolderPathRest = getPathRest(_path);
 
   size_t found;
-  if (NDIR > 0) {
+  if(NDIR > 0) {
     std::string curVal;
     std::string vFolderPath;
     parElement = reader.FirstChildElement(parSetVirtalFolders);
@@ -208,16 +208,16 @@ int VirtualFolders::load(std::string _path) {
     do {
       reader.load2Parameter(parElement, &par);
       curVal = par.getName();
-      if (curVal.substr(0, sDIRtag_simple.length()) == sDIRtag_simple) {
+      if(curVal.substr(0, sDIRtag_simple.length()) == sDIRtag_simple) {
         par.valuesAsStrings(&vFolderPath);
         m_vFolders.push_back(VirtualFolder(vFolderPath));
         TRACE_PRINTF(VirtualFoldersLog, "VirtualFolder[%d]=%s", i, vFolderPath.c_str());
         i++;
-      } else if (curVal.substr(0, sDIRtag_ss.length()) == sDIRtag_ss) {
+      } else if(curVal.substr(0, sDIRtag_ss.length()) == sDIRtag_ss) {
         par.valuesAsStrings(&vFolderPath);
         found = vFolderPath.find(',');
-        if (found == std::string::npos) {
-          if (vFolderPath[vFolderPath.length() - 1] != '/') vFolderPath.append(1, '/');
+        if(found == std::string::npos) {
+          if(vFolderPath[vFolderPath.length() - 1] != '/') vFolderPath.append(1, '/');
           vFolderPath = vFolderPath + vFolderPathRest;
         } else {
           vFolderPath.insert(found, vFolderPathRest);
@@ -228,13 +228,13 @@ int VirtualFolders::load(std::string _path) {
         sVF = vFolderPath.substr(0, found);
         ltrimStr(sVF);
         rtrimStr(sVF);
-        if (sVF == ".") vFolderPath = _path;
-        // **** 
+        if(sVF == ".") vFolderPath = _path;
+        // ****
         m_vFolders.push_back(VirtualFolder(vFolderPath));
         TRACE_PRINTF(VirtualFoldersLog, "VirtualFolder[%d]=%s", i, vFolderPath.c_str());
         i++;
       }
-    } while ((parElement = reader.NextSiblingElement(parElement)));
+    } while((parElement = reader.NextSiblingElement(parElement)));
   } else {
     ERROR_PRINTF(VirtualFoldersLog, "Number of Virtual Folders must be greater than 0");
     return JS_USERERROR;
@@ -246,7 +246,7 @@ int VirtualFolders::load(std::string _path) {
 //Static delete method to remove the properties file.
 bool VirtualFolders::deleteXMLFile(std::string _path) {
   std::string VirualFoldersXML = _path + JS_VIRTUAL_FOLDERS_XML;
-  if (remove(VirualFoldersXML.c_str()) != 0) return false;
+  if(remove(VirualFoldersXML.c_str()) != 0) return false;
   else return true;
 }
 
@@ -261,10 +261,10 @@ int VirtualFolders::getExtentPathNames(std::string _baseName, std::vector<std::s
   std::transform(JS_TRACE_HEADERS.begin(), JS_TRACE_HEADERS.end(), traceHeadersLC.begin(), tolower);
   std::transform(_baseName.begin(), _baseName.end(), _baseName.begin(), tolower);
 
-  if (traceDataLC == _baseName) {
+  if(traceDataLC == _baseName) {
     extPaths = m_precomputedTraceExtents;
     return 1;
-  } else if (traceHeadersLC == _baseName) {
+  } else if(traceHeadersLC == _baseName) {
     extPaths = m_precomputedHeaderExtents;
     return 2;
   } else {
@@ -290,13 +290,13 @@ void VirtualFolders::setPreComputedExtents(std::vector<std::string> &_precompute
 int VirtualFolders::findExtents() {
   int numVFolders = m_vFolders.size();
 
-  for (int i = 0; i < numVFolders; i++) {
+  for(int i = 0; i < numVFolders; i++) {
     int ires = m_vFolders[i].loadExtents(JS_TRACE_DATA, m_precomputedTraceExtents);
-    if (ires != JS_OK) {
+    if(ires != JS_OK) {
       return JS_USERERROR;
     }
     ires = m_vFolders[i].loadExtents(JS_TRACE_HEADERS, m_precomputedHeaderExtents);
-    if (ires != JS_OK) {
+    if(ires != JS_OK) {
       return JS_USERERROR;
     }
 
@@ -310,7 +310,7 @@ int VirtualFolders::findExtents() {
 int VirtualFolders::save(std::string _path) {
   long globalReqFreeSpace = 0;
   int numVF = m_vFolders.size();
-  if (numVF == 0) {
+  if(numVF == 0) {
     ERROR_PRINTF(VirtualFoldersLog, "Virtual Folders are not initalized yet");
     return JS_USERERROR;
   }
@@ -319,52 +319,54 @@ int VirtualFolders::save(std::string _path) {
   std::string vF = "";
 
   std::string sFirstVF = m_vFolders[0].getPath();
-  if (sFirstVF[sFirstVF.length() - 1] != '/') sFirstVF.append(1, '/');
-  if (_path[_path.length() - 1] != '/') _path.append(1, '/');
+  if(sFirstVF[sFirstVF.length() - 1] != '/') sFirstVF.append(1, '/');
+  if(_path[_path.length() - 1] != '/') _path.append(1, '/');
 
-  if (numVF == 1 && sFirstVF == _path) {
+  if(numVF == 1 && sFirstVF == _path) {
     vF = "  <par name=\"FILESYSTEM-0\" type=\"string\"> .,READ_WRITE </par>\n";
   } else {
     std::string vFolder;
-    for (int i = 0; i < numVF; i++) {
+    for(int i = 0; i < numVF; i++) {
       vFolder = m_vFolders[i].getPath();
       found = vFolder.find_last_of('/'); // do this because in SeisSpace as VirtualFolder saved not the whole folder but only "project folder"
       found = vFolder.find_last_of('/', found - 1);
       found = vFolder.find_last_of('/', found - 1);
       vF += "  <par name=\"FILESYSTEM-" + num2Str(i) + "\" type=\"string\"> " + num2Str(vFolder.substr(0, found))
-          + ",READ_WRITE </par>\n";
+            + ",READ_WRITE </par>\n";
     }
   }
 
   std::string VFoldersXML =
-      "<parset name=\"VirtualFolders\">\n\
+    "<parset name=\"VirtualFolders\">\n\
         <par name=\"NDIR\" type=\"int\">" + num2Str(numVF) + "</par>\n" + vF
-          + "\
+    + "\
         <par name=\"Version\" type=\"string\"> 2006.2 </par>\n\
         <par name=\"Header\" type=\"string\"> \"VFIO org.javaseis.io.VirtualFolder 2006.2\" </par>\n\
         <par name=\"Type\" type=\"string\"> SS </par>\n\
         <par name=\"POLICY_ID\" type=\"string\"> RANDOM </par>\n\
         <par name=\"GLOBAL_REQUIRED_FREE_SPACE\" type=\"long\"> "
-          + num2Str(globalReqFreeSpace) + " </par>\n\
+    + num2Str(globalReqFreeSpace) + " </par>\n\
         </parset>\n";
 
   std::string fpath = _path + JS_VIRTUAL_FOLDERS_XML;
   FILE *pfile = fopen(fpath.c_str(), "w");
-  if (pfile == NULL) {
+  if(pfile == NULL) {
     ERROR_PRINTF(VirtualFoldersLog, "Can't open file %s.\n", fpath.c_str());
     return JS_USERERROR;
   }
 
   fprintf(pfile, "%s", VFoldersXML.c_str());
+  fflush(pfile);
+  ::fsync(fileno(pfile));
   fclose(pfile);
   return JS_OK;
 }
 
 int VirtualFolders::createFolders() {
-  for (int i = 0; i < m_vFolders.size(); i++) {
+  for(int i = 0; i < m_vFolders.size(); i++) {
     int ires = mkdirp(m_vFolders[i].getPath().c_str(), 0777);
     TRACE_PRINTF(VirtualFoldersLog, "Create direcory %s", m_vFolders[i].getPath().c_str());
-    if (ires != JS_OK) {
+    if(ires != JS_OK) {
       TRACE_PRINTF(VirtualFoldersLog, "Can't create direcory %s", m_vFolders[i].getPath().c_str());
       return ires;
     }
@@ -373,10 +375,10 @@ int VirtualFolders::createFolders() {
 }
 
 int VirtualFolders::removeFoldersContents() {
-  for (int i = 0; i < m_vFolders.size(); i++) {
+  for(int i = 0; i < m_vFolders.size(); i++) {
     TRACE_PRINTF(VirtualFoldersLog, "Remove contents of directory %s", m_vFolders[i].getPath().c_str());
     bool ires = m_vFolders[i].removeDirectoryContent();
-    if (ires != true) {
+    if(ires != true) {
       TRACE_PRINTF(VirtualFoldersLog, "Can't remove contents of direcory %s", m_vFolders[i].getPath().c_str());
       return ires;
     }
@@ -386,27 +388,27 @@ int VirtualFolders::removeFoldersContents() {
 
 //recursive mkdir
 int VirtualFolders::mkdirp(const char *dir, mode_t mode) {
-  char dir_cpy[1024];
+  char dir_cpy[2024];
   strcpy(dir_cpy, dir);
   char *p = dir_cpy + 1;
-  while (*p) {
-    if (*p == '/') {
-      *((char*) p) = '\0';
+  while(*p) {
+    if(*p == '/') {
+      *((char *) p) = '\0';
       ::mkdir(dir_cpy, mode);
-      *((char*) p) = '/';
+      *((char *) p) = '/';
     }
     p++;
 
   }
-  if (*(p - 1) != '/') if (::mkdir(dir_cpy, mode) == -1 && errno != EEXIST) {
-    ERROR_PRINTF(VirtualFoldersLog, "Can't create directory. %s.\n", converErrno2Str(errno).c_str());
-    return JS_USERERROR;
-  }
+  if(*(p - 1) != '/') if(::mkdir(dir_cpy, mode) == -1 && errno != EEXIST) {
+      ERROR_PRINTF(VirtualFoldersLog, "Can't create directory. %s.\n", converErrno2Str(errno).c_str());
+      return JS_USERERROR;
+    }
   return JS_OK;
 }
 
 std::string VirtualFolders::converErrno2Str(int error) {
-  switch (error) {
+  switch(error) {
   case EACCES:
     return "The parent directory does not allow write permission to the process, or one of the directories in pathname did not allow search permission.";
   case EEXIST:

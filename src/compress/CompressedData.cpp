@@ -5,7 +5,7 @@
  * This class provided a container for a compressed data.
 
     copyright            : (C) 2012 Fraunhofer ITWM
-    
+
     This file is part of jseisIO.
 
     jseisIO is free software: you can redistribute it and/or modify
@@ -23,39 +23,33 @@
 
  ***************************************************************************/
 
-  
+
 #include "CompressedData.h"
 
-namespace jsIO
-{
-  CompressedData::~CompressedData()
-  {
-    if(compresseddata!=NULL) delete[]compresseddata;
-  }
+namespace jsIO {
+CompressedData::~CompressedData() {
+  if(compresseddata != NULL) delete[]compresseddata;
+}
 
-  CompressedData::CompressedData()
-  {
-    compresseddata=NULL;
-  }
+CompressedData::CompressedData() {
+  compresseddata = NULL;
+}
 
-  CompressedData::CompressedData(char* _compressedData, unsigned long _dataLength) 
-  {
-    dataLength = _dataLength;
-    compresseddata = new char [dataLength];
-    memcpy(compresseddata, _compressedData, dataLength);
-  }
+CompressedData::CompressedData(char *_compressedData, unsigned long _dataLength) {
+  dataLength = _dataLength;
+  compresseddata = new char [dataLength];
+  memcpy(compresseddata, _compressedData, dataLength);
+}
 
-  void CompressedData::allocDataSpace(unsigned long nbytes)
-  {
-    if(compresseddata!=NULL) delete[]compresseddata;
-    compresseddata = new char [nbytes];
-    dataLength = 0;
-  }
+void CompressedData::allocDataSpace(unsigned long nbytes) {
+  if(compresseddata != NULL) delete[]compresseddata;
+  compresseddata = new char [nbytes];
+  dataLength = 0;
+}
 
-  void CompressedData::setDataLength(unsigned long _dataLength) 
-  {
-    dataLength = _dataLength;
-  }
+void CompressedData::setDataLength(unsigned long _dataLength) {
+  dataLength = _dataLength;
+}
 
 }
 

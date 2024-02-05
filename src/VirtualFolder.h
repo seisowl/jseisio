@@ -1,7 +1,7 @@
 /***************************************************************************
  VirtualFolder.h  -  description
  -------------------
- * This class represents a folder that can be used for virtual IO.  
+ * This class represents a folder that can be used for virtual IO.
 
  copyright            : (C) 2012 Fraunhofer ITWM
 
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <vector>
 
-#include <dirent.h> 
+#include <dirent.h>
 //to get file size
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -73,7 +73,7 @@ public:
     return path + "," + attrib2str(attrib);
   }
 
-//    int loadExtents(std::string extBaseName, std::vector<std::string> &extNames, std::vector<long> &extSizes);
+  //    int loadExtents(std::string extBaseName, std::vector<std::string> &extNames, std::vector<long> &extSizes);
   int loadExtents(std::string extBaseName, std::vector<std::string> &extNames);
 
   bool equals(VirtualFolder &obj);
@@ -98,7 +98,7 @@ public:
 
   bool removeDirectoryContent();
 
-// private atributes
+  // private atributes
 private:
   std::string path;
   Attribute attrib;

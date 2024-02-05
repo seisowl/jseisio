@@ -56,14 +56,14 @@ public:
   ;
 
   void insert(unsigned long pos, char *val, unsigned long valsize); //ByteArray.insert
-//    void load(unsigned long pos, char *val , unsigned long valsize);//ByteArray.load
+  //    void load(unsigned long pos, char *val , unsigned long valsize);//ByteArray.load
 
 protected:
   ByteArray buffer;
 
 protected:
-  void setBufferBase(char *_buffer, unsigned long _bufsize);
-  void wrapBase(char* _buffer, unsigned long _bufsize);
+  void copyBufferBase(char *_buffer, unsigned long _bufsize);
+  void wrapBase(char *_buffer, unsigned long _bufsize);
   unsigned long sizeBase() const {
     return buffer.size();
   }
@@ -80,7 +80,7 @@ protected:
     buffer.reserve(sz);
   }
   ;
-  const char* arrayBase() const {
+  const char *arrayBase() const {
     return buffer.getBuffer();
   }
   ;

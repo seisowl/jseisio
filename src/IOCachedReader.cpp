@@ -25,22 +25,25 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <csignal>
 
 #include "PSProLogging.h"
+#include "FileUtil.h"
+#include "Assertion.h"
 
 namespace jsIO {
 DECLARE_LOGGER(IOCachedReaderLog);
 
-IOCachedReader::IOCachedReader(const int _fileDescriptor, unsigned long _bufferSize, unsigned long _fileSize) :
-    m_ulDebugReadCounter(0), m_ulBufferSize(_bufferSize), m_ulBufferOffset(0), m_ulFileSize(_fileSize), m_nFileDescriptor(
-        _fileDescriptor), m_bufferOffsetInit(false), m_pBuffer(NULL)
+IOCachedReader::IOCachedReader(const int _fileDescriptor, unsigned long _bufferSize, unsigned long _fileSize) : m_ulDebugReadCounter(0), m_ulBufferSize(
+    _bufferSize), m_ulBufferOffset(0), m_ulFileSize(_fileSize), m_nFileDescriptor(_fileDescriptor), m_bufferOffsetInit(false), m_pBuffer(
+NULL)
 
 {
   m_pBuffer = new unsigned char[m_ulBufferSize];
 }
 
 IOCachedReader::~IOCachedReader() {
-  if (m_pBuffer != NULL) delete[] m_pBuffer;
+  delete[] m_pBuffer;
 }
 
 bool IOCachedReader::setNewFile(const int _fileDescriptor, unsigned long _fileSize) {
@@ -52,38 +55,49 @@ bool IOCachedReader::setNewFile(const int _fileDescriptor, unsigned long _fileSi
   return true;
 }
 
-bool IOCachedReader::read(unsigned long _offset, unsigned char* _buffer, long _bufferSize) {
+bool IOCachedReader::read(unsigned long _offset, unsigned char *_buffer, long _bufferSize) {
   unsigned long length = _bufferSize;
   unsigned long offset = 0;
   unsigned long readSize = 0;
-  if (m_ulBufferSize == 0) {
-    unsigned long actRead = ::pread(m_nFileDescriptor, _buffer, _bufferSize, _offset);
-    if (actRead != _bufferSize) {
+  assertion(m_ulFileSize > 0, "m_ulFileSize=%lu", m_ulFileSize);
+  if(m_ulBufferSize == 0) {
+    // unsigned long actRead = ::pread(m_nFileDescriptor, _buffer, _bufferSize, _offset);
+    unsigned long actRead = wrapIOFull(pread, m_nFileDescriptor, _buffer, _bufferSize, _offset);
+#if 1
+    assertion(actRead == _bufferSize, "actRead=%lu, bufferSize=%lu does not match!", actRead, _bufferSize);
+#else // for debugger tracing
+    if(actRead != _bufferSize) {
+      abort();
       return false;
     }
+#endif
   } else {
-    while (length > 0) {
-      if (m_ulFileSize - m_ulBufferOffset == 0 || length > _bufferSize) {
+    while(length > 0) {
+#if 1
+      assertion(!(m_ulFileSize - m_ulBufferOffset == 0 || length > _bufferSize),
+                "m_ulFileSize=%lu, m_ulBufferOffset=%lu, length=%lu, _bufferSize=%lu", m_ulFileSize, m_ulBufferOffset, length, _bufferSize);
+#else // for debugger tracing
+      if(m_ulFileSize - m_ulBufferOffset == 0 || length > _bufferSize) {
         TRACE_VAR4(IOCachedReaderLog, length, m_ulBufferSize, m_ulBufferOffset, _offset);
+        abort();
         return false;
       }
-      if (m_bufferOffsetInit == false || _offset < m_ulBufferOffset || _offset >= m_ulBufferOffset + m_ulBufferSize) // outside
-          {
+#endif
+      if(m_bufferOffsetInit == false || _offset < m_ulBufferOffset || _offset >= m_ulBufferOffset + m_ulBufferSize) { // outside
         m_bufferOffsetInit = true;
         m_ulBufferOffset = _offset;
         m_ulDebugReadCounter++;
         readSize = std::min(m_ulBufferSize, m_ulFileSize - m_ulBufferOffset);
-        unsigned long actRead = ::pread(m_nFileDescriptor, m_pBuffer, readSize, m_ulBufferOffset);
-        if (actRead != readSize) {
+        //unsigned long actRead = ::pread(m_nFileDescriptor, m_pBuffer, readSize, m_ulBufferOffset);
+        unsigned long actRead = wrapIOFull(pread, m_nFileDescriptor, m_pBuffer, readSize, m_ulBufferOffset);
+        if(actRead != readSize) {
           m_bufferOffsetInit = false;
           return false;
         }
-      } else if (_offset >= m_ulBufferOffset && _offset + length < m_ulBufferOffset + m_ulBufferSize) // inside
-          {
+      } else if(_offset >= m_ulBufferOffset && _offset + length < m_ulBufferOffset + m_ulBufferSize) { // inside
         memcpy(_buffer + offset, m_pBuffer + (_offset - m_ulBufferOffset), length);
         length = 0;
-      } else // right side
-      {
+      } else { // right side
         memcpy(_buffer + offset, m_pBuffer + _offset - m_ulBufferOffset, m_ulBufferOffset + m_ulBufferSize - _offset);
         offset += m_ulBufferOffset + m_ulBufferSize - _offset;
         length = _offset + length - (m_ulBufferOffset + m_ulBufferSize);

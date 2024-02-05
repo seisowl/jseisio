@@ -1,7 +1,7 @@
 /***************************************************************************
  FloatBuffer.h  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -32,8 +32,16 @@
 #include "ByteArray.h"
 #include "jsByteOrder.h"
 #include "jsDefs.h"
+using std::string;
+using std::vector;
+#include <sstream>
+#include <limits>    // std::cout, std::fixed
+#include <iomanip>
 
 namespace jsIO {
+vector<float> str2floats(const string str);
+string floats2str(const vector<float> &v);
+
 class FloatBuffer: public Buffer {
 public:
   FloatBuffer();
@@ -43,50 +51,46 @@ public:
   JS_BYTEORDER getByteOrder() {
     return byteOrder;
   }
-  ;
+
   void setByteOrder(JS_BYTEORDER order) {
     byteOrder = order;
   }
-  ;
 
   unsigned long position() const {
     return buffer_pos;
   }
-  ;
+
   int position(unsigned long _buffer_pos);
 
-  void setBuffer(float* farray, unsigned long farraylen) {
-    setBufferBase((char*) farray, farraylen * SIZEOFFLOAT);
+  void copyBuffer(float *farray, unsigned long farraylen) {
+    copyBufferBase((char*)farray, farraylen * SIZEOFFLOAT);
     buffer_pos = 0;
   }
-  ;
-  void wrap(float* farray, unsigned long farraylen) {
-    wrapBase((char*) farray, farraylen * SIZEOFFLOAT);
+
+  void wrap(float *farray, unsigned long farraylen) {
+    wrapBase((char*)farray, farraylen * SIZEOFFLOAT);
     buffer_pos = 0;
   }
-  ;
 
   size_t size() const {
-    return (size_t) (sizeBase() / SIZEOFFLOAT);
+    return (size_t)(sizeBase() / SIZEOFFLOAT);
   }
-  ;
+
   size_t capacity() const {
     return capacityBase() / SIZEOFFLOAT;
   }
-  ;
+
   void resize(size_t sz) {
     resize(sz * SIZEOFFLOAT);
   }
-  ;
+
   void reserve(size_t sz) {
     reserveBase(sz * SIZEOFFLOAT);
   }
-  ;
 
   const float* array() const {
-    return (const float*) (arrayBase());
+    return (const float*)(arrayBase());
   }
-  ;
 
   float get();
   float get(unsigned long index);

@@ -54,10 +54,9 @@ public:
   jsWriterInput();
   ~jsWriterInput();
 
-  jsWriterInput(jsWriterInput const& _other);
-  jsWriterInput & operator =(const jsWriterInput & _other) //Assignment operator
-      {
-    if (this != &_other) CopyClass(_other);
+  jsWriterInput(jsWriterInput const &_other);
+  jsWriterInput &operator =(const jsWriterInput &_other) { //Assignment operator
+    if(this != &_other) CopyClass(_other);
     return *this;
   }
 
@@ -126,8 +125,8 @@ public:
    *                     This is not a requred parameter.
    */
   int initGridAxis(int _axisInd, AxisLabel _label, Units _units, DataDomain _domain, long _length, long _logicalOrigin,
-      long _logicalDelta, double _physicalOrigin, double _physicalDelta, std::string _headerName = "",
-      std::string _headerBinName = "");
+                   long _logicalDelta, double _physicalOrigin, double _physicalDelta, std::string _headerName = "",
+                   std::string _headerBinName = "");
 
   /**
    * @brief Adds set of default properties/header-words.
@@ -145,12 +144,15 @@ public:
   /** @brief Adds survey geometry given by 3 points
    * @details The geometry is not a requied parameter and will be written in CustomProperties part of FileProperties.xml
    */
-  void addSurveyGeom(int i1, int i2, int i3, int i4, float f1, float f2, float f3, float f4, float f5, float f6);
+  void addSurveyGeom(int i1, int i2, int i3, int i4, float f1, float f2, float f3, float f4, float f5, float f6, int resetOrigin)
+  __attribute__((deprecated));
+  void addSurveyGeom(int i1, int i2, int nIL, int i3, int i4, int nXL, double f1, double f2, double f3, double f4, double f5,
+                     double f6, int resetOrigin);
 
   void addCustomProperty(std::string name, std::string type, std::string value);
 
 private:
-  void CopyClass(const jsWriterInput & Other);
+  void CopyClass(const jsWriterInput &Other);
 
 private:
   int numGridAxis;
@@ -163,7 +165,7 @@ private:
   GridDefinition *gridDef;
   DataDefinition *dataDef;
   TraceProperties *traceProps;
-//       SurveyGeometry *geometry;
+  //       SurveyGeometry *geometry;
   int seispegPolicy; //0-Fastest, 1-MaxCompression
 
   CustomProperties *customProps;

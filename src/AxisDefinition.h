@@ -38,7 +38,7 @@ namespace jsIO {
 class AxisDefinition {
 public:
 
-// private atributes
+  // private atributes
 private:
 
   AxisLabel label; // the label of the axis.
@@ -60,15 +60,15 @@ public:
   AxisDefinition();
 
   AxisDefinition(AxisLabel _label, Units _units, DataDomain _domain, long _length, long _logicalOrigin,
-      long _logicalDelta, double _physicalOrigin, double _physicalDelta, std::string _headerName = "",
-      std::string _headerBinName = "");
+                 long _logicalDelta, double _physicalOrigin, double _physicalDelta, std::string _headerName = "",
+                 std::string _headerBinName = "");
 
   void Init(AxisLabel _label, Units _units, DataDomain _domain, long _length, long _logicalOrigin, long _logicalDelta,
-      double _physicalOrigin, double _physicalDelta, std::string _headerName = "", std::string _headerBinName = "");
+            double _physicalOrigin, double _physicalDelta, std::string _headerName = "", std::string _headerBinName = "");
 
-  static void getDefault(int ndim, int *idim, AxisDefinition *& axes);
+  static void getDefault(int ndim, int *idim, AxisDefinition *&axes);
 
-  int subRange(long* _range, int _rangelen, AxisDefinition *subAxis);
+  int subRange(long *_range, int _rangelen, AxisDefinition *subAxis);
 
   AxisLabel getLabel() const {
     return (label);

@@ -28,7 +28,8 @@ namespace jsIO {
 DECLARE_LOGGER(PropertyDescriptionLog);
 
 const std::string PropertyDescription::c_formatStrings[] = { "UNKNOWN", "BYTE", "SHORT", "INTEGER", "LONG", "FLOAT",
-    "DOUBLE", "COMPLEX", "DCOMPLEX", "STRING", "BYTESTRING" };
+                                                             "DOUBLE", "COMPLEX", "DCOMPLEX", "STRING", "BYTESTRING"
+                                                           };
 
 PropertyDescription::PropertyDescription() {
   label = "";
@@ -36,7 +37,8 @@ PropertyDescription::PropertyDescription() {
   count = 0;
   recordLength = 0;
   offset = HDR_OFFSET_UNDEFINED;
-
+  format = 3; // INTEGER
+  formatLength = 4;
 }
 
 PropertyDescription::PropertyDescription(std::string _label, std::string _description, int _format, int _count) {
@@ -66,7 +68,7 @@ void PropertyDescription::set(std::string _label, std::string _description, int 
 }
 
 void PropertyDescription::set(std::string _label, std::string _description, std::string _formatstring, int _count,
-    int _offset) {
+                              int _offset) {
   int _format = getFormat(_formatstring);
   set(_label, _description, _format, _count, _offset);
 }
@@ -74,7 +76,7 @@ void PropertyDescription::set(std::string _label, std::string _description, std:
 void PropertyDescription::computeLengths() {
   recordLength = 0;
   formatLength = 0;
-  switch (format) {
+  switch(format) {
   case HDR_FORMAT_BYTE:
     formatLength = 1;
     break;
@@ -106,19 +108,19 @@ void PropertyDescription::computeLengths() {
 }
 
 int PropertyDescription::getFormat(std::string formatString) {
-  for (int i = 0; i < c_formatStrings_len; i++) {
-    if (c_formatStrings[i] == formatString) return i;
+  for(int i = 0; i < c_formatStrings_len; i++) {
+    if(c_formatStrings[i] == formatString) return i;
   }
   return -1;
 }
 
 int PropertyDescription::set(std::string _label, std::string _propertyString) {
   std::string str_error = "Could not parse property string: '" + _propertyString + "' for label='" + _label
-      + "' (expecting at least 4 values)";
+                          + "' (expecting at least 4 values)";
   label = _label;
   size_t found, found_old;
   found = _propertyString.find(';');
-  if (found == std::string::npos) {
+  if(found == std::string::npos) {
     ERROR_PRINTF(PropertyDescriptionLog, "%s", str_error.c_str());
     return JS_USERERROR;
   }
@@ -126,30 +128,30 @@ int PropertyDescription::set(std::string _label, std::string _propertyString) {
   found_old = found;
 
   found = _propertyString.find(';', found_old + 1);
-  if (found == std::string::npos) {
+  if(found == std::string::npos) {
     ERROR_PRINTF(PropertyDescriptionLog, "%s", str_error.c_str());
     return JS_USERERROR;
   }
   std::string format_str = _propertyString.substr(found_old + 1, found - 1);
   format = 0;
-  for (int i = 1; i < c_formatStrings_len; i++) {
-    if (format_str == c_formatStrings[i]) {
+  for(int i = 1; i < c_formatStrings_len; i++) {
+    if(format_str == c_formatStrings[i]) {
       format = i;
       break;
     }
   }
 
-  if (format == 0) {
+  if(format == 0) {
     ERROR_PRINTF(PropertyDescriptionLog, "Could not match property format: %s", format_str.c_str());
     return JS_USERERROR;
   }
 
   found = _propertyString.find(';', found_old + 1);
-  if (found == std::string::npos) throw str_error;
+  if(found == std::string::npos) throw str_error;
   count = atoi(_propertyString.substr(found_old + 1, found - 1).c_str());
 
   found = _propertyString.find(';', found_old + 1);
-  if (found == std::string::npos) throw str_error;
+  if(found == std::string::npos) throw str_error;
   offset = atoi(_propertyString.substr(found_old + 1, found - 1).c_str());
 
   computeLengths();
@@ -170,8 +172,8 @@ std::string PropertyDescription::toPropertyString() {
 
 void PropertyDescription::setFormat(std::string _sformat) {
   format = 0;
-  for (int i = 0; i < c_formatStrings_len; i++) {
-    if (_sformat.find(c_formatStrings[i]) != std::string::npos) {
+  for(int i = 0; i < c_formatStrings_len; i++) {
+    if(_sformat.find(c_formatStrings[i]) != std::string::npos) {
       format = i;
       return;
     }
@@ -180,7 +182,7 @@ void PropertyDescription::setFormat(std::string _sformat) {
 
 void PropertyDescription::print_info() const {
   printf("Label:%s , Description=%s, count=%d, format=%d, formatLenght=%d, recordLength=%d, offset=%d\n", label.c_str(),
-      description.c_str(), count, format, formatLength, recordLength, offset);
+         description.c_str(), count, format, formatLength, recordLength, offset);
 }
 
 }

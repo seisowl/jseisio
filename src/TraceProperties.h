@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-// 
+//
 
 #include "CharBuffer.h"
 #include "jsDefs.h"
@@ -52,8 +52,8 @@ public:
   static const std::string COUNT;
   static const std::string OFFSET;
 
-  static std::vector<PropertyDescription> const& defaultProperties();
-  static std::vector<PropertyDescription> const& knownProperties();
+  static std::vector<PropertyDescription> const &defaultProperties();
+  static std::vector<PropertyDescription> const &knownProperties();
 
 public:
   ~TraceProperties();
@@ -62,10 +62,9 @@ public:
 
   int Init(int _numProps, PropertyDescription *_traceProps);
 
-  TraceProperties(TraceProperties const& _other);
-  TraceProperties & operator =(const TraceProperties & _other) //Assignment operator
-      {
-    if (this != &_other) CopyClass(_other);
+  TraceProperties(TraceProperties const &_other);
+  TraceProperties &operator =(const TraceProperties &_other) { //Assignment operator
+    if(this != &_other) CopyClass(_other);
     return *this;
   }
 
@@ -83,9 +82,9 @@ public:
 
   void copyToBufer(char *_headBuf, int numTraces);
 
-//    int getBuffer(CharBuffer *buf); // get the pointer to buffer and return the buffer size. Be careful with it!
+  //    int getBuffer(CharBuffer *buf); // get the pointer to buffer and return the buffer size. Be careful with it!
 
-//    int loadBuffer(std::string filename);
+  //    int loadBuffer(std::string filename);
 
   int getRecordLength() {
     return recordLength;
@@ -109,15 +108,14 @@ public:
   unsigned long getBufferPos() {
     return buffer_pos;
   }
-  ;
+
   unsigned long getBufferSize() {
     return buffer->size();
   }
-  ;
+
   unsigned long getBufferCapacity() {
     return buffer->capacity();
   }
-  ;
 
   //headbuf must be pre-allocated with the size = numOfTraces*recordLength
   void getTraceHeader(long firstTrace, long numOfTraces, char *headbuf);
@@ -125,22 +123,22 @@ public:
   //headbuf must be filled with the headers of numOfTraces traces
   void swapHeaders(char *headbuf, int numOfTraces);
 
-  catalogedHdrEntry getHdrEntry(std::string _name);
+  catalogedHdrEntry getHdrEntry(std::string _name, bool must_exist = false);
   std::vector<catalogedHdrEntry> getHdrEntries() {
     return hdrEntries;
   }
 
-//    void setBufferPosition(PropertyDescription &property);
+  //    void setBufferPosition(PropertyDescription &property);
   void setTraceIndex(int _traceIndex) {
     traceIndex = _traceIndex;
   }
   ;
-//    void addTraceProperty(PropertyDescription &property);
+  //    void addTraceProperty(PropertyDescription &property);
 
   bool exists(std::string key);
-  int exists(std::string key, std::vector<PropertyDescription> const&_propList);
+  int exists(std::string key, std::vector<PropertyDescription> const &_propList);
 
-  void getTraceProperties(PropertyDescription *& traceProps);
+  void getTraceProperties(PropertyDescription *&traceProps);
 
   int getKeyOffset(std::string key); //needed for jsFileWriter:leftJustify
 
@@ -181,7 +179,7 @@ private:
   void setBufferPosition(std::string key);
   void double2ints(double fx, int &ix, int &scalco);
 
-  void CopyClass(const TraceProperties & Other);
+  void CopyClass(const TraceProperties &Other);
 
   static std::vector<PropertyDescription> initKnownProperties();
   static std::vector<PropertyDescription> initDefaultProperties();

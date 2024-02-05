@@ -1,7 +1,7 @@
 /***************************************************************************
  IntBuffer.h  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -51,11 +51,11 @@ public:
   }
   int position(unsigned long _buffer_pos);
 
-  void setBuffer(int* farray, unsigned long farraylen);
-  void wrap(int* farray, unsigned long farraylen);
+  void copyBuffer(int *farray, unsigned long farraylen);
+  void wrap(int *farray, unsigned long farraylen);
 
   size_t size() const {
-    return (size_t) (sizeBase() / SIZEOFINT);
+    return (size_t)(sizeBase() / SIZEOFINT);
   }
   size_t capacity() const {
     return capacityBase() / SIZEOFINT;
@@ -67,8 +67,8 @@ public:
     reserveBase(sz * SIZEOFINT);
   }
 
-  const int* array() const {
-    return (const int*) (arrayBase());
+  const int *array() const {
+    return (const int *)(arrayBase());
   }
 
   int get();
@@ -81,7 +81,7 @@ public:
   void put(const int *src, int len);
   int put(unsigned long pos, const int *src, int len);
 
-// private atributes
+  // private atributes
 private:
   JS_BYTEORDER byteOrder;
   JS_BYTEORDER natOrder;

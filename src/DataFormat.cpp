@@ -43,11 +43,11 @@ void DataFormat::Init(std::string _name, std::string _description, int _bytesPer
 }
 
 DataFormat DataFormat::get(std::string _name) {
-  if (_name == INT16.getName()) return INT16;
-  else if (_name == INT08.getName()) return INT08;
-  else if (_name == COMPRESSED_INT16.getName()) return COMPRESSED_INT16;
-  else if (_name == COMPRESSED_INT08.getName()) return COMPRESSED_INT08;
-  else if (_name == "\"" + SEISPEG.getName() + "\"") return SEISPEG;
+  if(_name == INT16.getName()) return INT16;
+  else if(_name == INT08.getName()) return INT08;
+  else if(_name == COMPRESSED_INT16.getName()) return COMPRESSED_INT16;
+  else if(_name == COMPRESSED_INT08.getName()) return COMPRESSED_INT08;
+  else if(_name == "\"" + SEISPEG.getName() + "\"") return SEISPEG;
   return FLOAT;
 }
 }

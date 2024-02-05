@@ -67,7 +67,7 @@ public:
   int getBytesPerSample();
 
 private:
-  JS_BYTEORDER m_byteOrder;
+  JS_BYTEORDER m_byteOrder { };
   DataFormat m_traceFormat;
   DataType m_dataType;
 };

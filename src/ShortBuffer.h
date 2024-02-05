@@ -1,7 +1,7 @@
 /***************************************************************************
  ShortBuffer.h  -  description
  -------------------
- 
+
  copyright            : (C) 2012 Fraunhofer ITWM
 
  This file is part of jseisIO.
@@ -54,19 +54,19 @@ public:
   ;
   int position(unsigned long _buffer_pos);
 
-  void setBuffer(short* sarray, unsigned long sarraylen) {
-    setBufferBase((char*) sarray, sarraylen * SIZEOFSHORT);
+  void copyBuffer(short *sarray, unsigned long sarraylen) {
+    copyBufferBase((char *) sarray, sarraylen * SIZEOFSHORT);
     buffer_pos = 0;
   }
   ;
-  void wrap(short* sarray, unsigned long sarraylen) {
-    wrapBase((char*) sarray, sarraylen * SIZEOFSHORT);
+  void wrap(short *sarray, unsigned long sarraylen) {
+    wrapBase((char *) sarray, sarraylen * SIZEOFSHORT);
     buffer_pos = 0;
   }
   ;
 
   size_t size() const {
-    return (size_t) (sizeBase() / SIZEOFSHORT);
+    return (size_t)(sizeBase() / SIZEOFSHORT);
   }
   ;
   size_t capacity() const {
@@ -82,8 +82,8 @@ public:
   }
   ;
 
-  const short* array() const {
-    return (const short*) (arrayBase());
+  const short *array() const {
+    return (const short *)(arrayBase());
   }
   ;
 

@@ -21,7 +21,7 @@
 
  ***************************************************************************/
 
-#include "stringfuncs.h"  
+#include "stringfuncs.h"
 #include "Units.h"
 
 namespace jsIO {

@@ -34,7 +34,7 @@ public:
    * The internal buffer will written to the disk.
    * return false if not success
    */
-  bool write(unsigned long _offset, unsigned char* _buffer, unsigned long _bufferLen);
+  bool write(unsigned long _offset, unsigned char *_buffer, unsigned long _bufferLen);
 
   bool setNewFileDescriptor(const int _fileDescriptor);
 

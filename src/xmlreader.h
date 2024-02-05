@@ -45,21 +45,21 @@ public:
   ~xmlreader();
   /** No descriptions */
   xmlreader();
-  xmlElement* getBlock(std::string blockname);
-  xmlElement * FirstChildElement(xmlElement *element, std::string name, const bool bequal = true);
-  xmlElement * FirstChildBlock(xmlElement *element, std::string name, const bool bequal = true);
+  xmlElement *getBlock(std::string blockname);
+  xmlElement *FirstChildElement(xmlElement *element, std::string name, const bool bequal = true);
+  xmlElement *FirstChildBlock(xmlElement *element, std::string name, const bool bequal = true);
 
-  xmlElement * FirstChildBlock(xmlElement *element);
+  xmlElement *FirstChildBlock(xmlElement *element);
 
-  xmlElement * NextSiblingElement(xmlElement *element);
-  xmlElement * NextSiblingElement(xmlElement *element, const char *str);
-  xmlElement * FirstChildElement(xmlElement *element);
+  xmlElement *NextSiblingElement(xmlElement *element);
+  xmlElement *NextSiblingElement(xmlElement *element, const char *str);
+  xmlElement *FirstChildElement(xmlElement *element);
 
-  const char * getAttribute(xmlElement *element, std::string attributeName);
+  const char *getAttribute(xmlElement *element, std::string attributeName);
 
-  const char * getText(xmlElement *element);
+  const char *getText(xmlElement *element);
 
-  int load2Parameter(xmlElement *element, Parameter* par);
+  int load2Parameter(xmlElement *element, Parameter *par);
 
   void clear() {
     doc.Clear();

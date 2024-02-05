@@ -28,13 +28,14 @@
 #include <unistd.h>
 
 #include "PSProLogging.h"
+#include "FileUtil.h"
 
 namespace jsIO {
 DECLARE_LOGGER(IOCachedWriterLog);
 
 IOCachedWriter::IOCachedWriter(const int _fileDescriptor, unsigned long _bufferSize) :
-    m_ulBufferSize(_bufferSize), m_ulBufferOffsetBegin(0), m_ulBufferOffsetEnd(0), m_nFileDescriptor(_fileDescriptor), m_pBuffer(
-        NULL) {
+  m_ulBufferSize(_bufferSize), m_ulBufferOffsetBegin(0), m_ulBufferOffsetEnd(0), m_nFileDescriptor(_fileDescriptor), m_pBuffer(
+    NULL) {
   m_pBuffer = new unsigned char[_bufferSize];
 }
 
@@ -47,35 +48,37 @@ bool IOCachedWriter::setNewFileDescriptor(const int _fileDescriptor) {
 }
 
 IOCachedWriter::~IOCachedWriter() {
-  if (m_pBuffer != NULL) delete[] m_pBuffer;
+  if(m_pBuffer != NULL) delete[] m_pBuffer;
 }
 
 bool IOCachedWriter::flush() {
-//   if(m_nFileDescriptor<0) return true;
+  //   if(m_nFileDescriptor<0) return true;
   long writeSize = m_ulBufferOffsetEnd - m_ulBufferOffsetBegin;
-  if (::pwrite(m_nFileDescriptor, m_pBuffer, writeSize, m_ulBufferOffsetBegin) != writeSize) {
+  // if (::pwrite(m_nFileDescriptor, m_pBuffer, writeSize, m_ulBufferOffsetBegin) != writeSize) {
+  if(wrapIOFull(pwrite, m_nFileDescriptor, m_pBuffer, writeSize, m_ulBufferOffsetBegin) != writeSize) {
     return false;
   }
   return true;
 }
 
-bool IOCachedWriter::write(unsigned long _offset, unsigned char* _buffer, unsigned long _bufferLen) {
+bool IOCachedWriter::write(unsigned long _offset, unsigned char *_buffer, unsigned long _bufferLen) {
   long length = _bufferLen;
   long writtenBytes = 0;
   bool firstCheck = true;
-  if (m_ulBufferSize == 0 || _bufferLen > m_ulBufferSize) {
-    if (::pwrite(m_nFileDescriptor, _buffer, _bufferLen, _offset) != _bufferLen) {
+  if(m_ulBufferSize == 0 || _bufferLen > m_ulBufferSize) {
+    // if (::pwrite(m_nFileDescriptor, _buffer, _bufferLen, _offset) != _bufferLen) {
+    if(wrapIOFull(pwrite, m_nFileDescriptor, _buffer, _bufferLen, _offset) != _bufferLen) {
       return false;
     }
     m_ulBufferOffsetBegin = 0;
     m_ulBufferOffsetEnd = 0;
   } else {
-    while (length > 0) {
-      if (_offset != m_ulBufferOffsetEnd && firstCheck) // write the buffer to the file
-          {
-        if (m_ulBufferOffsetEnd - m_ulBufferOffsetBegin > 0) {
+    while(length > 0) {
+      if(_offset != m_ulBufferOffsetEnd && firstCheck) { // write the buffer to the file
+        if(m_ulBufferOffsetEnd - m_ulBufferOffsetBegin > 0) {
           long writeSize = m_ulBufferOffsetEnd - m_ulBufferOffsetBegin;
-          if (::pwrite(m_nFileDescriptor, m_pBuffer, writeSize, m_ulBufferOffsetBegin) != writeSize) {
+          // if (::pwrite(m_nFileDescriptor, m_pBuffer, writeSize, m_ulBufferOffsetBegin) != writeSize) {
+          if(wrapIOFull(pwrite, m_nFileDescriptor, m_pBuffer, writeSize, m_ulBufferOffsetBegin) != writeSize) {
             return false;
           }
         }
@@ -85,10 +88,11 @@ bool IOCachedWriter::write(unsigned long _offset, unsigned char* _buffer, unsign
         length = 0;
       } else {
         firstCheck = false;
-        if (m_ulBufferOffsetEnd + length > m_ulBufferOffsetBegin + m_ulBufferSize) {
+        if(m_ulBufferOffsetEnd + length > m_ulBufferOffsetBegin + m_ulBufferSize) {
           writtenBytes += m_ulBufferOffsetBegin + m_ulBufferSize - m_ulBufferOffsetEnd;
           memcpy(m_pBuffer + (m_ulBufferOffsetEnd - m_ulBufferOffsetBegin), _buffer, writtenBytes);
-          if (::pwrite(m_nFileDescriptor, m_pBuffer, m_ulBufferSize, m_ulBufferOffsetBegin) != m_ulBufferSize) {
+          // if (::pwrite(m_nFileDescriptor, m_pBuffer, m_ulBufferSize, m_ulBufferOffsetBegin) != m_ulBufferSize) {
+          if(wrapIOFull(pwrite, m_nFileDescriptor, m_pBuffer, m_ulBufferSize, m_ulBufferOffsetBegin) != m_ulBufferSize) {
             return false;
           }
 

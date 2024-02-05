@@ -1,7 +1,7 @@
 /***************************************************************************
  VirtualFolders.h  -  description
  -------------------
- * This class represents a folder that can be used for virtual IO.  
+ * This class represents a folder that can be used for virtual IO.
 
  copyright            : (C) 2012 Fraunhofer ITWM
 
@@ -49,7 +49,7 @@ public:
   /** No descriptions */
   VirtualFolders();
 
-  inline VirtualFolder& operator [](const int& i) {
+  inline VirtualFolder &operator [](const int &i) {
     return m_vFolders[i];
   }
   ;
@@ -67,7 +67,7 @@ public:
     return m_vFolders.size();
   }
   void setPreComputedExtents(std::vector<std::string> &_precomputedTraceExtents,
-      std::vector<std::string> &_preComputedHeaderExtents);
+                             std::vector<std::string> &_preComputedHeaderExtents);
 
   int load(std::string _path);
   int save(std::string _path);
@@ -89,7 +89,7 @@ public:
   int createFolders();
   int removeFoldersContents();
 
-// private atributes
+  // private atributes
 private:
   std::vector<VirtualFolder> m_vFolders;
   std::string m_datasetPath;

@@ -9,14 +9,14 @@ JS_BYTEORDER nativeOrder(void) {
 
 void endian_swap(void *a, int n, int nb) {
   char tmp[16];
-  char* b = (char*) a;
+  char *b = (char *) a;
   int i, j;
-  char* cd = tmp;
-  char* cs;
+  char *cd = tmp;
+  char *cs;
 
-  for (i = 0; i < n; i++) {
+  for(i = 0; i < n; i++) {
     cs = &b[nb * i];
-    for (j = 0; j < nb; j++)
+    for(j = 0; j < nb; j++)
       cd[j] = cs[nb - 1 - j];
     bcopy(cd, cs, nb);
   }

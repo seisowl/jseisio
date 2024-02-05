@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+using std::vector;
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -92,12 +93,16 @@ public:
    *  @param _jsfilename  the full name of javaseis dataset (i.e. inclusive the path)
    *  @param _NThreads number of threads that can be used in uncompressRawFrame function
    */
-  int Init(const std::string _jsfilename, const int _NThreads = 1);
+  int Init(const std::string _jsfilename, const int _NThreads = 1, int wait = 0);
 
   ///@return true if the dataset is regular, otherwise returns false
   bool isRegular() const;
+  ///@return true if the dataset is mapped, otherwise returns false
+  bool isMapped() const;
   ///@return true if the data is in SeisPEG format, otherwise returns false
   bool isSeisPEG() const;
+  ///@return true if the data is in FLOAT format, otherwise returns false
+  bool isFloat() const;
 
   ///@return total number of live tracaes in the dataset
   long getNtr() const;
@@ -123,26 +128,26 @@ public:
   /**
    * @brief get header value based on the given name
    */
-  float getFloatHdrVal(std::string _name, char*  headerBuf);
-  double getDoubleHdrVal(std::string _name, char*  headerBuf);
-  long getLongHdrVal(std::string _name, char*  headerBuf);
-  int getIntHdrVal(std::string _name, char*  headerBuf);
-  short getShortHdrVal(std::string _name, char*  headerBuf);
+  float getFloatHdrVal(std::string _name, char *headerBuf);
+  double getDoubleHdrVal(std::string _name, char *headerBuf);
+  long getLongHdrVal(std::string _name, char *headerBuf);
+  int getIntHdrVal(std::string _name, char *headerBuf);
+  short getShortHdrVal(std::string _name, char *headerBuf);
 
   /**
-    * @brief Allocates a buffer where a frame can be stored
-    * @details Allocates a float buffer (with new[] command) with a size of a full frame and return the pointer.
-    * It is up to the user to free the buffer afterwards
-    */
+   * @brief Allocates a buffer where a frame can be stored
+   * @details Allocates a float buffer (with new[] command) with a size of a full frame and return the pointer.
+   * It is up to the user to free the buffer afterwards
+   */
   float* allocFrameBuf();
 
   /**
-    * @brief Allocates a buffer where a frame header can be stored
-    * @param initVals If true, then the header-buffer the SeisSpace standard headers automatically will be initalized a corresponding values.
-    * @details Allocates a char buffer (with new[] command) with frame-header size.
-    * It is up to the user to free the buffer afterwards
-    */
-  char* allocHdrBuf(bool initVals=true);
+   * @brief Allocates a buffer where a frame header can be stored
+   * @param initVals If true, then the header-buffer the SeisSpace standard headers automatically will be initalized a corresponding values.
+   * @details Allocates a char buffer (with new[] command) with frame-header size.
+   * It is up to the user to free the buffer afterwards
+   */
+  char* allocHdrBuf(bool initVals = true);
 
   /**
    * @brief Get the length (in bytes) of 'raw' frame
@@ -176,7 +181,6 @@ public:
   int getAxisUnits(std::vector<std::string> &units) const;
   int getAxisDomains(std::vector<std::string> &domain) const;
 
-
   /**
    * @brief Returns frame size (in bytes) on disk
    * @details In case of FLOAT data it is equal to getAxisLen(0)*getAxisLen(1)*sizeof(float), but in case of
@@ -207,9 +211,10 @@ public:
   std::vector<catalogedHdrEntry> getHdrEntries() const;
   int getHdrEntries(std::vector<std::string> &hdrEntries) const;
 
-  int indexToLogical(int* position) const; // *input position must be in index, and will convert to logical corrdinates
+  int indexToLogical(int *position) const; // *input position must be in index, and will convert to logical corrdinates
 
-  int logicalToIndex(int* position) const; // *input position must be in logical corrdinates and will convert to index
+  int logicalToIndex(int *position) const; // *input position must be in logical corrdinates and will convert to index
+  vector<int> fillPositionPartial(vector<int> posPartial);
 
   //in all following function  *position is an array of integers defining the position of a frame/trace  accorind to the logical coordintes
   //len(position)=fileProps.numDimensions; and (sample, trace, frame, volume, hypercube)
@@ -222,7 +227,8 @@ public:
    * @param[out] headbuf a pre-allocated buffer (with a size at least getNumBytesInHeader()) to save the header
    * @return JS_OK if successful
    */
-  int readTraceHeader(const int* _position, char* headbuf);
+  int readTraceHeader(const int *_posLogical, char *headbuf);
+  int readTraceHeader(vector<int> posLogicalPartial, char *headbuf);
 
   /**
    * @brief Reads the header of the trace given by its its global index
@@ -230,7 +236,7 @@ public:
    * @param[out] headbuf a pre-allocated buffer (with a size at least getNumBytesInHeader()) to save the header
    * @return JS_OK if successful
    */
-  int readTraceHeader(const long _traceIndex, char* headbuf);
+  int readTraceHeader(const long _traceIndex, char *headbuf);
 
   /**
    * @brief Reads the header of the frame given by its position
@@ -238,7 +244,8 @@ public:
    * @param[out] headbuf a pre-allocated buffer (with a size at least getAxisLen(1)*getNumBytesInHeader()) to save the header
    * @return the number of live traces in the frame
    */
-  int readFrameHeader(const int* _position, char* headbuf);
+  int readFrameHeader(const int *_posLogical, char *headbuf);
+  int readFrameHeader(vector<int> posLogicalPartial, char *headbuf);
 
   /**
    * @brief Reads the header of the frame given by its global index
@@ -246,7 +253,7 @@ public:
    * @param[out] headbuf a pre-allocated buffer (with a size at least getAxisLen(1)*getNumBytesInHeader()) to save the header
    * @return the number of live traces in the frame
    */
-  int readFrameHeader(const long _frameIndex, char* headbuf); //headbuf must be pre-allocated with the size = numOfTracesInFrame * getNumBytesInHeader()
+  int readFrameHeader(const long _frameIndex, char *headbuf); //headbuf must be pre-allocated with the size = numOfTracesInFrame * getNumBytesInHeader()
 
   /**
    * @brief Reads the trace given by its position
@@ -254,7 +261,8 @@ public:
    * @param[out] trace a pre-allocated float array (with a length at least getAxisLen(0)) to save the trace
    * @return JS_OK if successful
    */
-  int readTrace(const int* _position, float* trace);
+  int readTrace(const int *_posLogical, float *trace);
+  int readTrace(vector<int> poLogicalsPartial, float *trace);
 
   /**
    * @brief Reads the trace given by its its global index
@@ -262,7 +270,7 @@ public:
    * @param[out] trace a pre-allocated float array (with a length at least getAxisLen(0)) to save the trace
    * @return JS_OK if successful
    */
-  int readTrace(const long _traceIndex, float* trace);
+  int readTrace(const long _traceIndex, float *trace);
 
   /**
    * @brief Reads multiple traces
@@ -272,7 +280,7 @@ public:
    * @param[out] headbuf (if not NULL) a pre-allocated buffer (with a size _numOfTraces*getNumBytesInHeader()) to save traces headers
    * @return the number of live traces actually read (<0 in case of error)
    */
-  long readTraces(const long _firstTraceIndex, const long _numOfTraces, float* buffer, char* headbuf = NULL);
+  long readTraces(const long _firstTraceIndex, const long _numOfTraces, float *buffer, char *headbuf = NULL);
 
   /**
    * @brief Reads headers of multiple traces
@@ -281,7 +289,7 @@ public:
    * @param[out] headbuf a pre-allocated buffer (with a size _numOfTraces*getNumBytesInHeader()) to save traces headers
    * @return the number of live traces actually read (<0 in case of error)
    */
-  long readTraceHeaders(const long _firstTraceIndex, const long _numOfTraces, char* headbuf);
+  long readTraceHeaders(const long _firstTraceIndex, const long _numOfTraces, char *headbuf);
 
   /**
    * @brief Converts live trace index to global trace index
@@ -299,7 +307,7 @@ public:
    * @param[out] headbuf (if not NULL) a pre-allocated buffer (with a size _numOfTraces*getNumBytesInHeader()) to save traces headers
    * @return the number of live traces actually read (<0 in case of error)
    */
-  long readWithinLiveTraces(const long _firstTraceIndex, const long _numOfTraces, float* buffer, char* headbuf = NULL);
+  long readWithinLiveTraces(const long _firstTraceIndex, const long _numOfTraces, float *buffer, char *headbuf = NULL);
 
   // Note that extensively random use of readWithinLiveTraces or readWithinLiveTraceHeaders functions can be noticeably slow in
   // comparison to other reading routines, because each time for computing the file-offset of given live trace we have to
@@ -313,7 +321,7 @@ public:
    * @param[out] headbuf a pre-allocated buffer (with a size _numOfTraces*getNumBytesInHeader()) to save traces headers
    * @return the number of live traces actually read (<0 in case of error)
    */
-  long readWithinLiveTraceHeaders(const long _firstTraceIndex, const long _numOfTraces, char* headbuf);
+  long readWithinLiveTraceHeaders(const long _firstTraceIndex, const long _numOfTraces, char *headbuf);
 
   /**
    * @brief Reads the frame given by its position
@@ -324,7 +332,8 @@ public:
    * @details
    *  The reading of header together with traces will be faster only for SeisPEG data, since there the header is compressed with the data
    */
-  int readFrame(const int* _position, float* frame, char* headbuf = NULL);
+  int readFrame(const int *_posLogical, float *frame, char *headbuf = NULL);
+  int readFrame(vector<int> posLogicalPartial, float *frame, char *headbuf = NULL);
 
   /**
    * @brief Reads the frame given by its global index
@@ -333,7 +342,7 @@ public:
    * @param[out] headbuf if not NULL, then a pre-allocated buffer (with a size at least getAxisLen(1)*getNumBytesInHeader()) to save the frame header
    * @return the number of live traces in the frame
    */
-  int readFrame(const long _frameIndex, float* frame, char* headbuf = NULL);
+  int readFrame(const long _frameIndex, float *frame, char *headbuf = NULL);
 
   /**
    * @brief Reads multiple raw frames
@@ -348,7 +357,8 @@ public:
    * @param[out] numLiveTraces an array with a number of live trace in each read frames
    * @return JS_OK if successful
    */
-  int readRawFrames(const int* _position, int NFrames, char* rawframe, int* numLiveTraces);
+  int readRawFrames(const int *_posLogical, int NFrames, char *rawframe, int *numLiveTraces);
+  int readRawFrames(vector<int> posLogicalPartial, int NFrames, char *rawframe, int *numLiveTraces);
 
   /**
    * @brief Reads multiple raw frames
@@ -363,7 +373,7 @@ public:
    * @param[out] numLiveTraces an array with a number of live trace in each read frames
    * @return JS_OK if successful
    */
-  int readRawFrames(const long _frameindex, int NFrames, char* rawframe, int* numLiveTraces);
+  int readRawFrames(const long _frameindex, int NFrames, char *rawframe, int *numLiveTraces);
 
   /**
    * @brief Uncompress raw frames
@@ -376,7 +386,7 @@ public:
    * @param[out] headbuf in case of SeisPEG data must be pre-allocated buffer
    (with a size at least getAxisLen(1)*getNumBytesInHeader()) to save the frame header.
    */
-  int uncompressRawFrame(char* rawframe, int numLiveTraces, int iThread, float* frame, char* headbuf = NULL);
+  int uncompressRawFrame(char *rawframe, int numLiveTraces, int iThread, float *frame, char *headbuf = NULL);
 
   /**
    * @brief Returns the number of live traces in frame with global index _frameIndex
@@ -406,97 +416,99 @@ public:
    */
   int getNumOfVirtualFolders() const;
 
+  void Close();
+
   void closefp();
 
   std::string m_filename;
 
+public:
+  CustomProperties *m_customProps { };
+
 private:
-  int m_NThreads;
+  int m_NThreads { };
 
-  TraceProperties* m_traceProps;
-  FileProperties* m_fileProps;
-  CustomProperties * m_customProps;
+  TraceProperties *m_traceProps { };
+  FileProperties *m_fileProps { };
 
-  bool m_bInit;
+  bool m_bInit { };
 
-  long m_TotalNumOfLiveTraces;
-  long m_TotalNumOfTraces;
-  long m_TotalNumOfFrames;
+  long m_TotalNumOfLiveTraces { };
+  long m_TotalNumOfTraces { };
+  long m_TotalNumOfFrames { };
 
-  JS_BYTEORDER m_byteOrder;
+  JS_BYTEORDER m_byteOrder { };
 
-  bool m_bIsFloat; //true is data format is FLOAT
-  bool m_bIsRegular;
-  bool m_bIsMapped;
+  bool m_bIsFloat { }; //true is data format is FLOAT
+  bool m_bIsRegular { };
+  bool m_bIsMapped { };
 
-  int m_numSamples;
-  int m_numTraces;
-  int m_compess_traceSize;
-  long m_frameSize;
+  int m_numSamples { };
+  int m_numTraces { };
+  int m_compess_traceSize { };
+  long m_frameSize { };
 
-  int m_headerLengthBytes;
-  int m_headerLengthWords;
-  long m_frameHeaderLength;
+  int m_headerLengthBytes { };
+  int m_headerLengthWords { };
+  long m_frameHeaderLength { };
 
-  unsigned long m_IOBufferSize;
-  IOCachedReader *m_pCachedReaderHD;
-  IOCachedReader *m_pCachedReaderTR;
+  unsigned long m_IOBufferSize { };
+  IOCachedReader *m_pCachedReaderHD { };
+  IOCachedReader *m_pCachedReaderTR { };
 
-  TraceMap *m_trMap;
+  TraceMap *m_trMap { };
 
-  VirtualFolders *vFolders;
-  ExtentList *m_TrFileExtents;
-  ExtentList *m_TrHeadExtents;
+  VirtualFolders *vFolders { };
+  ExtentList *m_TrFileExtents { };
+  ExtentList *m_TrHeadExtents { };
 
-  TraceCompressor *m_traceCompressor; // Null if using SeisPEG.
-  SeisPEG *m_seispegCompressor; // Null if not using SeisPEG.
-  bool m_bSeisPEG_data; //true is using SeisPEG.
+  TraceCompressor *m_traceCompressor { }; // Null if using SeisPEG.
+  SeisPEG *m_seispegCompressor { }; // Null if not using SeisPEG.
+  bool m_bSeisPEG_data { }; //true is using SeisPEG.
 
-  int m_currIndexOfTrFileExtent;
-  int m_curr_trffd;
-  int m_currIndexOfTrHeadExtent;
-  int m_curr_trhfd;
+  int m_currIndexOfTrFileExtent { };
+  int m_curr_trffd { };
+  int m_currIndexOfTrHeadExtent { };
+  int m_curr_trhfd { };
 
   //tmp buffers
-  char* m_traceBufferArray;
-  CharBuffer *m_traceBuffer;
+  char *m_traceBufferArray { };
+  CharBuffer *m_traceBuffer { };
 
-  char* m_headerBufferArray;
-  CharBuffer *m_headerBuffer;
-  IntBuffer *m_headerBufferView;
+  char *m_headerBufferArray { };
+  CharBuffer *m_headerBuffer { };
+  IntBuffer *m_headerBufferView { };
 
   std::string m_descriptiveName;
 
   //these variables used in liveToGlobalTraceIndex to mimimize the access to TraceMap in
   //case of sequentially calling liveToGlobalTraceIndex
-  long m_prev_firstTr1; //liveTraceIndex preciously used in liveToGlobalTraceIndex
-  long m_prev_frInd1;  //global frame index corresponding to liveTraceIndex
-  long m_prev_numTraces1; //number of live traces total in all frames till m_prev_frInd
+  long m_prev_firstTr1 { }; //liveTraceIndex preciously used in liveToGlobalTraceIndex
+  long m_prev_frInd1 { };  //global frame index corresponding to liveTraceIndex
+  long m_prev_numTraces1 { }; //number of live traces total in all frames till m_prev_frInd
 
   //same as above, we just keep information on two access of liveToGlobalTraceIndex
-  long m_prev_firstTr2;
-  long m_prev_numTraces2;
-  long m_prev_frInd2;
+  long m_prev_firstTr2 { };
+  long m_prev_numTraces2 { };
+  long m_prev_frInd2 { };
   //
   //tmp buffers for readTraces function
-  float* m_frame;
-  char* m_frameHeader;
-  long m_frameInd;
-  long m_frameHeaderInd;
-  int m_numOfFrameLiveTraces;
-  int m_numOfFrameHeaderLiveTraces;
+  float *m_frame { };
+  char *m_frameHeader { };
+  long m_frameInd { };
+  long m_frameHeaderInd { };
+  int m_numOfFrameLiveTraces { };
+  int m_numOfFrameHeaderLiveTraces { };
 
 private:
   int initExtents(const std::string &jsfilename);
 
-  long getFrameIndex(const int* position) const;  // position is in logical coordinate
-  long getTraceIndex(const int* position) const;  // position is in logical coordinate
+  long getFrameIndex(const int *position) const;  // position is in logical coordinate
+  long getTraceIndex(const int *position) const;  // position is in logical coordinate
 
-  long getOffsetInExtents(int* indices, int len1d) const; // indices is in index
-  int readTraceBuffer(long offset, char* buf, long buflen);
-  int readHeaderBuffer(long offset, char* buf, long buflen);
-
-  void Close();
+  long getOffsetInExtents(int *indices, int len1d) const; // indices is in index
+  int readTraceBuffer(long offset, char *buf, long buflen);
+  int readHeaderBuffer(long offset, char *buf, long buflen);
 
   int readSingleProperty(const std::string &_datasetPath, const std::string &_fileName, const std::string propertyName,
       std::string &propertyValue) const;

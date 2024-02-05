@@ -57,6 +57,10 @@ private:
   void Init(std::string _name, std::string _description, int _format, int _count, int _offset);
 
 public:
+  bool isInitialized() {
+    return offset >= 0;
+  }
+
   std::string getName() {
     return name;
   }
@@ -88,35 +92,35 @@ public:
     byteOrder = order;
   }
 
-  float getFloatVal(char * headerBuf);
-  double getDoubleVal(char * headerBuf);
-  int getIntVal(char * headerBuf);
-  short getShortVal(char * headerBuf);
-  long getLongVal(char * headerBuf);
+  float getFloatVal(char *headerBuf);
+  double getDoubleVal(char *headerBuf);
+  int getIntVal(char *headerBuf);
+  short getShortVal(char *headerBuf);
+  long getLongVal(char *headerBuf);
 
-  void getFloatVals(signed char * headerBuf, float * vals, int nBytesHeader, int n1, int n2);
-  void getDoubleVals(signed char * headerBuf, double * vals, int nBytesHeader, int n1, int n2);
-  void getIntVals(signed char * headerBuf, int * vals, int nBytesHeader, int n1, int n2);
-  void getShortVals(signed char * headerBuf, short * vals, int nBytesHeader, int n1, int n2);
-  void getLongVals(signed char * headerBuf, long * vals, int nBytesHeader, int n1, int n2);
+  void getFloatVals(signed char *headerBuf, float *vals, int nBytesHeader, int n1, int n2);
+  void getDoubleVals(signed char *headerBuf, double *vals, int nBytesHeader, int n1, int n2);
+  void getIntVals(signed char *headerBuf, int *vals, int nBytesHeader, int n1, int n2);
+  void getShortVals(signed char *headerBuf, short *vals, int nBytesHeader, int n1, int n2);
+  void getLongVals(signed char *headerBuf, long *vals, int nBytesHeader, int n1, int n2);
 
-  int setFloatVal(char * headerBuf, float val);
-  int setDoubleVal(char * headerBuf, double val);
-  int setIntVal(char * headerBuf, int val);
-  int setShortVal(char * headerBuf, short val);
-  int setLongVal(char * headerBuf, long val);
+  int setFloatVal(char *headerBuf, float val);
+  int setDoubleVal(char *headerBuf, double val);
+  int setIntVal(char *headerBuf, int val);
+  int setShortVal(char *headerBuf, short val);
+  int setLongVal(char *headerBuf, long val);
 
-  int setFloatVector(char * headerBuf, std::vector<float> vec);
-  int setDoubleVector(char * headerBuf, std::vector<double> vec);
-  int setIntVector(char * headerBuf, std::vector<int> vec);
-  int setShortVector(char * headerBuf, std::vector<short> vec);
-  int setLongVector(char * headerBuf, std::vector<long> vec);
+  int setFloatVector(char *headerBuf, std::vector<float> vec);
+  int setDoubleVector(char *headerBuf, std::vector<double> vec);
+  int setIntVector(char *headerBuf, std::vector<int> vec);
+  int setShortVector(char *headerBuf, std::vector<short> vec);
+  int setLongVector(char *headerBuf, std::vector<long> vec);
 
-  std::vector<float> getFloatVector(char * headerBuf);
-  std::vector<double> getDoubleVector(char * headerBuf);
-  std::vector<int> getIntVector(char * headerBuf);
-  std::vector<short> getShortVector(char * headerBuf);
-  std::vector<long> getLongVector(char * headerBuf);
+  std::vector<float> getFloatVector(char *headerBuf);
+  std::vector<double> getDoubleVector(char *headerBuf);
+  std::vector<int> getIntVector(char *headerBuf);
+  std::vector<short> getShortVector(char *headerBuf);
+  std::vector<long> getLongVector(char *headerBuf);
 
 };
 }

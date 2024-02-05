@@ -49,12 +49,12 @@ public:
   ~ExtentList() {
   }
   ExtentList() :
-      bInit(false) {
+    bInit(false) {
   }
   ExtentList(std::string _extBaseName, int _numExtents, long _maxFilePosition, long _extentSize,
-      VirtualFolders _vFolders);
+             VirtualFolders _vFolders);
   int Init(std::string _extBaseName, int _numExtents, long _maxFilePosition, long _extentSize,
-      VirtualFolders _vFolders);
+           VirtualFolders _vFolders);
   int InitFromXML(const std::string &jsDataPath, std::string ExtentManagerXML);
 
   void setVirtualFolders(VirtualFolders &_vFolders) {
@@ -64,7 +64,7 @@ public:
     return vFolders;
   }
 
-  inline ExtentListEntry& operator [](int i) {
+  inline ExtentListEntry &operator [](int i) {
     return extents[i];
   }
   ;

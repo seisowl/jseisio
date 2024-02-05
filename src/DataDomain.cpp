@@ -20,7 +20,7 @@
  along with jseisIO.  If not, see <http://www.gnu.org/licenses/>.
 
  ***************************************************************************/
-#include "stringfuncs.h"  
+#include "stringfuncs.h"
 #include "DataDomain.h"
 
 namespace jsIO {

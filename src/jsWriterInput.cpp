@@ -21,7 +21,7 @@
  ***************************************************************************/
 
 #include "TraceProperties.h"
-#include "GridDefinition.h" 
+#include "GridDefinition.h"
 #include "DataDefinition.h"
 #include "CustomProperties.h"
 #include "PSProLogging.h"
@@ -51,7 +51,7 @@ jsWriterInput::jsWriterInput() {
   IOBufferSize = 2 * 1024 * 1024; //default 2MB
 }
 
-void jsWriterInput::CopyClass(const jsWriterInput & Other) {
+void jsWriterInput::CopyClass(const jsWriterInput &Other) {
   numGridAxis = Other.numGridAxis;
   jsfilename = Other.jsfilename;
   description = Other.description;
@@ -66,12 +66,12 @@ void jsWriterInput::CopyClass(const jsWriterInput & Other) {
   *customProps = *(Other.customProps);
 }
 
-jsWriterInput::jsWriterInput(jsWriterInput const& _other) {
+jsWriterInput::jsWriterInput(jsWriterInput const &_other) {
   gridDef = new GridDefinition;
   dataDef = new DataDefinition;
   traceProps = new TraceProperties;
   customProps = new CustomProperties;
-  if (this != &_other) CopyClass(_other);
+  if(this != &_other) CopyClass(_other);
 }
 
 void jsWriterInput::initData(const DataType &_dataType, const DataFormat &_dataFormat, JS_BYTEORDER _byteOrder) {
@@ -85,12 +85,11 @@ void jsWriterInput::initGridDim(int _numDim) {
   delete[] axes;
 }
 
-int jsWriterInput::initGridAxis(int _axisInd, AxisLabel _label, Units _units, DataDomain _domain, long _length,
-    long _logicalOrigin, long _logicalDelta, double _physicalOrigin, double _physicalDelta, std::string _headerName,
-    std::string _headerBinName) {
-  if (_axisInd >= 0 && _axisInd < numGridAxis) {
-    gridDef->getAxisPtr(_axisInd)->Init(_label, _units, _domain, _length, _logicalOrigin, _logicalDelta,
-        _physicalOrigin, _physicalDelta, _headerName, _headerBinName);
+int jsWriterInput::initGridAxis(int _axisInd, AxisLabel _label, Units _units, DataDomain _domain, long _length, long _logicalOrigin,
+    long _logicalDelta, double _physicalOrigin, double _physicalDelta, std::string _headerName, std::string _headerBinName) {
+  if(_axisInd >= 0 && _axisInd < numGridAxis) {
+    gridDef->getAxisPtr(_axisInd)->Init(_label, _units, _domain, _length, _logicalOrigin, _logicalDelta, _physicalOrigin, _physicalDelta,
+                                        _headerName, _headerBinName);
     return JS_OK;
   } else {
     ERROR_PRINTF(jsWriterInputLog, "Invalid axis index %d. Must be between 0 and %d", _axisInd, numGridAxis);
@@ -110,12 +109,21 @@ int jsWriterInput::addProperty(std::string _label) {
   return traceProps->addProperty(_label);
 }
 
-void jsWriterInput::addSurveyGeom(int i1, int i2, int i3, int i4, float f1, float f2, float f3, float f4, float f5,
-    float f6) {
-  if (customProps != NULL) {
-    customProps->survGeom.setGeom(i1, i2, i3, i4, f1, f2, f3, f4, f5, f6);
+void jsWriterInput::addSurveyGeom(int i1, int i2, int i3, int i4, float f1, float f2, float f3, float f4, float f5, float f6,
+    int resetOrigin) {
+  if(customProps != NULL) {
+    customProps->survGeom.setGeom(i1, i2, i2 - i1 + 1, i3, i4, i4 - i3 + 1, f1, f2, f3, f4, f5, f6, resetOrigin);
   } else {
-    fprintf(stderr,"Error: you have to first allocate the pointes with allocPointers() function");
+    fprintf(stderr, "Error: you have to first allocate the pointes with allocPointers() function");
+  }
+}
+
+void jsWriterInput::addSurveyGeom(int i1, int i2, int nIL, int i3, int i4, int nXL, double f1, double f2, double f3, double f4, double f5,
+    double f6, int resetOrigin) {
+  if(customProps != NULL) {
+    customProps->survGeom.setGeom(i1, i2, nIL, i3, i4, nXL, f1, f2, f3, f4, f5, f6, resetOrigin);
+  } else {
+    fprintf(stderr, "Error: you have to first allocate the pointes with allocPointers() function");
   }
 }
 

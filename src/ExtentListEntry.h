@@ -69,9 +69,9 @@ public:
 private:
   std::string extentName; // Name of this extent
   std::string extentPath; // Path to the extent
-  int extentIndex;	// The index of this extent
+  int extentIndex;  // The index of this extent
   long extentStartOffset; // Start offset of this extent
-  long extentSize;	// Size in bytes of this extent
+  long extentSize;  // Size in bytes of this extent
 
 public:
 

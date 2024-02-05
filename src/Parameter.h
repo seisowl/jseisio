@@ -1,11 +1,11 @@
 /***************************************************************************
  Parameter.h  -  description
  -------------------
- * A parameter - a named value (or array of values) with a type and 
+ * A parameter - a named value (or array of values) with a type and
  * (optional) units.
  * A parameter's type may be set explicitly or by by setting its value(s).
  * A parameter value set as one type may be got as another type, provided
- * that the implied conversion is supported. For example, any float may be 
+ * that the implied conversion is supported. For example, any float may be
  * converted to a String, but only some Strings may be converted to floats.
  * Getting a parameter value never changes the intrinsic parameter type.
  * A ParameterConvertException is thrown when a conversion fails.
@@ -67,12 +67,12 @@ public:
   ;
   bool setValues(std::string &_values, int _type);
 
-  bool valuesAsBooleans(bool*) const;
-  bool valuesAsInts(int*) const;
-  bool valuesAsLongs(long*) const;
-  bool valuesAsFloats(float*) const;
-  bool valuesAsDoubles(double*) const;
-  bool valuesAsStrings(std::string*) const;
+  bool valuesAsBooleans(bool *) const;
+  bool valuesAsInts(int *) const;
+  bool valuesAsLongs(long *) const;
+  bool valuesAsFloats(float *) const;
+  bool valuesAsDoubles(double *) const;
+  bool valuesAsStrings(std::string *) const;
 
   std::string getValuesAsString() const;
   std::string getTypeAsString() const;

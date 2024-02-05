@@ -1,6 +1,8 @@
 #ifndef PSPROLOGGING_H
 #define PSPROLOGGING_H
 
+#define LOG4CPLUS_DISABLE_TRACE 1
+
 #ifdef HAVE_LOG4CPLUS
 
 #include <log4cplus/logger.h>
@@ -37,18 +39,18 @@
 
 /// Print the value of a variable at TRACE loglevel:
 #define TRACE_VAR(_logger, _var)                         LOG4CPLUS_TRACE(_logger, __PRETTY_FUNCTION__ << " " <<__LINE__\
-                         << ": " << #_var << "=" << _var )
+    << ": " << #_var << "=" << _var )
 
 #define TRACE_VAR2(_logger, _var1, _var2)                LOG4CPLUS_TRACE(_logger, __PRETTY_FUNCTION__ << " " <<__LINE__\
-                         << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 )
+    << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 )
 
 #define TRACE_VAR3(_logger, _var1, _var2, _var3)         LOG4CPLUS_TRACE(_logger, __PRETTY_FUNCTION__ << " " <<__LINE__\
-                         << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
-                         << ", " << #_var3 << "=" << _var3 )
+    << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
+    << ", " << #_var3 << "=" << _var3 )
 
 #define TRACE_VAR4(_logger, _var1, _var2, _var3, _var4)  LOG4CPLUS_TRACE(_logger, __PRETTY_FUNCTION__ << " " <<__LINE__\
-                         << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
-                         << ", " << #_var3 << "=" << _var3 << ", " << #_var4 << "=" << _var4)
+    << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
+    << ", " << #_var3 << "=" << _var3 << ", " << #_var4 << "=" << _var4)
 
 /** Print the values contained in a container, works for all STL-compatible single-value containers (i.e. not for maps)
  * float x[128];
@@ -79,23 +81,25 @@
 
 /// Create a log message (FATAL level) if the expression _exp is no true:
 #define LOG_ASSERT(_logger, _exp) _logger.assertion( _exp , "ASSERTION  \'" #_exp "\'  FAILED ! " \
-                                                            "(in " __FILE__ ":" __TO_STRING(__LINE__) ")" )
+    "(in " __FILE__ ":" __TO_STRING(__LINE__) ")" )
 
 /// Use the following to setup log4cplus logging in unit tests, otherwise the logging output will not appear anywhere:
 #define SETUP_TEST_LOGGING()                                                              \
-{                                                                                         \
-  log4cplus::Logger::getRoot().setLogLevel(log4cplus::TRACE_LOG_LEVEL);                   \
-  log4cplus::SharedAppenderPtr append_2(new log4cplus::ConsoleAppender(true, true));      \
-  append_2->setName(LOG4CPLUS_TEXT("Stderr"));                                            \
-  log4cplus::Logger::getRoot().addAppender(append_2);                                     \
-}
+  {                                                                                         \
+    log4cplus::Logger::getRoot().setLogLevel(log4cplus::TRACE_LOG_LEVEL);                   \
+    log4cplus::SharedAppenderPtr append_2(new log4cplus::ConsoleAppender(true, true));      \
+    append_2->setName(LOG4CPLUS_TEXT("Stderr"));                                            \
+    log4cplus::Logger::getRoot().addAppender(append_2);                                     \
+  }
 
 #else // implementation of the logging macros without log4cplus, simply using stderr/cerr
 
 #include <stdio.h>
+#include <unistd.h>
+#include <limits.h>
 #include <iostream>
 
-#define LOGGER 
+#define LOGGER
 
 /// Create your own logger as a file-global variable:
 #define DECLARE_LOGGER(_logger)     static int _logger __attribute__((unused)) = 0
@@ -108,9 +112,9 @@
  * INFO, ERROR and FATAL might stay enabled also in the release version, so users could send us the log file
  * with these messages if something goes wrong.
  */
-#define INFO_PRINTF(_logger, ...)   {fprintf(stderr, "INFO: "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n");}
-#define ERROR_PRINTF(_logger, ...)  {fprintf(stderr, "ERROR: (%s : %d) ", __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n");}
-#define FATAL_PRINTF(_logger, ...)  {fprintf(stderr, "FATAL: "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n");}
+#define INFO_PRINTF(_logger, ...)   {char hostname[_POSIX_HOST_NAME_MAX];gethostname(hostname, _POSIX_HOST_NAME_MAX);fprintf(stderr, "INFO[%s]: ", hostname); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n");}
+#define ERROR_PRINTF(_logger, ...)  {char hostname[_POSIX_HOST_NAME_MAX];gethostname(hostname, _POSIX_HOST_NAME_MAX);fprintf(stderr, "ERROR[%s]: (%s : %d) ", hostname, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n");}
+#define FATAL_PRINTF(_logger, ...)  {char hostname[_POSIX_HOST_NAME_MAX];gethostname(hostname, _POSIX_HOST_NAME_MAX);fprintf(stderr, "FATAL[%s]: ", hostname); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n");}
 
 /// Print an ENTER function log, only for loglevel INFO:
 #define INFO_METHOD()               fprintf(stderr, "INFO: %s\n", __PRETTY_FUNCTION__)
@@ -142,18 +146,18 @@
 
 /// Print the value of a variable at TRACE loglevel:
 #define TRACE_VAR(_logger, _var)                       std::cerr << "TRACE: " << __PRETTY_FUNCTION__ << " " <<__LINE__\
-                         << ": " << #_var << "=" << _var << std::endl;
+    << ": " << #_var << "=" << _var << std::endl;
 
 #define TRACE_VAR2(_logger, _var1, _var2)             std::cerr << "TRACE: " << __PRETTY_FUNCTION__ << " " <<__LINE__ \
-                         << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 << std::endl;
+    << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 << std::endl;
 
 #define TRACE_VAR3(_logger, _var1, _var2, _var3)        std::cerr << "TRACE: " << __PRETTY_FUNCTION__ << " " <<__LINE__\
-                         << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
-                         << ", " << #_var3 << "=" << _var3 << std::endl;
+    << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
+    << ", " << #_var3 << "=" << _var3 << std::endl;
 
 #define TRACE_VAR4(_logger, _var1, _var2, _var3, _var4) std::cerr << "TRACE: " << __PRETTY_FUNCTION__ << " " <<__LINE__\
-                         << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
-                         << ", " << #_var3 << "=" << _var3 << ", " << #_var4 << "=" << _var4 << std::endl;
+    << ": " << #_var1 << "=" << _var1 << ", " << #_var2 << "=" << _var2 \
+    << ", " << #_var3 << "=" << _var3 << ", " << #_var4 << "=" << _var4 << std::endl;
 
 #define TRACE_ITER(_logger, _itType, _start, _count)                                             \
   do {                                                                                           \

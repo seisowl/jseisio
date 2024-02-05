@@ -53,7 +53,7 @@ public:
 
   static const int HDR_OFFSET_UNDEFINED = -1;
 
-// private atributes
+  // private atributes
 private:
 
   std::string label;

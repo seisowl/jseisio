@@ -32,63 +32,62 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace jsIO
-{
-  class HuffNode {
-    public:
-      int info;
-      HuffNode *left;
-      HuffNode *right;
-    public:
-//    ~HuffNode();
-      HuffNode(){
-        left = NULL;
-        right = NULL;
-        info = -1;
-      };
+namespace jsIO {
+class HuffNode {
+public:
+  int info;
+  HuffNode *left;
+  HuffNode *right;
+public:
+  //    ~HuffNode();
+  HuffNode() {
+    left = NULL;
+    right = NULL;
+    info = -1;
   };
+};
 
-  class  HuffCoder{
-    public:
-      ~HuffCoder();
-      HuffCoder();
-      HuffCoder(const int* huffTable);
-      void Init(const int* huffTable);
+class  HuffCoder {
+public:
+  ~HuffCoder();
+  HuffCoder();
+  HuffCoder(const int *huffTable);
+  void Init(const int *huffTable);
 
-      int huffEncode(char* runLengthEncodedData, int ninputBytes,char* huffEncodedData, int index, int outputBufferSize);
-      int huffEncode(int* runLengthEncodedData, int ninputInts,char* huffEncodedData, int index, int outputBufferSize);
-      int huffDecode(const char* huffEncodedData, int index, char* cHout, int outputBufferSize);
+  int huffEncode(char *runLengthEncodedData, int ninputBytes, char *huffEncodedData, int index, int outputBufferSize);
+  int huffEncode(int *runLengthEncodedData, int ninputInts, char *huffEncodedData, int index, int outputBufferSize);
+  int huffDecode(const char *huffEncodedData, int index, char *cHout, int outputBufferSize);
 
-      void getHuffTable(int *huffTable);
-      void printTable(int* count);
+  void getHuffTable(int *huffTable);
+  void printTable(int *count);
 
-    public:
-      static const int c_huffCount[257]; //size = MAXVALUE+1
-      static const int c_hdrHuffCount[257];
-      static const int c_hdrHuffCountImproved[257];
+public:
+  static const int c_huffCount[257]; //size = MAXVALUE+1
+  static const int c_hdrHuffCount[257];
+  static const int c_hdrHuffCountImproved[257];
 
-// private atributes
-    private:
-      HuffNode *globalRoot;
-      int  * huffCode;
-      int  * huffLen;
-      char * bVals;
+  // private atributes
+private:
+  HuffNode *globalRoot;
+  int   *huffCode;
+  int   *huffLen;
+  char *bVals;
 
 
 
-      static const int MAXVALUE = 256;
-      static const int MAXVALUEP1 = 257;  
+  static const int MAXVALUE = 256;
+  static const int MAXVALUEP1 = 257;
 
-    private:
-      void deleteTree(HuffNode *rootNode);
-      HuffNode* addTree(HuffNode *x, int v, int l, int info);
-      HuffNode* buildHuffmanTree();
-      void downHeap(int* count, int* heap, int N, int k);
-      void stuffInBytes( int ival, char* bvals, int offset);
+private:
+  void deleteTree(HuffNode *rootNode);
+  HuffNode *addTree(HuffNode *x, int v, int l, int info);
+  HuffNode *buildHuffmanTree();
+  void downHeap(int *count, int *heap, int N, int k);
+  void stuffInBytes(int ival, char *bvals, int offset);
 
-      void huffTableMake(int* count, int* heap, int* parent, int* huffCode, int* huffLen);
+  void huffTableMake(int *count, int *heap, int *parent, int *huffCode, int *huffLen);
 
-  };
+};
 
 }
 

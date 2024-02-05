@@ -31,24 +31,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace jsIO
-{
-  class  CompressedData{
-    public:
-      ~ CompressedData();
-      CompressedData();
-      CompressedData(char* _compressedData, unsigned long _dataLength);
-      void allocDataSpace(unsigned long nbytes);
+namespace jsIO {
+class  CompressedData {
+public:
+  ~ CompressedData();
+  CompressedData();
+  CompressedData(char *_compressedData, unsigned long _dataLength);
+  void allocDataSpace(unsigned long nbytes);
 
-      char * getData(){return (char*) compresseddata;}
-      void setDataLength(unsigned long _dataLength);
-      unsigned long getDataLength() const {return dataLength;}
+  char *getData() {return (char *) compresseddata;}
+  void setDataLength(unsigned long _dataLength);
+  unsigned long getDataLength() const {return dataLength;}
 
-    private:
-      char *compresseddata;
-      unsigned long dataLength;
+private:
+  char *compresseddata;
+  unsigned long dataLength;
 
-  };
+};
 
 }
 
