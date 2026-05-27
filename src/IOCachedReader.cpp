@@ -63,26 +63,11 @@ bool IOCachedReader::read(unsigned long _offset, unsigned char *_buffer, long _b
   if(m_ulBufferSize == 0) {
     // unsigned long actRead = ::pread(m_nFileDescriptor, _buffer, _bufferSize, _offset);
     unsigned long actRead = wrapIOFull(pread, m_nFileDescriptor, _buffer, _bufferSize, _offset);
-#if 1
     assertion(actRead == _bufferSize, "actRead=%lu, bufferSize=%lu does not match!", actRead, _bufferSize);
-#else // for debugger tracing
-    if(actRead != _bufferSize) {
-      abort();
-      return false;
-    }
-#endif
   } else {
     while(length > 0) {
-#if 1
       assertion(!(m_ulFileSize - m_ulBufferOffset == 0 || length > _bufferSize),
                 "m_ulFileSize=%lu, m_ulBufferOffset=%lu, length=%lu, _bufferSize=%lu", m_ulFileSize, m_ulBufferOffset, length, _bufferSize);
-#else // for debugger tracing
-      if(m_ulFileSize - m_ulBufferOffset == 0 || length > _bufferSize) {
-        TRACE_VAR4(IOCachedReaderLog, length, m_ulBufferSize, m_ulBufferOffset, _offset);
-        abort();
-        return false;
-      }
-#endif
       if(m_bufferOffsetInit == false || _offset < m_ulBufferOffset || _offset >= m_ulBufferOffset + m_ulBufferSize) { // outside
         m_bufferOffsetInit = true;
         m_ulBufferOffset = _offset;

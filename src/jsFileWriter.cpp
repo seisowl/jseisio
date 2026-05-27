@@ -28,6 +28,7 @@
 #include "FileProperties.h"
 #include "CustomProperties.h"
 #include "PropertyDescription.h"
+#include "jsException.h"
 #include "ExtentList.h"
 #include "TraceMap.h"
 #include "jsWriterInput.h"
@@ -305,8 +306,7 @@ int jsFileWriter::Initialize(const std::string _filename) {
   jsIO::jsFileReader jsRead;
   int ierr = jsRead.Init(_filename);
   if(ierr != 1) {
-    printf("Error in JavaSeis file %s\n", _filename.c_str());
-    exit(-1);
+    throw jsIOError("Error in JavaSeis file " + _filename);
   }
   setFileName(_filename);
   Init(&jsRead);

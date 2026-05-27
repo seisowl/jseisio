@@ -125,8 +125,8 @@ int VirtualFolder::loadExtents(std::string extBaseName, std::vector<std::string>
     }
     closedir(pDIR);
   } else {
-    ERROR_PRINTF(VirtualFolderLog, "Can't open directory : %s", path.c_str());
-    return JS_USERERROR;
+    INFO_PRINTF(VirtualFolderLog, "Skipping missing partition directory: %s", path.c_str());
+    return JS_OK;
   }
   return JS_OK;
 }

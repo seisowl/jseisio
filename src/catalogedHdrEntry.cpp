@@ -26,7 +26,6 @@
 #include <math.h>
 #include <limits.h>
 #include <float.h>
-#include <signal.h>
 #include <stdexcept>
 
 #include "PropertyDescription.h"
@@ -164,7 +163,6 @@ int catalogedHdrEntry::setIntVal(char *headerBuf, int val) {
     return JS_OK;
   } else {
     ERROR_PRINTF(catalogedHdrEntryLog, "You are trying to write int value in a non-int header '%s'", name.c_str());
-    raise(SIGSEGV);
     return JS_USERERROR;
   }
 }

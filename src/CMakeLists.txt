@@ -43,6 +43,8 @@ install(FILES CharBuffer.h
               stringfuncs.h
               TraceProperties.h
 	      CustomProperties.h
+              jsException.h
+              PropertyDescription.h
               Units.h
          DESTINATION include/jseisIO )
 

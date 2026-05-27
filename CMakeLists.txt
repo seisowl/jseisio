@@ -17,8 +17,8 @@ endif(OPENMP_FOUND)
 # Setup version numbers. They are used for generating the version header jsVersion.h
 # and for the package names.
 set(JSEISIO_VERSION_MAJOR 1)
-set(JSEISIO_VERSION_MINOR 1)
-set(JSEISIO_VERSION_PATCH 0)
+set(JSEISIO_VERSION_MINOR 0)
+set(JSEISIO_VERSION_PATCH 1)
 
 add_subdirectory(src)
 

@@ -17,6 +17,7 @@
 #include <stdexcept>
 
 #include "Assertion.h"
+#include "jsException.h"
 #include "stringfuncs.h"
 
 namespace jsIO {
@@ -145,8 +146,7 @@ oJseisND::oJseisND(string fname0) {
   jsIO::jsFileReader jsRead;
   int ierr = jsRead.Init(fname);
   if (ierr != 1) {
-    printf("Error in JavaSeis file %s\n", fname.c_str());
-    exit(-1);
+    throw jsIOError("Error in JavaSeis file " + fname);
   }
   jsWrt.setFileName(fname);
   jsWrt.Init(&jsRead);
@@ -615,8 +615,7 @@ int jseisUtil::check_vol(jsFileReader &js, const char *fname0, vector<int> &axis
 
   int ierr = js.Init(fname);
   if (ierr != 1) {
-    fprintf(stderr, "Error in JavaSeis file %s\n", fname.c_str());
-    exit(-1);
+    throw jsIOError("Error in JavaSeis file " + fname);
   }
 
 #if 0

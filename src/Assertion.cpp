@@ -7,6 +7,7 @@
  */
 
 #include "Assertion.h"
+#include "jsException.h"
 
 namespace jsIO {
 
@@ -23,9 +24,7 @@ Assertion::Assertion(bool condition, const char *file, int line, const char *for
   vsnprintf(message + length, maxPrefixBytes - length, format, arguments);
   va_end(arguments);
 
-  fprintf(stderr, "%s\n", message);
-  fflush(stderr);
-  exit(-1);
+  throw jsAssertionError(std::string(message));
 }
 
 Assertion::~Assertion() {

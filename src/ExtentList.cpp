@@ -22,7 +22,6 @@
  ***************************************************************************/
 
 #include <unistd.h>
-#include <csignal>
 #include "ExtentList.h"
 
 #include "PSProLogging.h"
@@ -231,8 +230,7 @@ int ExtentList::loadExtents() {
  */
 int ExtentList::getExtentIndex(long position) const {
   if(position < 0 || position > maxFilePosition) {
-    fprintf(stderr, "Requested position %ld must between [0,%ld]", position, maxFilePosition);
-    raise(SIGINT);
+    ERROR_PRINTF(ExtentListLog, "Requested position %ld must be between [0,%ld]", position, maxFilePosition);
   }
   int index = 0;
   while(index < numExtents && position > extents[index].getStartOffset()) {
